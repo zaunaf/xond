@@ -33,7 +33,7 @@ class UserProvider implements UserProviderInterface
             throw new UsernameNotFoundException(sprintf('Username "%s" does not exist.', $username));
         }
         */
-        $config = $this->app['config'];
+        $config = $this->app['xond.config'];
          
         //$objName = 'pengguna';
         //$appName = 'MyApp';
@@ -46,7 +46,7 @@ class UserProvider implements UserProviderInterface
         $modelPeerName = "\\".$appName."\\Model\\".phpNamize($objName)."Peer";
         // return constant($modelPeerName."::".$colName);
         
-        $c = new Criteria();
+        $c = new \Criteria();
         $c->add(constant($modelPeerName."::".$colName), $username);
         $user = $modelPeerName::doSelectOne($c);
         
