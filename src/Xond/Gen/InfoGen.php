@@ -14,6 +14,7 @@ class InfoGen extends BaseGen {
     public function addColumns(TableInfo $table) {
         
     }
+    
     public function generate(Request $request, Application $app) {
         
         global $config;
@@ -69,7 +70,7 @@ class InfoGen extends BaseGen {
                 $colName = $c->getName ();
                 $colPhpName = $c->getPhpName ();
                 
-                // Get from configs
+                // Get from configs FIX THIS!!
                 global $skipColumns;
                 
                 // Skip the shit following the config
