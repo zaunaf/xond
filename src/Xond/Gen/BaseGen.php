@@ -84,6 +84,7 @@ class BaseGen {
 	 */
 	public function setConfig(array $config) {
 	    $this->config = $config;
+	    $this->appname = $config['project_php_name'];
 	}
 	
 	/**
@@ -94,7 +95,6 @@ class BaseGen {
 	public function getConfig() {
 	    return $this->config;
 	}
-	
 	
 	/**
 	 * Get object peer for the given classname

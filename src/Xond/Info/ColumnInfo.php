@@ -631,7 +631,7 @@ class ColumnInfo
     }
     
     function getFkTableInfo() {    	 
-    	$key = APPNAME."\\Info\\".$this->getFkTableName()."TableInfo";
+    	$key = APPNAME."\\Info\\".phpnamize($this->getFkTableName())."TableInfo";
     	return new ${'key'};
     }
     

@@ -37,6 +37,8 @@ class TableInfo
 
     public $infoBeforeDelete;	// Pesen info sebelum menghapus record
 
+    public $groups = array();
+    
     public function __construct(){
         $this->initialize();
         $this->setVariables();
@@ -88,6 +90,14 @@ class TableInfo
 
     function setPackage($name) {
         $this->package = $name;
+    }
+
+    function getRecordCount() {
+        return $this->record_count;
+    }
+
+    function setRecordCount($record_count) {
+        $this->record_count = $record_count;
     }
 
     function getIsData() {
@@ -435,11 +445,7 @@ class TableInfo
     * @return array Array of groups
     */
     function getGroups(){
-        if (@$this->groups) {
-            return $this->groups;
-        } else {
-            return false;
-        }
+        return $this->groups;
     }
 
     function getPkColumnInfo(){

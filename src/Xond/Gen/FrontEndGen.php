@@ -12,7 +12,6 @@ use Xond\Info\GroupInfo;
 use Xond\Info\FieldsetInfo;
 
 
-
 class FrontEndGen extends BaseGen
 {
     public function prepareFolders() {
@@ -21,79 +20,81 @@ class FrontEndGen extends BaseGen
         
         //Position controllers
         $appdir = $config['web_folder'].'/app';
-        $controllerdir = $appdir.D.'controller';
+        $viewdir = $config['web_folder'].'/app/view';
+        
+            $controllerdir = $appdir.D.'controller';
         if (!is_dir($controllerdir)) {
-            mkdir($controllerdir);
+            mkdir($controllerdir, 0777, true);
         }
         
         $basecontrollerdir = $controllerdir.D.'base';
         if (!is_dir($basecontrollerdir)) {
-            mkdir($basecontrollerdir);
+            mkdir($basecontrollerdir, 0777, true);
         }
         
         $simplecontrollerdir = $controllerdir.D.'ovd';
         if (!is_dir($simplecontrollerdir)) {
-            mkdir($simplecontrollerdir);
+            mkdir($simplecontrollerdir, 0777, true);
         }
         
         //Position models
         $modeldir = $appdir.D.'model';
         if (!is_dir($modeldir)) {
-            mkdir($modeldir);
+            mkdir($modeldir, 0777, true);
         }
         
         //Position models
         $storedir = $appdir.D.'store';
         if (!is_dir($storedir)) {
-            mkdir($storedir);
+            mkdir($storedir, 0777, true);
         }
         
         //Position grids
         $componentsdir = $viewdir.D.'_components';
         if (!is_dir($componentsdir)) {
-            mkdir($componentsdir);
+            mkdir($componentsdir, 0777, true);
         }
         
         $griddir = $componentsdir.D.'grid';
         //$basegriddir = $griddir.D.'base';
         if (!is_dir($griddir)) {
-            mkdir($griddir);
+            mkdir($griddir, 0777, true);
         }
         
         //Position combos
         $combodir = $componentsdir.D.'combo';
         //$basecombodir = $combodir.D.'base';
         if (!is_dir($combodir)) {
-            mkdir($combodir);
+            mkdir($combodir, 0777, true);
         }
         
         //Position radios
         $radiodir = $componentsdir.D.'radio';
         //$baseradiodir = $radiodir.D.'base';
         if (!is_dir($radiodir)) {
-            mkdir($radiodir);
+            mkdir($radiodir, 0777, true);
         }
         
         //Position forms
         $formdir = $componentsdir.D.'form';
         //$baseformdir = $formdir.D.'base';
         if (!is_dir($formdir)) {
-            mkdir($formdir);
+            mkdir($formdir, 0777, true);
         }
         
         //Position print
         $printdir = $appdir.D.'print';
         if (!is_dir($printdir)) {
-            mkdir($printdir);
+            mkdir($printdir, 0777, true);
         }
         
         //Position checkboxgroup
         $checkboxgroupdir = $componentsdir.D.'checkboxgroup';
         //$basecheckboxgroupdir = $checkboxgroupdir.D.'base';
         if (!is_dir($checkboxgroupdir)) {
-            mkdir($checkboxgroupdir);
+            mkdir($checkboxgroupdir, 0777, true);
         }
-        
+                
         /*
          //Position print
         $printdir = $componentsdir.D.'print';
@@ -205,8 +206,49 @@ class FrontEndGen extends BaseGen
             
     }
     
+    public function getTwig(){
+        
+        return $this->twig;
+        
+    }
+    
+    public function getTableInfo(\TableMap $tmap) {
+        
+        $config = $this->getConfig();
+        $projectPhpName = $config['project_php_name'];
+        
+        $infoClassName = "$projectPhpName\\Info\\{$tmap->getPhpName()}TableInfo";
+        //echo "Creating $infoClassName<br>\r\n";
+        
+        return new $infoClassName();
+        //return $infoClassName;
+        
+            
+    }
+    
+    public function getTablePeer(\TableMap $tmap) {
+        
+        $peerClassName = $tmap->getPeerClassname();
+        return new $peerClassName();
+                    
+    }
+    
+    public function printBuffered($str){
+        
+        if (!isset($this->outStr)) {
+            $this->outStr = "";
+        }
+        
+        $this->outStr .= $str."<br>\r\n";
+         
+    }
+    
+    public function toStr() {
+        return $this->outStr;
+    }
+    
     public function generate(\Symfony\Component\HttpFoundation\Request $request, \Silex\Application $app) {
-
+        
         // So that Silex's Request and Application accessible in any methods
         $this->setRequest($request);
         $this->setApp($app);
@@ -227,453 +269,486 @@ class FrontEndGen extends BaseGen
         $this->initializeTwig();
         
         // Process each table
-        $written = 0;
+        $this->written = 0;
         
         foreach ($maps as $tmap) {
-           $this->addTable($tmap);
+            
+            $infoObj = $this->getTableInfo($tmap);
+            $peerObj = $this->getTablePeer($tmap);
+            
+            $this->createRadioGroup($infoObj, $peerObj);
+            
+            $this->createCombobox($infoObj, $peerObj);
+            $this->createForm($infoObj, $peerObj);
+            $this->createGrid($infoObj, $peerObj);
+            $this->createControllers($infoObj, $peerObj);
+            $this->createModels($infoObj, $peerObj);
+            
+            $this->printBuffered($infoObj->getName());
+             
         }
+        
+        return $this->toStr();
+        
     }
         
-
-/*
-            foreach ($classmap as $key=>$value) {
-                	
-                if (stripos($key, "TableMap") && (!stripos($key, "Vld")) && (!$this->cekSkipTable($key))) {
-                    $key = str_replace("DataDikdas\\Model\\map\\", "DataDikdas\\Info\\", $key);
-                    $key = str_replace("TableMap", "TableInfo", $key);
-                    $outStr .= "$key<br>";
-                    $obj = new ${'key'}();
-                    //$obj = new TableInfo();
-                    if ($obj->getName() == "sekolah") {
-                        //print_r($obj);
-                    }
-                    //if ($obj->getName() == "agama") {
-                    $rowsArr = array();
-
-                    // Create radios
-                    if ($obj->getCreateRadiogroup()) {
-                        	
-                        // Prepare data for static combos
-                        $peerName = "DataDikdas\\Model\\".$obj->getPhpName()."Peer";
-                        $count = $peerName::doCount(new \Criteria());
-                        	
-                        // If data too many, don't create radio
-                        if ($count > InfoGen::SMALLREF_UPPER_LIMIT) {
-
-                            $rowsArr = NULL;
-
-                        } else if ($count > 0) {
-
-                            $c = new \Criteria();
-                            $rows = $peerName::doSelect(new \Criteria());
-
-                            foreach ($rows as $r)  {
-                                	
-                                // Only for autocomplete (coding) purpose
-                                //$r = new AksesInternet();
-                                	
-                                // If display field empty, don't display them
-                                $nama = $r->getByName($obj->getDisplayField(), \BasePeer::TYPE_FIELDNAME);
-                                if ($nama == '' || $nama == '0') {
-                                    continue;
-                                }
-                                //$arr = $r->toArray(\BasePeer::TYPE_FIELDNAME);
-                                $arr = array('valueField' => $r->getPrimaryKey(), 'displayField' => $nama);
-                                $rowsArr[] = $arr;
-                                	
-                            }
-                        }
-                        //print_r($rowsArr); die;
-
-                        // Prepare radiodir file
-                        $filePath = $radiodir."/".$obj->getPhpName().".js";
-                        $templateFileName = 'radio-template.js';
-                        $array = array(
-                                'appName' => APPNAME,
-                                'table' => $obj,
-                                'data' => $rowsArr
-                        );
-                        	
-                        if ($this->render($obj->getName(), $filePath, $templateFileName, $array)) {
-                            $written++;
-                            $outStr .= "- $filePath written <br>\n";
-                        }
-                    }
-                    	
-                    // Create comboboxes
-                    if ($obj->getCreateCombobox()) {
-                        	
-                        //print_r($rowsArr);
-                        	
-                        //Prepare data for static combos
-                        $peerName = "DataDikdas\\Model\\".$obj->getPhpName()."Peer";
-                        $count = $peerName::doCount(new \Criteria());
-
-                        if ($count > InfoGen::BIGREF_LOWER_LIMIT) {
-                            	
-                            $rowsArr = NULL;
-                            	
-                        } else {
-                            $c = new \Criteria();
-                            $rows = $peerName::doSelect(new \Criteria());
-                            	
-                            foreach ($rows as $r)  {
-                                $arr = $r->toArray(\BasePeer::TYPE_FIELDNAME);
-                                $data = array();
-                                foreach($arr as $key=>$val) {
-                                    $data[] = $val;
-                                }
-                                $rowsArr[] = $data;
-                            }
-                        }
-                        	
-                        // Prepare combo file
-                        $filePath = $combodir."/".$obj->getPhpName().".js";
-                        if ($obj->getIsStaticRef()) {
-                            $templateFileName = "combo-static-template.js";
-                        } else if ($obj->getIsBigRef()) {
-                            $templateFileName = "combo-paged-template.js";
-                        } else {
-                            $templateFileName = "combo-normal-template.js";
-                        }
-                        $array = array(
-                                'appName' => APPNAME,
-                                'table' => $obj,
-                                'data' => $rowsArr
-                        );
-                        	
-                        if ($this->render($obj->getName(), $filePath, $templateFileName, $array)) {
-                            $written++;
-                            $outStr .= "- $filePath written <br>\n";
-                        }
-                        	
-                        //die;
-                    }
-                    	
-
-                    // Create Form
-                    //if ($obj->getCreateForm() && ($obj->getName() == "peserta_didik")) {
-                    if ($obj->getCreateForm()) {
-                        	
-                        //Create list of columns registered inside a group
-                        $colsInGroups = array();
-                        	
-                        //Creating a very simple registry of groups to check whether a group is added to the form
-                        $groupsArr = array();
-
-                        // Identify columns in group
-                        $groups = $obj->getGroups();
-                        $group_id = 0;
-
-                        if ($groups) {
-                            	
-                            foreach ($groups as $group) {
-                                //$group = new GroupInfo();
-                                	
-                                // Register the group identified by it's group id (for now, we use array index)
-                                $groupsArr[$group_id] = 0;
-                                	
-                                // Get all the group's columns
-                                $members = $group->getColumns();
-                                	
-                                foreach ($members as $m) {
-                                    //$m = new ColumnInfo();
-                                    $colsInGroups[$m->getColumnName()] = $group_id;
-                                }
-                                $group_id++;
-                            }
-                            	
-                        }
-                        //print_r($groupsArr);
-                        //print_r($colsInGroups); die;
-                        	
-                        // Begin insert thing for forms
-                        $colsInTable = $obj->getColumns();
-                        	
-                        // Create an empty form registry
-                        $formMembers = array();
-                        	
-                        foreach ($colsInTable as $col) {
-
-                            // Check whether the column used in groups
-                            //$col = new ColumnInfo();
-                            $columnName = $col->getName();
-
-                            $foundInGroup = isset($colsInGroups["$columnName"]);
-                            $groupIndex = @$colsInGroups["$columnName"];
-                            	
-                            if ($foundInGroup) {
-
-                                //echo "Kolom $columnName termasuk group! <br>";
-                                // If true skip adding the column to the form
-                                // Instead insert the group to the form
-                                // But check the registry first, 1 = already included
-                                if (@$groupsArr["$groupIndex"] != 1) {
-                                    	
-                                    //Not included yet, so include the group now
-                                    $formMembers[] = @$groups[$groupIndex];
-
-                                    //Tell the group registery that the particular group has been added already
-                                    $groupsArr["$groupIndex"] = 1;
-
-                                } else {
-
-                                    //Do nothing, the group already included
-                                }
-                                	
-                            } else {
-                                	
-                                // The column was not a member of any group. Set the column on the registry
-                                $formMembers[] = $col;
-                            }
-                        }
-                        if ($obj->getName() == 'sekolah') {
-                            //print_r($formMembers);
-                            //die;
-                        }
-                        	
-                        // Prepare formdir file
-                        $filePath = $formdir."/".$obj->getPhpName().".js";
-                        $templateFileName = 'form-template.js';
-                        $array = array(
-                                'appName' => APPNAME,
-                                'table' => $obj,
-                                //'columns' => $obj->getColumns()
-                                'columns' => $formMembers
-                        );
-
-                        if ($this->render($obj->getName(), $filePath, $templateFileName, $array)) {
-                            $written++;
-                            $outStr .= "- $filePath written <br>\n";
-                        }
-                        	
-                        // Prepare printdir file
-                        /*
-                        $filePath = $printdir."/".$obj->getPhpName().".php";
-                        $templateFileName = 'print-template.php';
-                        $array = array(
-                                'appName' => APPNAME,
-                                'table' => $obj,
-                                //'columns' => $obj->getColumns()
-                                'columns' => $formMembers
-                        );
-                        	
-                        if ($this->render($obj->getName(), $filePath, $templateFileName, $array)) {
-                        $written++;
-                            $outStr .= "- $filePath written <br>\n";
-                        }
-			
-                        }
-
-                        // Create Grid
-                                //if ($obj->getCreateGrid() && ($obj->getName() == "peserta_didik")) {
-                                if ($obj->getCreateGrid()) {
-
-                        // Prepare griddir file
-                        $filePath = $griddir."/".$obj->getPhpName().".js";
-                        $templateFileName = 'grid-template.js';
-                        $array = array(
-                            'appName' => APPNAME,
-                            'table' => $obj,
-                            'columns' => $obj->getColumns()
-                                    );
-
-                                            if ($this->render($obj->getName(), $filePath, $templateFileName, $array)) {
-                                            $written++;
-                                            $outStr .= "- $filePath written <br>\n";
-                            }
-                            }
-
-                            // Create Controllers
-                            //if ($obj->getCreateGrid() && ($obj->getName() == "peserta_didik")) {
-                            if ($obj->getCreateGrid() || $obj->getCreateForm()) {
-
-                            // Prepare basecontrollerdir file
-                            $filePath = $basecontrollerdir."/".$obj->getPhpName().".js";
-                            $templateFileName = 'controller-template.js';
-                            $array = array(
-                            'appName' => APPNAME,
-                            'table' => $obj,
-                            'columns' => $obj->getColumns(),
-                            'vals' => $this->getInitialValue($obj->getPhpName())
-                            );
-
-					if ($this->render($obj->getName(), $filePath, $templateFileName, $array)) {
-					$written++;
-					$outStr .= "- $filePath written <br>\n";
-                            }
-
-                            // Prepare simplecontrollerdir file
-                            $filePath = $simplecontrollerdir."/".$obj->getPhpName().".js";
-                            $templateFileName = 'controller-simple-template.js';
-					$array = array(
-					        'appName' => APPNAME,
-					        'table' => $obj,
-					        'columns' => $obj->getColumns()
-                            );
-                            	
-                            if ($this->render($obj->getName(), $filePath, $templateFileName, $array)) {
-                            $written++;
-                            $outStr .= "- $filePath written <br>\n";
+    public function render($objName, $filePath, $templateFileName, $array) {
+    
+        $app = $this->getApp();
+    
+        $fp = fopen($filePath, 'w');
+        if (!$fp) {
+            return "File $filePath gagal dibuka";
+        }
+    
+        // Apply template
+        $twig = $this->getTwig();
+        
+        $tplStr = $twig->render($templateFileName, $array);
+        	
+        if (fwrite($fp, $tplStr)) {
+            //$this->written++;
+            //$outStr .= "- $filepath written <br>\n";
+            $success = true;
+        }
+        fclose($fp);
+        
+        return $success;
+        
+    }
+    
+    public function createRadioGroup($infoObj, $peerObj) {
+        
+        if (!$infoObj->getCreateRadiogroup()) {
+            return;
+        }
+        
+        $count = $infoObj->getRecordCount();
+        
+        if ($count > InfoGen::SMALLREF_UPPER_LIMIT) {
+        
+            $rowsArr = NULL;
+        
+        } else if ($count > 0) {
+                
+            $rows = $peerObj::doSelect(new \Criteria());
+        
+            foreach ($rows as $r)  {
+                 
+                // Only for autocomplete (coding) purpose
+                //$r = new AksesInternet();
+                 
+                // If display field empty, don't display them
+                $nama = $r->getByName($infoObj->getDisplayField(), \BasePeer::TYPE_FIELDNAME);
+                if ($nama == '' || $nama == '0') {
+                    continue;
+                }
+                //$arr = $r->toArray(\BasePeer::TYPE_FIELDNAME);
+                $arr = array('valueField' => $r->getPrimaryKey(), 'displayField' => $nama);
+                $rowsArr[] = $arr;
+                 
             }
-            	
-            }
-
-            // Create Models
-            // Prepare basecontrollerdir file
-            $filePath = $modeldir."/".$obj->getPhpName().".js";
-            $templateFileName = 'model-template.js';
+            
+            $filePath = $this->radiodir."/".$infoObj->getPhpName().".js";
+            $templateFileName = 'radio-template.js';
+            
             $array = array(
-                    'appName' => APPNAME,
-                    'tableName' => $obj->getPhpName(),
-                    'table' => $obj,
-                    'columns' => $obj->getColumns()
-                            );
-                            if ($this->render($obj->getName(), $filePath, $templateFileName, $array)) {
-                                $written++;
-                                $outStr .= "- $filePath written <br>\n";
-                            }
+                'appName' => $this->appname,
+                'table' => $infoObj,
+                'data' => $rowsArr
+            );
+             
+            if ($this->render($infoObj->getName(), $filePath, $templateFileName, $array)) {
+                $this->written++;
+                $this->outStr .= "- $filePath written <br>\n";
+            }
+            
+        }
+        
+    }
+    /**
+     * 
+     * @param \TableInfo $infoObj
+     * @param \BasePeer $peerObj
+     */
+    public function createCombobox($infoObj, $peerObj) {
+        
+        $rowsArr = NULL;
+        
+        if (!$infoObj->getCreateCombobox()) {
+            return;    
+        }
 
-                            // Create Stores
-                            $filePath = $storedir."/".$obj->getPhpName().".js";
-				$templateFileName = 'store-template.js';
-				$array = array(
-				        'appName' => APPNAME,
-				    'tableName' => $obj->getPhpName(),
-				    'table' => $obj,
-				            'columns' => $obj->getColumns()
-				                );
-				                if ($this->render($obj->getName(), $filePath, $templateFileName, $array)) {
-				                $written++;
-				                $outStr .= "- $filePath written <br>\n";
-				                }
-
-
-				}
-				}
-
-				$outStr .= 'Sejumlah '.$written.' file ditulis';
-				return $outStr;
-
-				}
-
-				public function test(\Symfony\Component\HttpFoundation\Request $request, \Silex\Application $app){
-				$test = new AgamaTableInfo();
-				print_r($test);
-				return "hello";
-				}
-
-
-				/*
-				* Get initial values for an asked Table
-				*
-				* <p>Get initial values for an asked Table in PHPName format</p>
-				        *
-				        * @param string $tablePhpName The name of the table in PHPName Format
-				        *
-				        * @return array
-				        * /
-				        public function getInitialValue($tablePhpName) {
-
-		$tablePhpName = "DataDikdas\\Info\\".$tablePhpName."TableInfo";
-
-		$tableInfo = new ${'tablePhpName'};
-		//$tableInfo = new PesertaDidikTableInfo();
-		$cols = $tableInfo->getColumns();
-		$colnum = 0;
-
-		foreach ($cols as $c) {
-			
-		//$c = new ColumnInfo();
-		unset($fkId);
-			
-		$colName = $c->getColumnName();
-		    	
-		    // Prepare max/min value for numeric foreign keys
-		    $relatedTblName = $c->getFkTableName();
-			$relatedPeerName = "DataDikdas\\Model\\".$relatedTblName ."Peer";
-
-			if ($c->getInitialValue()) {
-
-				$fkId = $c->getInitialValue();
-
-			} else {
-
-				if ($c->getIsFk() && in_array($c->getType(), array("int","float"))) {
-			
-					// do nothing, set by min
-			
-				}
-
-				// Prepare default value for numeric foreign keys
-				if ($c->getIsFk() && ($c->getInputLength() == 36)) {
-
-					$cr = new \Criteria();
-					//$cr->addAscendingOrderByColumn('random()');
-			
-					$fkObj = $relatedPeerName::doSelectOne($cr);
-					if (is_object($fkObj)) {
-						$fkId = $fkObj->getPrimaryKey();
-					} else {
-						if (!$c->getAllowEmpty()) {
-							$fkId = "NULL";
-						} else {
-							die ("FK Object / referensi gak ketemu untuk $tableName.$colName. Mohon tambahkan data di tabel referensi ybs.");
-						}
-					}
-				}
-
-			}
-		
-		
-			// Generate Record
-			switch ($c->getType()) {
-		
-				case "int":
-					$val = $c->getMin();
-					break;
-
-				case "float":
-					$val = $c->getMin();
-					break;
-				
-				case "string":
-					$val = "''";
-					break;
-
-				case "date":
-					$val = "Ext.Date.clearTime(new Date())";
-					break;
-			
-				default:
-					$val = "''";
-					break;
-			}
-
-			if (isset($fkId)) {
-				$val = "'$fkId'";
-			}
-		
-			//if ((!$c->getIsFk()) && ($c->getInputLength() == 36)) {
-			//	$val = "generateUuid()";
-			//}
-		
-			if ($c->getIsPk() && ($c->getInputLength() == 0)) {
-				//$val = "generateUuid()";
-				//$val = " ";
-				continue;
-			}
-		
-			$rec = "$colName : $val";
-		
-			$allRec[] = $rec;
-		
-			$colnum++;
-		}
-
-		return $allRec;
-
-
-	}
-	*/
+        //print_r($rowsArr);
+             
+        //Prepare data for static combos
+        $count = $peerObj::doCount(new \Criteria());
+    
+        if ($count > InfoGen::BIGREF_LOWER_LIMIT) {
+             
+            $rowsArr = NULL;
+             
+        } else {
+            
+            $rows = $peerObj::doSelect(new \Criteria());
+             
+            foreach ($rows as $r)  {
+                $arr = $r->toArray(\BasePeer::TYPE_FIELDNAME);
+                $data = array();
+                foreach($arr as $key=>$val) {
+                    $data[] = $val;
+                }
+                $rowsArr[] = $data;
+            }
+        }
+         
+        // Prepare combo file
+        $filePath = $this->combodir."/".$infoObj->getPhpName().".js";
+        
+        if ($infoObj->getIsStaticRef()) {
+            $templateFileName = "combo-static-template.js";
+        } else if ($infoObj->getIsBigRef()) {
+            $templateFileName = "combo-paged-template.js";
+        } else {
+            $templateFileName = "combo-normal-template.js";
+        }
+        $array = array(
+                'appName' => APPNAME,
+                'table' => $infoObj,
+                'data' => $rowsArr
+        );
+         
+        if ($this->render($infoObj->getName(), $filePath, $templateFileName, $array)) {
+            $this->written++;
+            $this->outStr .= "- $filePath written <br>\n";
+        }
+        
+    } 
+    /**
+     * 
+     * @param \TableInfo $infoObj
+     * @param \BasePeer $peerObj
+     */
+    public function createForm($infoObj, $peerObj) {
+        
+        if (!$infoObj->getCreateForm()) {
+            return;
+        }
+        
+        //Create list of columns registered inside a group
+        $colsInGroups = array();
+         
+        //Creating a very simple registry of groups to check whether a group is added to the form
+        $groupsArr = array();
+    
+        // Identify columns in group
+        $groups = $infoObj->getGroups();
+        $group_id = 0;
+    
+        if (sizeof($groups) > 0) {
+            
+            foreach ($groups as $group) {
+                //$group = new GroupInfo();
+                 
+                // Register the group identified by it's group id (for now, we use array index)
+                $groupsArr[$group_id] = 0;
+                 
+                // Get all the group's columns
+                $members = $group->getColumns();
+                 
+                foreach ($members as $m) {
+                    //$m = new ColumnInfo();
+                    $colsInGroups[$m->getColumnName()] = $group_id;
+                }
+                $group_id++;
+            }
+             
+        }
+        //print_r($groupsArr);
+        //print_r($colsInGroups); die;
+         
+        // Begin insert thing for forms
+        $colsInTable = $infoObj->getColumns();
+         
+        // Create an empty form registry
+        $formMembers = array();
+         
+        foreach ($colsInTable as $col) {
+    
+            // Check whether the column used in groups
+            //$col = new ColumnInfo();
+            $columnName = $col->getName();
+    
+            $foundInGroup = isset($colsInGroups["$columnName"]);
+             
+            if ($foundInGroup) {
+                
+                $groupIndex = @$colsInGroups["$columnName"];
+                
+                // echo "Kolom $columnName termasuk group! <br>";
+                // If true skip adding the column to the form
+                // Instead insert the group to the form
+                // But check the registry first, 1 = already included
+                if (@$groupsArr["$groupIndex"] != 1) {
+                     
+                    //Not included yet, so include the group now
+                    $formMembers[] = @$groups[$groupIndex];
+    
+                    //Tell the group registery that the particular group has been added already
+                    $groupsArr["$groupIndex"] = 1;
+    
+                } else {
+    
+                    //Do nothing, the group already included
+                }
+                 
+            } else {
+                 
+                // The column was not a member of any group. Set the column on the registry
+                $formMembers[] = $col;
+            }
+        }
+         
+        // Prepare formdir file
+        $filePath = $this->formdir."/".$infoObj->getPhpName().".js";
+        $templateFileName = 'form-template.js';
+        $array = array(
+                'appName' => APPNAME,
+                'table' => $infoObj,
+                'columns' => $formMembers
+        );
+    
+        if ($this->render($infoObj->getName(), $filePath, $templateFileName, $array)) {
+            $this->written++;
+            $this->outStr .= "- $filePath written <br>\n";
+        }
+    
+    }
+    
+    /**
+     * 
+     * @param \TableInfo $infoObj
+     * @param \BasePeer $peerObj
+     */
+    public function createGrid($infoObj, $peerObj) {
+    
+        //if ($infoObj->getCreateGrid() && ($infoObj->getName() == "peserta_didik")) {
+        if (!$infoObj->getCreateGrid()) {
+            return;
+        }
+        
+        // Prepare griddir file
+        $filePath = $this->griddir."/".$infoObj->getPhpName().".js";
+        $templateFileName = 'grid-template.js';
+        $array = array(
+            'appName' => $this->appname,
+            'table' => $infoObj,
+            'columns' => $infoObj->getColumns()
+        );
+        
+        if ($this->render($infoObj->getName(), $filePath, $templateFileName, $array)) {
+            $this->written++;
+            $this->outStr .= "- $filePath written <br>\n";
+        }
+        
+    }
+    
+    /**
+     * 
+     * @param \TableInfo $infoObj
+     * @param \BasePeer $peerObj
+     */
+    public function createControllers($infoObj, $peerObj) {
+    
+        // Create Controllers
+        if (!($infoObj->getCreateGrid() || $infoObj->getCreateForm())) {
+            return;
+        }
+        // Prepare basecontrollerdir file
+        $filePath = $this->basecontrollerdir."/".$infoObj->getPhpName().".js";
+        $templateFileName = 'controller-template.js';
+        $array = array(
+                'appName' => $this->appname,
+                'table' => $infoObj,
+                'columns' => $infoObj->getColumns(),
+                'vals' => $this->getInitialValue($infoObj, $peerObj)
+        );
+    
+        if ($this->render($infoObj->getName(), $filePath, $templateFileName, $array)) {
+            $this->written++;
+            $this->outStr .= "- $filePath written <br>\n";
+        }
+    
+        // Prepare simplecontrollerdir file
+        $filePath = $this->simplecontrollerdir."/".$infoObj->getPhpName().".js";
+        $templateFileName = 'controller-simple-template.js';
+        $array = array(
+                'appName' => $this->appname,
+                'table' => $infoObj,
+                'columns' => $infoObj->getColumns()
+        );
+         
+        if ($this->render($infoObj->getName(), $filePath, $templateFileName, $array)) {
+            $this->written++;
+            $this->outStr .= "- $filePath written <br>\n";
+        }
+        
+    }
+    
+    /**
+     * 
+     * @param \TableInfo $infoObj
+     * @param \BasePeer $peerObj
+     */
+    public function createModels($infoObj, $peerObj) {
+    
+        // Create Models
+        // Prepare basecontrollerdir file
+        $filePath = $this->modeldir."/".$infoObj->getPhpName().".js";
+        $templateFileName = 'model-template.js';
+        $array = array(
+            'appName' => $this->appname,
+            'tableName' => $infoObj->getPhpName(),
+            'table' => $infoObj,
+            'columns' => $infoObj->getColumns()
+        );
+        if ($this->render($infoObj->getName(), $filePath, $templateFileName, $array)) {
+            $this->written++;
+            $this->outStr .= "- $filePath written <br>\n";
+        }
+        
+        // Create Stores
+        $filePath = $this->storedir."/".$infoObj->getPhpName().".js";
+        $templateFileName = 'store-template.js';
+        $array = array(
+                'appName' => $this->appname,
+                'tableName' => $infoObj->getPhpName(),
+                'table' => $infoObj,
+                'columns' => $infoObj->getColumns()
+        );
+        if ($this->render($infoObj->getName(), $filePath, $templateFileName, $array)) {
+            $this->written++;
+            $this->outStr .= "- $filePath written <br>\n";
+        }
+        
+        
+    }
+    
+    /*
+     * Get initial values for an asked Table
+    *
+    * <p>Get initial values for an asked Table in PHPName format</p>
+    *
+    * @param string $tablePhpName The name of the table in PHPName Format
+    *
+    * @return array
+    */
+    
+    /**
+     * Get initial values for an asked Table
+     * 
+     * @param unknown $tablePhpName
+     * @return string
+     */
+    public function getInitialValue($infoObj, $peerObj) {
+            
+        $tableInfo = $infoObj;
+        
+        $cols = $tableInfo->getColumns();
+        $colnum = 0;
+        $allRec = array();
+    
+        foreach ($cols as $c) {
+            	
+            //$c = new ColumnInfo();
+            unset($fkId);
+            	
+            $colName = $c->getColumnName();
+             
+            // Prepare max/min value for numeric foreign keys
+            $relatedTblName = phpNamize($c->getFkTableName());
+            $relatedPeerName = "{$this->appname}\\Model\\".$relatedTblName ."Peer";
+    
+            if ($c->getInitialValue()) {
+    
+                $fkId = $c->getInitialValue();
+    
+            } else {
+    
+                if ($c->getIsFk() && in_array($c->getType(), array("int","float"))) {
+                    	
+                    // do nothing, set by min
+                    	
+                }
+    
+                // Prepare default value for numeric foreign keys
+                if ($c->getIsFk() && ($c->getInputLength() == 36)) {
+    
+                    $cr = new \Criteria();
+                    //$cr->addAscendingOrderByColumn('random()');
+                    	
+                    $fkObj = $relatedPeerName::doSelectOne($cr);
+                    if (is_object($fkObj)) {
+                        $fkId = $fkObj->getPrimaryKey();
+                    } else {
+                        if (!$c->getAllowEmpty()) {
+                            $fkId = "NULL";
+                        } else {
+                            //die ("FK Object / referensi gak ketemu untuk $tableName.$colName. Mohon tambahkan data di tabel referensi ybs.");
+                            continue;
+                        }
+                    }
+                }
+    
+            }
+    
+    
+            // Generate Record
+            switch ($c->getType()) {
+    
+                case "int":
+                    $val = $c->getMin();
+                    break;
+    
+                case "float":
+                    $val = $c->getMin();
+                    break;
+    
+                case "string":
+                    $val = "''";
+                    break;
+    
+                case "date":
+                    $val = "Ext.Date.clearTime(new Date())";
+                    break;
+                    	
+                default:
+                    $val = "''";
+                    break;
+            }
+    
+            if (isset($fkId)) {
+                $val = "'$fkId'";
+            }
+    
+            //if ((!$c->getIsFk()) && ($c->getInputLength() == 36)) {
+            //	$val = "generateUuid()";
+            //}
+    
+            if ($c->getIsPk() && ($c->getInputLength() == 0)) {
+                //$val = "generateUuid()";
+                //$val = " ";
+                continue;
+            }
+    
+            $rec = "$colName : $val";
+    
+            $allRec[] = $rec;
+    
+            $colnum++;
+        }
+    
+        return $allRec;
+    }
+    
 }

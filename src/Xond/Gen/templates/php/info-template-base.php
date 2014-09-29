@@ -27,9 +27,10 @@ class Base{{php_name}}TableInfo extends TableInfo
     public function setVariables() {
         
         $this->setPkName(            '{{pk_name}}');
-        $this->setIsData(           {{is_data}});
+        $this->setIsData(           {{is_data}});   
         $this->setCreateGrid(       {{create_grid}});
         $this->setCreateForm(       {{create_form}});
+        $this->setRecordCount(      {{record_count}});
         $this->setIsRef(            {{is_ref}});
         $this->setIsStaticRef(      {{is_static_ref}});
         $this->setIsBigRef(         {{is_big_ref}});
@@ -60,7 +61,7 @@ class Base{{php_name}}TableInfo extends TableInfo
 {% endif %}
 
 {% for cvars in columns %}
-        $cvar = new \{{app_name}}\ColumnInfo();
+        $cvar = new \Xond\Info\ColumnInfo();
         $cvar->setColumnName(       '{{cvars.column_name}}');
         $cvar->setColumnPhpName(    '{{cvars.column_php_name}}');
         $cvar->setType(             '{{cvars.type}}');

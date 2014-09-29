@@ -331,6 +331,7 @@ class InfoGen extends BaseGen {
             $cArr['column_php_name'] = $colPhpName;
             $cArr['column_name'] = $colName;
             $cArr['column_length'] = $this->getColumnLength($c);
+            $cArr['input_length'] = $this->getColumnLength($c);
             $cArr["type"] = InfoGen::$extTypeMap[$c->getType()];
             
             $cArr["is_pk_uuid"] = $isPkUuid;
