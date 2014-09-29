@@ -1,5 +1,12 @@
 <?php
 
+/**
+ * This file is part of the Xond package.
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
+ *
+ * @license    MIT License
+ */
 namespace Xond\Auth;
 
 use Symfony\Component\Security\Core\User\UserProviderInterface;
@@ -7,6 +14,16 @@ use Symfony\Component\Security\Core\User\UserInterface;
 use Symfony\Component\Security\Core\User\User;
 use Symfony\Component\Security\Core\Exception\UsernameNotFoundException;
 use Symfony\Component\Security\Core\Exception\UnsupportedUserException;
+
+
+/**
+ * This is a user provider that automatically register credential settings that passed
+ * to the application via $app['xond.config'], and connect it to the database
+ *
+ * @author     Donny Fauzan <donny.fauzan@gmail.com> (Nufaza)
+ * @version    $Revision$
+ * @package    xond.gen
+ */
 
 class UserProvider implements UserProviderInterface
 {
