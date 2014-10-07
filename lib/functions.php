@@ -2,6 +2,7 @@
 
 use Symfony\Component\Security\Acl\Exception\Exception;
 
+/*
 // ----------------------------------------------------------------------------------------------------
 // - Display Errors
 // ----------------------------------------------------------------------------------------------------
@@ -60,7 +61,22 @@ function ErrorHandler($type, $message, $file, $line)
 };
 
 $old_error_handler = set_error_handler("ErrorHandler");
+*/
 
+function roundUp($input, $nearest) {
+    return ceil($input / $nearest) * $nearest;
+}
+
+/**
+ * Get the base classname without namespaces
+ * 
+ * @param object $object
+ * @return string
+ */
+function getBaseClassName($object){
+    $reflect = new ReflectionClass($object);
+    return (string) $reflect->getShortName();
+}
 
 /**
  * Return 1 on true otherwise 0

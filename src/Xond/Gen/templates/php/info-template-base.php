@@ -47,6 +47,7 @@ class Base{{php_name}}TableInfo extends TableInfo
         $this->setXtypeCombo(       '{{xtype_combo}}');
         $this->setXtypeRadio(       '{{xtype_radio}}');
         $this->setXtypeList(        '{{xtype_list}}');
+        $this->setInfoBeforeDelete( '{{info_before_delete}}');
 {% if has_many|sizeof >= 1 %}
         $this->setHasMany(array(    "{{has_many|join('","')|raw}}"));
 {% endif %}
@@ -59,6 +60,7 @@ class Base{{php_name}}TableInfo extends TableInfo
 {% if relating_columns|sizeof >= 1 %}
         $this->setRelatingColumns(array(    "{{relating_columns|join('","')|raw}}"));
 {% endif %}
+        $this->setFormDefaultLabelWidth({{form_default_label_width}});
 
 {% for cvars in columns %}
         $cvar = new \Xond\Info\ColumnInfo();

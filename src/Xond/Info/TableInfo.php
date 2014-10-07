@@ -36,8 +36,11 @@ class TableInfo
     public $split_entity_name;  // Kalau merupakan main entity yang displit, potongannya apa ..
 
     public $infoBeforeDelete;	// Pesen info sebelum menghapus record
-
+    public $info_before_delete;	// Pesen info sebelum menghapus record
     public $groups = array();
+    
+    public $form_default_label_width = 120;     // Default width
+    public $form_default_anchor = '100%';    // Default anchor
     
     public function __construct(){
         $this->initialize();
@@ -315,7 +318,23 @@ class TableInfo
     function setInfoBeforeDelete($infoBeforeDelete) {
         $this->info_before_delete = $infoBeforeDelete;
     }
+    
+    function setFormDefaultLabelWidth($form_default_label_width){
+        $this->form_default_label_width = $form_default_label_width;
+    }
+    
+    function getFormDefaultLabelWidth() {
+        return $this->form_default_label_width;
+    }
 
+    function setFormDefaultAnchor($form_default_anchor){
+        $this->form_default_anchor = $form_default_anchor;
+    }
+    
+    function getFormDefaultAnchor() {
+        return $this->form_default_anchor;
+    }
+    
     /*
      * Memasukkan array columns pada tableinfo
     *

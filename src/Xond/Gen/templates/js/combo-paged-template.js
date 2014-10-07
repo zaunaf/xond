@@ -13,8 +13,8 @@ Ext.define('{{appName}}.view._components.combo.{{table.getPhpName}}', {
         }
     },
     initComponent: function() {
-        this.store = Ext.create('DataDikdas.store.{{table.getPhpName}}', {
-            model: 'DataDikdas.model.{{table.getPhpName}}',
+        this.store = Ext.create('{{appName}}.store.{{table.getPhpName}}', {
+            model: '{{appName}}.model.{{table.getPhpName}}',
             sorters: ['{{table.getName}}_id']
         });
         this.callParent(arguments); 

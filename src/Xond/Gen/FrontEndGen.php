@@ -22,7 +22,7 @@ class FrontEndGen extends BaseGen
         $appdir = $config['web_folder'].'/app';
         $viewdir = $config['web_folder'].'/app/view';
         
-            $controllerdir = $appdir.D.'controller';
+        $controllerdir = $appdir.D.'controller';
         if (!is_dir($controllerdir)) {
             mkdir($controllerdir, 0777, true);
         }
@@ -150,25 +150,44 @@ class FrontEndGen extends BaseGen
         });
         $twig->addFilter($filter);
         
+        // For child that only belongs to one parent, it's definitely master-detail.
+        // Get the local link (FK_ID) column name. to link it
         $filter = new \Twig_SimpleFilter('getlocalfkcolumnname', function($childTableInfo){
         
             $belongsToArr = $childTableInfo->getBelongsTo();
             $str = $belongsToArr[0];
-        
+            $str = strtolower(underscoreCapitalize($str));
+            
             $cols = $childTableInfo->getColumns();
+            
             $localFkColumnName = "";
             $relatedTablePkColumnName = "";
-        
+// Debug shit            
+//             if ($childTableInfo->getName() == 'jenis_beasiswa') {
+//                 echo "<br><br><br>";
+//             }
+            
             foreach ($cols as $c) {
                 if ($c->getIsFk() == 1) {
-                    //echo "- ".$c->getFkTableName()."<br>";
+// Debug shit
+//                     if ($childTableInfo->getName() == 'beasiswa_ptk') {
+//                         echo "- ".$c->getFkTableName()."<br>";
+//                     }
                     if ($c->getFkTableName() == $str) {
-                        //echo "'-match!<br>";
+// Debug shit
+//                         if ($childTableInfo->getName() == 'beasiswa_ptk') {
+//                             echo "'-match!<br>";
+//                         }
                         $localFkColumnName = $c->getName();
                         $relatedTablePkColumnName = $c->getFkTableInfo()->getPkName();
                     }
                 }
             }
+// Debug shit
+//             if ($childTableInfo->getName() == 'beasiswa_ptk') {
+//                 die;
+//             }
+            
             //return array("localFkColumnName" => $localFkColumnName, "relatedTablePkColumnName" => $relatedTablePkColumnName);
             return $localFkColumnName;
         });
@@ -187,7 +206,8 @@ class FrontEndGen extends BaseGen
         $twig->addFilter($filter);
          
         $filter = new \Twig_SimpleFilter('get_class', function($object){
-            return str_replace("DataDikdas\\", "", get_class($object));
+            return getBaseClassName($object);
+            //return str_replace("DataDikdas\\", "", get_class($object));
         });
         $twig->addFilter($filter);
          
@@ -279,6 +299,7 @@ class FrontEndGen extends BaseGen
             $this->createRadioGroup($infoObj, $peerObj);
             
             $this->createCombobox($infoObj, $peerObj);
+
             $this->createForm($infoObj, $peerObj);
             $this->createGrid($infoObj, $peerObj);
             $this->createControllers($infoObj, $peerObj);
@@ -477,6 +498,7 @@ class FrontEndGen extends BaseGen
     
             // Check whether the column used in groups
             //$col = new ColumnInfo();
+            
             $columnName = $col->getName();
     
             $foundInGroup = isset($colsInGroups["$columnName"]);
@@ -508,7 +530,16 @@ class FrontEndGen extends BaseGen
                 $formMembers[] = $col;
             }
         }
-         
+    /*
+        if ($infoObj->getName() == "data_tambahan_sekolah"){
+            foreach ($formMembers as $col) {
+                echo "Test getNama: {$col->getName()}<br>\r\n";
+                echo "Test getLabel: {$col->getLabel()}<br>\r\n";
+                //echo "Test getTitle: {$col->getTitle()}<br>\r\n";
+                
+            }
+        }
+      */  
         // Prepare formdir file
         $filePath = $this->formdir."/".$infoObj->getPhpName().".js";
         $templateFileName = 'form-template.js';

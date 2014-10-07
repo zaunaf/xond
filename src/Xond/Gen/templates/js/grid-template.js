@@ -53,6 +53,7 @@ Ext.define('{{appName}}.view._components.grid.{{table.getPhpName}}', {
 {% for col in columns %}
 {% if col.getEnumValues %}			
             header: '{{col.getHeader}}',
+            tooltip: '{{col.getHeader}}',
             width: {{col.getColumnWidth}},
             sortable: true,
             dataIndex: '{{col.getName}}',
@@ -94,6 +95,7 @@ Ext.define('{{appName}}.view._components.grid.{{table.getPhpName}}', {
             }
 {% else %}
             header: '{{col.getHeader}}',
+            tooltip: '{{col.getHeader}}',
             width: {{col.getColumnWidth}},
             sortable: true,
             dataIndex: '{{col.getName}}',
@@ -164,31 +166,27 @@ Ext.define('{{appName}}.view._components.grid.{{table.getPhpName}}', {
             items: [{
                 xtype: 'button',
                 text: 'Tambah',                
-                //cls: 'addbutton',
-                glyph: 61525,                
+                iconCls: 'fa fa-plus fa-lg glyph-dark-green glyph-shadow',
                 scope: this,
                 action: 'add'
             }, {
                 xtype: 'button',
                 text: 'Ubah',            
-                glyph: 61508,
-                //cls: 'editbutton',    
+                iconCls: 'fa fa-eraser fa-lg glyph-dark-orange glyph-shadow',
                 itemId: 'edit',
                 scope: this,
                 action: 'edit'
             }, {
                 xtype: 'button',
                 text: 'Simpan',            
-                glyph: 61639,
-                //cls: 'editbutton',    
+                iconCls: 'fa fa-check fa-lg glyph-blue glyph-shadow',
                 itemId: 'save',
                 scope: this,
                 action: 'save'
             }, {    
                 xtype: 'button',
                 text: 'Hapus',    
-                //cls: 'deletebutton',            
-                glyph: 61526,
+                iconCls: 'fa fa-remove fa-lg glyph-red glyph-shadow',
                 itemId: 'delete',
                 scope: this,
                 action: 'delete'

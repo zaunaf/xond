@@ -15,20 +15,19 @@ Ext.define('{{appName}}.controller.base.{{table.getPhpName}}', {
 {% for col in columns %}
 {% if col.getIsFk == '1' %}
 {% if jml < 1 %}
-        '_components.combo.{{col.getFkTableName}}'
+        '_components.combo.{{col.getFkTablePhpName}}'
 {% else %}
-		,'_components.combo.{{col.getFkTableName}}'
+		,'_components.combo.{{col.getFkTablePhpName}}'
 {% endif %}
 {% set jml = jml + 1 %}
 {% endif %}
 {% if col|cek_xtype == 'radio' %}
 {% if jml < 1 %}
-        '_components.radio.{{col.getFkTableName}}'
+        '_components.radio.{{col.getFkTablePhpName}}'
 {% else %}
-		,'_components.radio.{{col.getFkTableName}}'
+		,'_components.radio.{{col.getFkTablePhpName}}'
 {% endif %}
-{% set jml = jml + 1 %}	
-{% endif %}
+{% set jml = jml + 1 %}{% endif %}
 {% endfor %}
     ],
     
@@ -44,7 +43,7 @@ Ext.define('{{appName}}.controller.base.{{table.getPhpName}}', {
 {% endif %}
 {% if table.getBelongsTo|sizeof == 1 %}
             '{{table.getPhpName|lower}}grid': {
-                afterrender: this.afterRender               
+                afterrender: this.afterRender
             },
 {% endif %}
             '{{table.getPhpName|lower}}grid button[action=add]': {
@@ -110,7 +109,7 @@ Ext.define('{{appName}}.controller.base.{{table.getPhpName}}', {
             store.sync();
         } else {
             Xond.msg('Error', 'Gagal menyimpan, mohon isi form dengan benar. <br>Field yang salah ditandai dengan kotak merah.');
-        }        
+        }
         
     },
     addRecord: function(btn) {
@@ -143,9 +142,9 @@ Ext.define('{{appName}}.controller.base.{{table.getPhpName}}', {
         grid.rowEditing.startEdit(r, 0);
         
     },
-    saveRecord: function(btn) {        
+    saveRecord: function(btn) {
         var grid = btn.up('gridpanel');
-        grid.store.sync();        
+        grid.store.sync();
     },
     deleteRecord: function(btn) {
         // Defaults using row editor. Override this to use other method, such as form etc        
@@ -183,7 +182,7 @@ Ext.define('{{appName}}.controller.base.{{table.getPhpName}}', {
 {% endfor %}
         };
         Ext.apply(recordConfig, grid.newRecordCfg);
-        var r = new DataDikdas.model.{{table.getPhpName}}(recordConfig);
+        var r = new {{appName}}.model.{{table.getPhpName}}(recordConfig);
         return r;
     }
 });

@@ -228,6 +228,59 @@ class BaseGen {
 		//return ($withNamespace) ? $tables : $tablesNoNamespace;
 		
 	}
+	
+	/**
+	 * Get table name (no schema name)
+	 *
+	 * @param \TableMap $tmap
+	 * @return string
+	 */
+	public function getName(\TableMap $tmap) {
+	    return strtolower(underscoreCapitalize($tmap->getPhpName()));
+	}
+	
+	/**
+	 * Get schema name
+	 * 
+	 * @param \TableMap $tmap
+	 */
+	public function getSchemaName(\TableMap $tmap) {
+	    
+	    $config = $this->getConfig();
+	    
+	    $completeTableName = $tmap->getName();
+	    $arrTableName = explode(".", $completeTableName);
+	    
+	    if (sizeof($arrTableName) > 1) {
+
+	        list ($schemaName, $tableName) = $arrTableName;
+	        return $schemaName;
+	    
+	    } else {
+	        
+	        switch ($config["db_driver"]){
+	            case 'mssql':
+                   return 'dbo';
+	            case 'pgsql':
+                   return 'public';
+	            default: 
+	                return false;
+	        }
+	        
+	    }
+	    
+	}
+	
+	public function checkIsRef(\TableMap $tmap) {
+	    
+	    $config = $this->getConfig();
+	    $refSchemas = explode(",", $config["reference_schemas"]);
+	    if (in_array($this->getSchemaName($tmap), $refSchemas)) {
+	        return true;
+	    } else {
+	        return false;
+	    }
+	}
 	/*
 	public function cekSkipTable($key) {
 	

@@ -166,15 +166,15 @@ class ColumnInfo
     	return $this->is_pk;
     }
     
-    /*
+    /**
      * Set whether this col is a FK
-    *
-    * <p>Set whether this col is a FK</p>
-    *
-    * @param string $is_fk Is this FK
-    *
-    * @return void
-    */    
+     *
+     * <p>Set whether this col is a FK</p>
+     *
+     * @param string $is_fk Is this FK
+     *
+     * @return void
+     */    
     function setIsFk($is_fk) {
     	$this->is_fk = $is_fk;
     }
@@ -192,15 +192,15 @@ class ColumnInfo
     }
     
     
-    /*
+    /**
      * Set the table name of related FK
-    *
-    * <p>Set the table name of related FK</p>
-    *
-    * @param string $fk_table_name FK Table Name
-    *
-    * @return void
-    */
+     *
+     * <p>Set the table name of related FK</p>
+     *
+     * @param string $fk_table_name FK Table Name
+     *
+     * @return void
+     */
     
     function setFkTableName($fk_table_name) {
     	$this->fk_table_name = $fk_table_name;
@@ -209,16 +209,25 @@ class ColumnInfo
     function getFkTableName() {
     	return $this->fk_table_name;
     }
+
+    /**
+     * Used when needed to create fk table name but in ClassName format
+     * 
+     * @return string
+     */
+    function getFkTablePhpName() {
+        return (string) phpNamize($this->fk_table_name);
+    }
     
-    /*
+    /**
      * Set the Display Field of this FK
-    *
-    * <p>Set the name of the column for display on the relating table of the FK</p>
-    *
-    * @param string $display_field FK Display Field Name
-    *
-    * @return void
-    */    
+     *
+     * <p>Set the name of the column for display on the relating table of the FK</p>
+     *
+     * @param string $display_field FK Display Field Name
+     *
+     * @return void
+     */    
     function setDisplayField($display_field) {
     	$this->display_field = $display_field;
     }
@@ -227,15 +236,15 @@ class ColumnInfo
     	return $this->display_field;
     }
     
-    /*
+    /**
      * Set the minimum value of the FK
-    *
-    * <p>Set the minimum value of the FK if it's a numeric FK</p>
-    *
-    * @param integer $min Minimum value
-    *
-    * @return void
-    */    
+     *
+     * <p>Set the minimum value of the FK if it's a numeric FK</p>
+     *
+     * @param integer $min Minimum value
+     * 
+     *  @return void
+     */    
     function setMin($min) {
     	$this->min = $min;
     }
@@ -244,15 +253,15 @@ class ColumnInfo
     	return $this->min;
     }
     
-    /*
+    /**
      * Set the maximum value of the FK
-    *
-    * <p>Set the maximum value of the FK if it's a numeric FK</p>
-    *
-    * @param integer $max maximum value
-    *
-    * @return void
-    */    
+     *
+     * <p>Set the maximum value of the FK if it's a numeric FK</p>
+     *
+     * @param integer $max maximum value
+     *
+     * @return void
+     */    
     function setMax($max) {
     	$this->max = $max;
     }

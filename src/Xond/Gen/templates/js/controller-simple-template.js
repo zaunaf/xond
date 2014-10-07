@@ -1,5 +1,5 @@
-Ext.define('DataDikdas.controller.{{table.getPhpName}}', {
-    extend: 'DataDikdas.controller.base.{{table.getPhpName}}',
+Ext.define('{{appName}}.controller.{{table.getPhpName}}', {
+    extend: '{{appName}}.controller.base.{{table.getPhpName}}',
     init: function() {       
         this.superclass.init.call(this);
     }

@@ -9,14 +9,15 @@ Ext.define('{{appName}}.view._components.combo.{{table.getPhpName}}', {
     initComponent: function() {
         var {{table.getName}}s = [
 {% for row in data %}
-            ["{{row|join('","')|raw}}"],
+            ["{{row|join('","')|raw}}"]{% if not loop.last %},{% endif %}
+
 {% endfor %}
         ];
-        this.store = Ext.create('DataDikdas.store.{{table.getPhpName}}', {
-            model: 'DataDikdas.model.{{table.getPhpName}}',
+        this.store = Ext.create('{{appName}}.store.{{table.getPhpName}}', {
+            model: '{{appName}}.model.{{table.getPhpName}}',
             sorters: ['{{table.getName}}_id'],
             data: {{table.getName}}s
         });
-        this.callParent(arguments); 
+        this.callParent(arguments);
     }
 });

@@ -40,7 +40,8 @@ class InfoGen extends BaseGen {
     const IS_BIG_TABLE = 3;
     
     const PIX_PER_CHAR_FIELD = 12;
-    const PIX_PER_CHAR_COLUMN = 12;
+    const PIX_PER_CHAR_COLUMN = 4;
+    const PIX_PER_CHAR_LABEL = 7;
     
     // Model Types
     const TYPE_STRING = "string";
@@ -98,15 +99,6 @@ class InfoGen extends BaseGen {
     protected $tables = array();
     
     /**
-     * Get table name (no schema name)
-     * 
-     * @param \TableMap $tmap
-     * @return string
-     */
-    public function getName(\TableMap $tmap) {
-        return strtolower(underscoreCapitalize($tmap->getPhpName()));
-    }
-    /**
      * Add tables to $this->tables array
      * 
      * @param TableMap $tmap
@@ -122,10 +114,10 @@ class InfoGen extends BaseGen {
         $t["app_name"] = $config['project_php_name'];
         
         // Determine primary keys, and add virtual column to acommodate composite keys
-        if (sizeof($tmap->getPrimaryKeyColumns() > 1)) {
+        if (sizeof($tmap->getPrimaryKeyColumns()) > 1) {
             
             $t["composite_pk"] = 1;
-            $t["pk_name"] = $this->createCompositeKeyDelegationColumn($tmap);
+            $t["pk_name"] = $this->getName($tmap)."_id";
             
         } else {
             $t["composite_pk"] = 0;
@@ -133,7 +125,7 @@ class InfoGen extends BaseGen {
             //Need to set pk_name here because createCompositeKeyDelegationId() does it too
             $pkColumns = $tmap->getPrimaryKeyColumns();
             $pkColumn = $pkColumns[0];
-            $t["pk_name"] = $pkColumn->getNama();
+            $t["pk_name"] = $pkColumn->getName();
             
         }
         
@@ -225,14 +217,34 @@ class InfoGen extends BaseGen {
             
         }
         
+//         if ($t['name'] == 'anggota_rombel') {
+//             print_r($rManyToMany);
+//             print_r($rHasMany);
+//             print_r($rBelongsTo);
+//             print_r($rOneToOne);
+//             die;
+//         }
+        
+        
         // Determine data or ref
         $pkColumns = $tmap->getPrimaryKeyColumns();
         $pkColumn = $pkColumns[0];
         
+//         if ($t['name'] == 'sumber_dana') {
+//             echo $pkColumn->getType()."<br>";
+//             echo InfoGen::$extTypeMap[$pkColumn->getType()]."<br>";
+//             echo $count;
+//             die;
+//         }
+        
         if ($t['composite_pk']) {
             $isData = 1;            
-        } else if ( (InfoGen::$extTypeMap[$pkColumn->getType()]  == InfoGen::TYPE_INT) && ($count < InfoGen::BIGREF_LOWER_LIMIT)) {
+        } else if ($this->checkIsRef($tmap)) {
             $isData = 0;
+        } else if ( ($pkColumn->isNumeric()) && ($count < InfoGen::BIGREF_LOWER_LIMIT)) {
+            $isData = 0;
+        } else {
+            $isData = 1;
         }
         
         if ($isData) {
@@ -247,16 +259,22 @@ class InfoGen extends BaseGen {
             $t["create_form"] = 0;
         }
         
-        // Do we need this ?
+        // Do we need this ? YES
         $t["has_many"] = implode(',', $rHasMany);
         $t["belongs_to"] = implode(',', array_merge($rBelongsTo, $rOneToOne));
         $t["is_split_entity"] = (sizeof($rOneToOne) > 0) ? 1 : 0;
         $t["has_split_entity"] = 0;
         $t["split_entity_name"] = '';
         $t["relating_columns"] = implode(',', $rHasMany);
+        $t["info_before_delete"] = '';
         
         // Register
         $this->registerTable($t);
+        
+        // Add the composite column
+        if (sizeof($tmap->getPrimaryKeyColumns()) > 1) {
+            $this->createCompositeKeyDelegationColumn($tmap);
+        }
         
     }
     
@@ -302,13 +320,15 @@ class InfoGen extends BaseGen {
     
     /**
      * Add columns to the one $table of $this->tables array
-     *
+     * Also calculate longest strlen.
+     * 
      * @param TableMap $table
      */
     public function addColumns(\TableMap $tmap) {
     
         $config = $this->getConfig();
-    
+        $maxLabelWidth = 0;
+        
         foreach ($tmap->getColumns() as $c) {
             
             // For autocomplete purpose. NEED TO BE COMMENTED ON RUN
@@ -345,20 +365,28 @@ class InfoGen extends BaseGen {
             $cArr['label'] = sentencesize($this->getColumnLabel($c));
             $cArr["header"] = humanize($this->getColumnLabel($c));
             
-            $cArr['column_width'] = $this->getColumnLength($c) * InfoGen::PIX_PER_CHAR_FIELD;
-            $cArr['hide_column'] = $isPk ? 1 : 0;
-            $cArr['field_width'] = $this->getColumnLength($c) * InfoGen::PIX_PER_CHAR_COLUMN;
-            $cArr['display_field'] = $this->getColumnDisplayField($c);
+            $colWidth = $this->getColumnLength($c) * InfoGen::PIX_PER_CHAR_COLUMN;
+            $colWidth = ($colWidth > 80) ? $colWidth : 80;
             
+            $cArr['column_width'] = $colWidth;
+            $cArr['hide_column'] = $isPk ? 1 : 0;
+            $cArr['field_width'] = $this->getColumnLength($c) * InfoGen::PIX_PER_CHAR_FIELD;
+            $cArr['display_field'] = $this->getColumnDisplayField($c);
             
             $cArr['xtype'] = $this->getColumnXtype($c);
             $cArr['allow_empty'] = $c->isNotNull() ? 1 : 0;
             $cArr['validation'] = '';
             $cArr['description'] = '';
             
+            // Calculate maxLabelWidth
+            if (strlen($colPhpName) > $maxLabelWidth) {
+                $maxLabelWidth = strlen($colPhpName); 
+            } 
+            
             $this->registerColumn($tmap, $cArr);
             
         }
+        $this->setFormDefaultLabelWidth($tmap, $maxLabelWidth);
     }
     
     /**
@@ -539,44 +567,107 @@ class InfoGen extends BaseGen {
      * For tables with composite keys, create single id that represent all keys
      * 
      * @param \TableMap $tmap
-     * @return string
      */
     public function createCompositeKeyDelegationColumn(\TableMap $tmap) {
         
         // Create virtual PK column
         $virtualPkName = $this->getName($tmap)."_id";
         
+        // Calculate length
+        $length = 0;
+        foreach ($tmap->getPrimaryKeyColumns() as $column) {
+            $length += $this->getColumnLength($column);
+            $length++;
+        }
+        
         // Fill 
-        $c['column_php_name'] = phpnamize($virtualPkName);
-        $c['column_name'] = $virtualPkName;
-        $c["type"] = 'string';
-        $c["is_pk_uuid"] = 0;
-        $c["is_pk"] = 1;
-        $c['min'] = 0;
-        $c['max'] = 0;
-        $c['label'] = ' ';
-        $c["header"] = ' ';
-        $c['input_length'] = 100;
-        $c['hide_column'] = 1;
-        $c['field_width'] = 100;
-        $c['display_field'] = '';
-        $c['xtype'] = 'hidden';
-        $c['combo_xtype'] = strtolower(phpnamize($virtualPkName));
-        $c['validation'] = '';
-        $c['allow_empty'] = 0;
-        $c['description'] = '';
+        $cArr['column_php_name'] = phpnamize($virtualPkName);
+        $cArr['column_name'] = $virtualPkName;
+        $cArr['column_length'] = $length;
+        $cArr['input_length'] = 100;
+        $cArr["type"] = 'string';
+        
+        $cArr["is_pk_uuid"] = 0;
+        $cArr["is_pk"] = 1;
+        $cArr["is_fk"] = 0;
+        $cArr["fk_table_name"] = '';
+        
+        $cArr['min'] = 0;
+        $cArr['max'] = 0;
+        
+        $cArr['label'] = ' ';
+        $cArr["header"] = ' ';
+        
+        $cArr['column_width'] = $cArr['column_length'] * InfoGen::PIX_PER_CHAR_FIELD;
+        $cArr['hide_column'] = 1;
+        $cArr['field_width'] = $cArr['column_length'] * InfoGen::PIX_PER_CHAR_COLUMN;;
+        $cArr['display_field'] = '';
+        $cArr['xtype'] = 'hidden';
+        $cArr['combo_xtype'] = strtolower(phpnamize($virtualPkName));
+        $cArr['validation'] = '';
+        $cArr['allow_empty'] = 0;
+        $cArr['description'] = '';
         
         // Register Column
-        $this->registerColumn($tmap, $c);
+        $this->registerColumn($tmap, $cArr);
         
         // Set PK Name to the this virtual PK column
         // $this->setPkName($tmap, $virtualPkName);
         
-        return $virtualPkName;
-        
     }
 
 
+    public function addManyToOneRelationInformation(\TableMap $tmap) {
+        
+        // Reset everything first
+        $belongsTo = array();
+        	
+        // Get FK info from the map
+        $fkArr = $tmap->getForeignKeys();
+        	
+        if (is_array($fkArr)) {
+        
+            foreach ($fkArr as $key => $fk) {
+                	
+                $fkname = $fk->getName();
+                	
+                foreach ($this->tables as $t) {
+                    	
+                    // Match
+    
+                    // DEBUG
+                    // echo "$fkname | ".$t["pk"]." | ". (($fkname == $t["pk"]) ? "SAMA" : "BEDA")."<br>" ;
+                    // if ($tvars[$i]['name'] == "ptk_terdaftar") {
+                    // echo "$fkname | ".$t["pk"]." | ". (($fkname == $t["pk"]) ? "SAMA" : "BEDA")."<br>" ;
+                    // }
+    
+                    if ($fkname == $t["pk_name"]) {
+                        if ($t["is_data"] == 1) {
+                            $belongsTo[] = $t["php_name"];
+                        }
+                    }
+                }
+            }
+            
+        } else {
+            
+            return;
+            
+        }
+        	
+        $this->tables[$this->getName($tmap)]["belongs_to"] = $belongsTo;
+        
+    }
+
+    /**
+     * Set the table's default label width for forms
+     * @param \TableMap $tmap
+     * @param number $formDefaultWidth
+     */
+    public function setFormDefaultLabelWidth(\TableMap $tmap, $formDefaultLabelWidth = 80) {
+        $this->tables[$this->getName($tmap)]["form_default_label_width"] = roundUp($formDefaultLabelWidth,10) * InfoGen::PIX_PER_CHAR_LABEL;
+    }
+    
     
     /**
      * Output the tables as Info files
@@ -642,7 +733,7 @@ class InfoGen extends BaseGen {
         }
         
     }
-
+    
     /**
      * Write twig rendered string to the requested path
      * 
@@ -733,6 +824,11 @@ class InfoGen extends BaseGen {
         // Add columns so the app can utilize the data
         foreach ($maps as $tmap) {
             $this->addColumns($tmap);
+        }
+        
+        // Add columns so the app can utilize the data
+        foreach ($maps as $tmap) {
+            $this->addManyToOneRelationInformation($tmap);
         }
         
         // Complete the tmap with necessary infos
