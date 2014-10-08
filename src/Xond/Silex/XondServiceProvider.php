@@ -75,7 +75,13 @@ class XondServiceProvider implements ServiceProviderInterface
         
         // Frontend Generation
         $app->get('/FrontEndGen', '\Xond\Gen\FrontEndGen::generate');
-        
+
+        // RESTful backend
+        $app->get('/rest/{model}', 'Xond\Rest\Get::init');
+        $app->post('/rest/{model}', 'Xond\Rest\Post::init');
+        $app->put('/rest/{model}/{which}', 'Xond\Rest\Put::init');
+        $app->delete('/rest/{model}/{which}', 'Xond\Rest\Delete::init');
+
     }
 
     public function boot(Application $app)
