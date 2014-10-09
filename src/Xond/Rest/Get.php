@@ -156,7 +156,7 @@ class Get extends Rest
                 $counter ++;
             }
             
-            $arr = $this->addFkStrings($arr);
+            $arr = $this->addFkStrings($arr, $t);
             
             // Handling for composite PKs //
             if ($tInfo->getIsCompositePk()) {
@@ -491,9 +491,10 @@ class Get extends Rest
      * @param array $arr            
      * @return array
      */
-    public function addFkStrings(array $arr)
+    public function addFkStrings(array $arr, $t)
     {
         $tInfo = $this->getTableInfoObj();
+        
         
         if ($tInfo->getIsData()) {
             

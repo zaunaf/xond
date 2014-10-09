@@ -146,7 +146,7 @@ class InfoGen extends BaseGen {
             $t["is_static_ref"] = 0;            // create radio & static combo
             $t["is_small_ref"] = 0;             // prioritize radio
             $t["is_medium_ref"] = 1;            // create search combo
-            $t["is_big_ref"] = 0;               // create search combo
+            $t["is_big_ref"] = 1;               // create search combo
 
         } else {
             $t["size_type"] = InfoGen::IS_MEDIUM_TABLE;
@@ -707,7 +707,7 @@ class InfoGen extends BaseGen {
         $twig->addFilter($filter);
         
         // Base Files
-        $templateFileName = 'info-template-base.php';
+        $templateFileName = 'info-template-base.twig';
         $fileName = "Base{$tmap->getPhpName()}TableInfo.php";
         $targetPath = $baseInfoPath.DIRECTORY_SEPARATOR.$fileName;
         
@@ -720,7 +720,7 @@ class InfoGen extends BaseGen {
         }
 
         // Info Files
-        $templateFileName = 'info-template.php';
+        $templateFileName = 'info-template.twig';
         $fileName = "{$tmap->getPhpName()}TableInfo.php";
         $targetPath = $infoPath.DIRECTORY_SEPARATOR.$fileName;
         
