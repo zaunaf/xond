@@ -15,26 +15,50 @@ class Get extends Rest
     private $start;
     private $limit;
     
+    /**
+     * Set offset of the data selected.
+     * Mainly for paging purposes.
+     *
+     * @param int $start
+     */
     public function setStart($start){
-        $this->start = $start;    
+        $this->start = $start;
     }
     
+    /**
+     * Get offset of the data selected.
+     *
+     * @return int
+     */
     public function getStart(){
         return $this->start;
     }
-
+    
+    /**
+     * Set number of rows to be returned in the current page.
+     * Mainly for paging purposes.
+     *
+     * @param int $limit
+     */
     public function setLimit($limit){
         $this->limit = $limit;
     }
     
+    /**
+     * Get number of rows to be returned in the current page.
+     *
+     * @return int
+     */
     public function getLimit(){
         return $this->limit;
     }
-    
+
+    /**
+     * The Main process method
+     *
+     */
     public function process()
     {
-        $app = $this->getApp();
-        
         // Reposess Vars
         $request = $this->getRequest();
         $app = $this->getApp();
@@ -541,6 +565,12 @@ class Get extends Rest
         return (array) $arr;
     }
     
+    // Using the standard responsestr, so the following code is not necessary    
+    // public function createResponseStr(){
+    //     $this->setResponseStr(tableJson($this->getResponseData(), $this->getRowCount(), $this->getFieldNames()));
+    // }
+    
+    
     ////////////////////////
     /// Event Management ///
     ////////////////////////
@@ -603,8 +633,6 @@ class Get extends Rest
     public function onResponseStrLoad(){
     
     }
-
-    
     
     
 }

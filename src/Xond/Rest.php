@@ -22,9 +22,17 @@ class Rest
     private $peerObj;
     private $tableInfoObj;
     
+    // For GET
     private $rowCount;
     private $fieldNames;
     private $responseData;
+    
+    // For POST, PUT
+    private $id;
+    private $obj;
+
+    // For All Methods
+    private $message = "";
     private $responseCode;
     private $responseStr;
 	
@@ -91,7 +99,8 @@ class Rest
     	// Prepare variables
     	$app['dispatcher']->dispatch('rest.prepared');
     	
-    	// Set Classes
+    	// Set Classes. So the classname, PeerObj and TableInfo Obj is ready to use. 
+    	// No need to create them later.
     	$this->setClassName($this->createClassName("Model", $modelName, ""));
     	$this->setPeerObj($this->createPeer($modelName));
     	$this->setTableInfoObj($this->createTableInfo($modelName));
@@ -270,41 +279,25 @@ class Rest
     	return $this->tableInfoObj;
     }
 
+    
     /**
-     * Set the response string
-     * 
-     * @param string $str
+     * Set message about the result of the process.
+     *
+     * @param string $message
      */
-    public function setResponseStr($str) {
-	   	$this->responseStr = $str;
+    public function setMessage($message){
+        $this->message = $message;
     }
     
     /**
-     * Get the response string
-     * 
+     * Get message about the result of the process.
+     *
      * @return string
      */
-    public function getResponseStr() {
-    	return $this->responseStr;
+    public function getMessage(){
+        return $this->message;
     }
     
-    /**
-     * Set the response code
-     *
-     * @param int $code
-     */
-    public function setResponseCode($code) {
-    	$this->responseCode = $code;
-    }
-    
-    /**
-     * Get the response code
-     *
-     * @return int
-     */
-    public function getResponseCode() {
-    	return $this->responseCode;
-    }
     
     /**
      * Set total rowcount of the result of the process.
@@ -362,6 +355,75 @@ class Rest
      */
     public function getResponseData(){
     	return $this->responseData;
+    }
+    
+    /**
+     * Attach the "id" of the current processed row/object
+     * @param unknown $id
+     */
+    public function setId($id){
+        $this->id = $id;
+    }
+    
+    /**
+     * Get the "id" of the current processed row/object
+     * @return string
+     */
+    public function getId(){
+        return $this->id;
+    }
+    
+    /**
+     * Attach the current processed row/object
+     * @param unknown $obj
+     */
+    public function setObj($obj){
+        $this->obj = $obj;
+    } 
+    
+    /**
+     * Get the current processed row/object
+     * @return object
+     */
+    public function getObj(){
+        return $this->obj;
+    }
+    
+    
+    /**
+     * Set the response string
+     *
+     * @param string $str
+     */
+    public function setResponseStr($str) {
+        $this->responseStr = $str;
+    }
+    
+    /**
+     * Get the response string
+     *
+     * @return string
+     */
+    public function getResponseStr() {
+        return $this->responseStr;
+    }
+    
+    /**
+     * Set the response code
+     *
+     * @param int $code
+     */
+    public function setResponseCode($code) {
+        $this->responseCode = $code;
+    }
+    
+    /**
+     * Get the response code
+     *
+     * @return int
+     */
+    public function getResponseCode() {
+        return $this->responseCode;
     }
     
     /**
@@ -492,20 +554,28 @@ class Rest
     	
     }
     
-    public function buildJson($success=true, $message="", $data=array()) {
-        $data = (sizeof($data) > 0) ? ", rows: ". json_encode($data) : "";
-        return sprintf("{ 'success': %s, 'message': '%s' %s }", ($success ? 'true':'false'), $message, $data);
+    public function buildJson($success=false, $message=false, $data=false, $rownum=false, $fieldnames=false, $start=false, $limit=false) {
+        
+        $message = ($message) ? ", 'message': '$message'" : "";
+        $rownum = ($rownum) ? ", 'results': $rownum " : "";
+        $fieldnames = ($fieldnames) ? ", 'id': '{$fieldnames[0]}' " : "";
+        $start = ($start) ? ", 'start': $start" : "";
+        $limit = ($limit) ? ", 'limit': $limit" : "";
+        $data = ($data) ? ", rows: ". json_encode($data) : "";
+        
+        return sprintf("{ 'success': %s, 'message': '%s' %s %s %s %s %s  }", ($success ? 'true':'false'), $message, $rownum, $fieldnames, $start, $limit, $data);
     }
     
+    // Overridden by the Methods
     public function createResponseStr(){
-    	$this->setResponseStr(tableJson($this->getResponseData(), $this->getRowCount(), $this->getFieldNames()));
+        $this->setResponseStr($this->buildJson(true, $this->getMessage(), $this->getResponseData(), $this->getRowCount(), $this->getFieldNames(), $this->getStart(), $this->getLimit()));
     }
-
+    
     public function createExceptionResponseStr(){
         $this->setResponseStr($this->buildJson(false, $this->getExceptionMsg()));
     }
     
-    // Overridden by the Methods
+    
     public function createResponse(){
         if ($this->getExceptionCode()) {
             return new Response($this->getResponseStr(), $this->getExceptionCode());
