@@ -724,14 +724,17 @@ class InfoGen extends BaseGen {
         $fileName = "{$tmap->getPhpName()}TableInfo.php";
         $targetPath = $infoPath.DIRECTORY_SEPARATOR.$fileName;
         
-        // Apply template
-        try {
-            $tplStr = $twig->render($templateFileName, $this->tables[$this->getName($tmap)]);
-            $this->writeToFile($tmap, $tplStr, $targetPath);
-        } catch (Exception $e) {
-            throw new Exception($e->getMessage());
-        }
-        
+        //if (!is_file($targetPath)) { 
+            
+            // Apply template
+            try {
+                $tplStr = $twig->render($templateFileName, $this->tables[$this->getName($tmap)]);
+                $this->writeToFile($tmap, $tplStr, $targetPath);
+            } catch (Exception $e) {
+                throw new Exception($e->getMessage());
+            }
+            
+        //}
     }
     
     /**
