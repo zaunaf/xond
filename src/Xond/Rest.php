@@ -7,6 +7,7 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Security\Acl\Exception\Exception;
 use Symfony\Component\EventDispatcher\Event;
 use Xond\Info\TableInfo;
+use SpmDikdas\Model\BentukPendidikanPeer;
 
 
 class Rest
@@ -614,6 +615,12 @@ class Rest
         
     }
     
-    
+    public function convertToColumnName($tInfo, $colName){
+        
+        $columnStr = $tInfo->getClassname()."Peer::".underscoreCapitalize($colName);
+        $columnName = constant($columnStr);
+        return $columnName;
+        
+    }
     
 }

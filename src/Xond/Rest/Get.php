@@ -374,9 +374,12 @@ class Get extends Rest
                     
                     if ($fkTableInfo->getIsBigRef()) {
                         $joinColumn = $fkTableInfo->getName() . "." . $fkTableInfo->getPkName();
+                        $joinColumnName = Rest::convertToColumnName($fkTableInfo, $fkTableInfo->getPkName()); 
+                        
                         if (! in_array($joinColumn, $joinColumns)) {
-                            
-                            $c->addJoin($tInfo->getName() . "." . $col->getName(), $joinColumn, \Criteria::LEFT_JOIN);
+                            // $tInfo = new TableInfo();
+                            $columnName = Rest::convertToColumnName($tInfo, $col->getName());
+                            $c->addJoin($columnName, $joinColumnName, \Criteria::LEFT_JOIN);
                             
                             // WTF IS THIS
                             // echo $tInfo->getName().".".$col->getName()."<br>";
