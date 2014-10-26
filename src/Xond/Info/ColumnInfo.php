@@ -36,6 +36,7 @@ class ColumnInfo
 	public $use_min_value;		// use minValue (BOOLEAN)
     public $min_length;			// minLength
     public $validation_type;	// validation type, ex: email
+    public $force_selection;    // Force selection on combos
     public $force_election;		// true to restrict the selected value to one of the values in the list, false to allow the user to set arbitrary text into the field
     public $read_only;			// readonly
 	
