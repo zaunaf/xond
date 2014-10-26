@@ -120,6 +120,7 @@ class InfoGen extends BaseGen {
             $t["pk_name"] = $this->getName($tmap)."_id";
             
         } else {
+            
             $t["composite_pk"] = 0;
             
             //Need to set pk_name here because createCompositeKeyDelegationId() does it too
@@ -580,7 +581,7 @@ class InfoGen extends BaseGen {
             $length++;
         }
         
-        // Fill 
+        // Fill
         $cArr['column_php_name'] = phpnamize($virtualPkName);
         $cArr['column_name'] = $virtualPkName;
         $cArr['column_length'] = $length;
@@ -724,7 +725,7 @@ class InfoGen extends BaseGen {
         $fileName = "{$tmap->getPhpName()}TableInfo.php";
         $targetPath = $infoPath.DIRECTORY_SEPARATOR.$fileName;
         
-        //if (!is_file($targetPath)) { 
+        if (!is_file($targetPath)) { 
             
             // Apply template
             try {
@@ -734,7 +735,7 @@ class InfoGen extends BaseGen {
                 throw new Exception($e->getMessage());
             }
             
-        //}
+        }
     }
     
     /**
