@@ -1,0 +1,73 @@
+/**
+ * This is the Main Xond CSS.
+ * This file complements the components provided by xond.js file
+ *
+ * @author     Donny Fauzan <donny.fauzan@gmail.com> (Nufaza)
+ * @version    $Revision$
+ * @package    xond
+ */
+
+/* Styles for Xond.msg */
+.msg .x-box-mc {
+    font-size:14px;
+}
+#msg-div {
+    position:absolute;
+    left:50%;
+    top:10px;
+    width:400px;
+    margin-left:-200px;
+    z-index:20000;
+}
+#msg-div .msg {
+    border-radius: 8px;
+    -moz-border-radius: 8px;
+    background: #F6F6F6;
+    border: 2px solid #ccc;
+    margin-top: 2px;
+    padding: 10px 15px;
+    color: #555;
+}
+#msg-div .msg h3 {
+    margin: 0 0 8px;
+    font-weight: bold;
+    font-size: 15px;
+}
+#msg-div .msg p {
+    margin: 0;
+}
+
+/* Styles for Dashboard */
+.appheader{
+    background:none; color: rgba(255,255,255,0.9);
+    text-shadow: 1px 1px 2px rgba(255,255,255,0.3);
+    font-size: 20pt;
+    font-family: Raleway, sans-serif;
+    line-height:normal;
+    margin-bottom: 0px;
+}
+
+.bignumber{
+    color: #777777;
+    font: 28px Montserrat, Helvetica, Arial, sans-serif;
+    float:right;
+    margin-right: 8px;
+}
+
+.biglabel{
+    padding-top: 8px;
+    margin-right: 8px;
+    color: #777777;
+    font-family: Raleway, Helvetica, Arial, sans-serif;
+    float:right;
+    text-align: center;
+         font-size: 13px;
+    line-height: 10px;
+    font-weight: bold;
+}
+
+.sublabel{
+    font-size: 8px;
+    line-height: 10px;
+    font-weight: normal;
+}

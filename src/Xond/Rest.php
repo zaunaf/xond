@@ -51,7 +51,9 @@ class Rest
      * @return string               No desc
      */
     public function init(Request $request, Application $app) {
-		
+        
+        //print_r($app['xond.config']); die;
+        
 		// Processes the request. Run by the current method class
 		try {
         	
@@ -102,9 +104,9 @@ class Rest
     	
     	// Set Classes. So the classname, PeerObj and TableInfo Obj is ready to use. 
     	// No need to create them later.
-    	$this->setClassName($this->createClassName("Model", $modelName, ""));
-    	$this->setPeerObj($this->createPeer($modelName));
-    	$this->setTableInfoObj($this->createTableInfo($modelName));
+    	$this->setClassName(Xond::createClassName("Model", $modelName, "", $this->appName));
+    	$this->setPeerObj(Xond::createPeer($modelName, $this->appName));
+    	$this->setTableInfoObj(Xond::createTableInfo($modelName, $this->appName));
     	 
     }
     
@@ -497,10 +499,10 @@ class Rest
      * @throws Exception
      * @return unknown
      */
-    private function createPeer($modelName="") {
+    public function createPeer($modelName="") {
         	
     	$modelName = ($modelName != "") ? $modelName :  $this->getModelName();
-    	$peerName = $this->createClassName("Model", $modelName, "Peer");
+    	$peerName = Xond::createClassName("Model", $modelName, "Peer", $this->appName);
     
        if (class_exists($peerName)) {
     		$peerObj = new ${'peerName'} ();
@@ -518,10 +520,10 @@ class Rest
      * @throws Exception
      * @return unknown
      */
-    private function createTableInfo($modelName="") {
+    public function createTableInfo($modelName="") {
     
     	$modelName = ($modelName != "") ? $modelName :  $this->getModelName();
-    	$tableInfoClassName = $this->createClassName("Info", $modelName, "TableInfo");
+    	$tableInfoClassName = Xond::createClassName("Info", $modelName, "TableInfo", $this->appName);
     	
        if (class_exists($tableInfoClassName)) {
     		$tInfo = new ${'tableInfoClassName'}();
@@ -540,7 +542,7 @@ class Rest
 	 */
     public function createFieldNames($modelName=""){
     	
-    	$tInfo = $this->createTableInfo($modelName);
+    	$tInfo = Xond::createTableInfo($modelName, $this->appName);
     	$cols = $tInfo->getColumns();
     	
     	foreach ($cols as $col){
@@ -564,7 +566,7 @@ class Rest
         $limit = ($limit) ? ", 'limit': $limit" : "";
         $data = ($data) ? ", rows: ". json_encode($data) : "";
         
-        return sprintf("{ 'success': %s, 'message': '%s' %s %s %s %s %s  }", ($success ? 'true':'false'), $message, $rownum, $fieldnames, $start, $limit, $data);
+        return sprintf("{ 'success': %s %s %s %s %s %s %s  }", ($success ? 'true':'false'), $message, $rownum, $fieldnames, $start, $limit, $data);
     }
     
     // Overridden by the Methods
@@ -578,6 +580,9 @@ class Rest
     
     
     public function createResponse(){
+        print_r($this->getResponseStr()); die;
+        //print_r($this->getResponseCode()); die;
+        
         if ($this->getExceptionCode()) {
             return new Response($this->getResponseStr(), $this->getExceptionCode());
         } else {

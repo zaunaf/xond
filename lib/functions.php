@@ -1929,10 +1929,29 @@ function dir_walk($dir) {
     return $return;
 }
 
-function pg_gen_uuid ($dbname) {
-    executeSql("CREATE EXTENSION IF NOT EXISTS 'uuid-ossp'", $dbname);
-    return getValueBySql("select uuid_generate_v4()");
+function gen_uuid() {
+    $dbname = \Propel::getDefaultDB();
+    $config = \Propel::getConfiguration();
+    $adapterName = $config['datasources'][$dbname]['adapter'];
+    switch ($adapterName) {
+    	case 'mssql':
+    	    return getValueBySql("select newid()");
+    	    break;
+    	case 'pgsql':
+    	    executeSql("CREATE EXTENSION IF NOT EXISTS 'uuid-ossp'", $dbname);
+    	    return getValueBySql("select uuid_generate_v4()");
+    	    break;
+    	default:
+    	    return strtoupper(\UUID::mint(4)->__toString());
+    	    break;
+    }
 
+}
+
+function get_adapter() {
+    $dbname = \Propel::getDefaultDB();
+    $config = \Propel::getConfiguration();
+    return $adapterName = $config['datasources'][$dbname]['adapter'];
 }
 
 class UUID {

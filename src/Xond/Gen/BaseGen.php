@@ -45,6 +45,23 @@ class BaseGen {
     
     protected $request;
     
+    
+    public function initialize(\Symfony\Component\HttpFoundation\Request $request, \Silex\Application $app) {
+        
+        // So that Silex's Request and Application accessible in any methods
+        $this->setRequest($request);
+        $this->setApp($app);
+        
+        // Get the config
+        $config = $app['xond.config'];
+        $this->setConfig($config);
+        $this->setAppName($config['project_php_name']);
+        
+        // Mark the start of gen process. Now using monolog
+        $app['monolog']->addInfo("FrontEndGen start at ". date ( 'Y-m-d H:i' ));
+                
+    }
+    
     /**
      * Setting the request object for this generator
      * @param Request $request
@@ -75,6 +92,22 @@ class BaseGen {
 	 */
 	public function getApp(){
 		return $this->app;
+	}
+
+	/**
+	 * Setting the Application name for this generator
+	 * @param string $app
+	 */
+	public function setAppName($appName){
+	    $this->appName = $appName;
+	}
+	
+	/**
+	 * Returning the Application name so whatever child need is available
+	 * @return string
+	 */
+	public function getAppName(){
+	    return $this->appName;
 	}
 	
 	/**

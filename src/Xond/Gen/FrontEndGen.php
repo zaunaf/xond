@@ -1,5 +1,13 @@
 <?php
 
+/**
+ * This file is part of the Xond package.
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
+ *
+ * @license    MIT License
+ */
+
 namespace Xond\Gen;
 
 use Silex\Application;
@@ -11,6 +19,17 @@ use Xond\Info\ColumnInfo;
 use Xond\Info\GroupInfo;
 use Xond\Info\FieldsetInfo;
 
+/**
+ * This is a front end generator class for building GUI components 
+ * that based on ExtJS class structure, and store it in web/app/view/_components.
+ * The components can be created instantly or extended before use.
+ * The generated components adhere to MVC/MVVM concept standardized by Sencha.
+ * This generator supports version 5 of Sencha ExtJS and Sencha Command.
+ * 
+ * @author     Donny Fauzan <donny.fauzan@gmail.com> (Nufaza)
+ * @version    $Revision$
+ * @package    xond.gen
+ */
 
 class FrontEndGen extends BaseGen
 {
@@ -269,16 +288,8 @@ class FrontEndGen extends BaseGen
     
     public function generate(\Symfony\Component\HttpFoundation\Request $request, \Silex\Application $app) {
         
-        // So that Silex's Request and Application accessible in any methods
-        $this->setRequest($request);
-        $this->setApp($app);
-        
-        // Get the config
-        $config = $app['xond.config'];
-        $this->setConfig($config);
-
-        // Mark the start of gen process. Now using monolog
-        $app['monolog']->addInfo("FrontEndGen start at ". date ( 'Y-m-d H:i' ));
+        // Initialize
+        $this->initialize($request, $app);
                 
         // Get the tables complete with their namespace (true), false otherwise.
         $maps = $this->getTables(BaseGen::TABLES_MAP);
@@ -611,6 +622,7 @@ class FrontEndGen extends BaseGen
         }
     
         // Prepare simplecontrollerdir file
+        /*
         $filePath = $this->simplecontrollerdir."/".$infoObj->getPhpName().".js";
         $templateFileName = 'controller-simple-template.js';
         $array = array(
@@ -623,7 +635,7 @@ class FrontEndGen extends BaseGen
             $this->written++;
             $this->outStr .= "- $filePath written <br>\n";
         }
-        
+        */
     }
     
     /**

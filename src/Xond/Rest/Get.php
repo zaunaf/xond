@@ -112,11 +112,10 @@ class Get extends Rest
                 ->getName() . "." . $tInfo->getDisplayField();
             // echo "Columname: ".$columName."\n";
             
-            $c->add($columnName, $query, \Criteria::ILIKE);
+            $c->add($columnName, $query, \Criteria::LIKE);
         }
         
         $c = $this->injectFilter($c);
-        
         $c = $this->handleId($c);
         $c = $this->handleParams($c);
         $c = $this->handleBigLeftJoinFk($c);
@@ -276,6 +275,8 @@ class Get extends Rest
         $params = $this->getRequest()->query->all();
         $this->setParams($params);
         
+        $tInfo = $this->getTableInfoObj();
+        
         // Kick the params calculation event in case someone wants to mess with the params
         $app['dispatcher']->dispatch('rest_get.calc_params');
         
@@ -307,14 +308,28 @@ class Get extends Rest
                 
                 if ($tInfo->getColumnByName($key)) {
                     
+                    $cInfo = $tInfo->getColumnByName($key);
+                    
+                    /*
                     $columnName = $this->getPeerObj()
                         ->getTableMap()
                         ->getName() . "." . $key;
+                    */
+                    $columnName = Rest::convertToColumnName($tInfo, $cInfo->getName());
+                    $typeColumn = $cInfo->getType();
+                    
+                    // Detect if it's an id
                     $id = substr($columnName, - 3, 3);
+                    
+                    // Custom parameter value, non variable
                     $custom = substr($val, 0, 1);
                     
+                    
+                    
                     if ($id == "_id") {
+                        
                         $c->add($columnName, $val, \Criteria::EQUAL);
+                        
                     } else {
                         
                         if (in_array($typeColumn, array(
@@ -324,11 +339,16 @@ class Get extends Rest
                             $val = str_replace(" ", "%", $val);
                             $val = "%" . $val . "%";
                             
-                            $c->add($columnName, $val, \Criteria::ILIKE);
+                            if (get_adapter() == 'pgsql') {
+                                $c->add($columnName, $val, \Criteria::ILIKE);
+                            } else {
+                                $c->add($columnName, $val, \Criteria::LIKE);
+                            }
                         } else {
                             $c->add($columnName, $val, \Criteria::EQUAL);
                         }
                         
+                        // Switcher, if non standard value is given as params
                         if ($custom == "#") {
                             switch ($val) {
                                 case "#ISNULL":

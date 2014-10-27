@@ -1,0 +1,88 @@
+/**
+ * This is the Icon Font CSS.
+ * This file complements the fonts, used for styling button with glyphs
+ *
+ * @author     Donny Fauzan <donny.fauzan@gmail.com> (Nufaza)
+ * @version    $Revision$
+ * @package    xond
+ */
+
+/* Import Existing IconFont CSS */
+@import url("../font/FontAwesome/css/font-awesome.css");
+@import url("../font/Ionicons/css/ionicons.css");
+@import url("../font/Linecons/style.css");
+
+/* Font Definitions */
+@font-face {
+  font-family: 'Raleway';
+  font-style: normal;
+  font-weight: 300;
+  src: local('Raleway Light'), local('Raleway-Light'), url(../font/raleway/raleway-light.woff) format('woff');
+}
+@font-face {
+  font-family: 'Montserrat';
+  font-style: normal;
+  font-weight: 400;
+  src: local('Montserrat-Regular'), url(../font/montserrat/montserrat.woff2) format('woff2');
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02C6, U+02DA, U+02DC, U+2000-206F, U+2074, U+20AC, U+2212, U+2215, U+E0FF, U+EFFD, U+F000;
+}
+@font-face {
+    font-family: 'Franklin';
+    src: url('../font/Fradm.ttf');
+}
+@font-face {
+  font-family: 'font-fileformats-icons';
+  src: url("../font/font-fileformats-icons/flaticon.eot") format("embedded-opentype"), url("../font/font-fileformats-icons/flaticon.woff") format("woff"), url("../font/font-fileformats-icons/flaticon.ttf") format("truetype");
+  font-weight: normal;
+  font-style: normal; 
+}
+@font-face {
+  font-family: 'font-computer-and-media';
+  src: url("../font/font-computer-and-media/flaticon.eot") format("embedded-opentype"), url("../font/font-computer-and-media/flaticon.woff") format("woff"), url("../font/font-computer-and-media/flaticon.ttf") format("truetype");
+  font-weight: normal;
+  font-style: normal; 
+}
+@font-face {
+  font-family: 'font-education';
+  src: url("../font/font-education/flaticon.eot") format("embedded-opentype"), url("../font/font-education/flaticon.woff") format("woff"), url("../font/font-education/flaticon.ttf") format("truetype");
+  font-weight: normal;
+  font-style: normal; 
+}
+@font-face {
+  font-family: 'font-icomoon';
+  src: url("../font/font-icomoon/flaticon.eot") format("embedded-opentype"), url("../font/font-icomoon/flaticon.woff") format("woff"), url("../font/font-icomoon/flaticon.ttf") format("truetype");
+  font-weight: normal;
+  font-style: normal; 
+}
+
+/* Glyph Colors */
+.glyph-shadow{
+  text-shadow: 0 1px 0 #999999, 0 -1px 0 white;
+}
+.glyph-green{
+    color: #77DD77;
+}
+.glyph-dark-green{
+    color: #03C03C;
+}
+.glyph-red{
+    color: #FF6961;
+}
+.glyph-blue{
+    color: #779ECB;
+}
+.glyph-dark-grey{
+    color: #BBBBBB;
+}
+.glyph-orange{
+    color: #FFB437;
+}
+.glyph-dark-orange{
+    color: #FF8C00;
+}
+.glyph-brown{
+    color: #836953;
+}
+.glyph-sand{
+    color: #EDC9AF;
+}

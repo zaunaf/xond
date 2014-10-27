@@ -8,6 +8,11 @@
  * @license    MIT License
 */
 
+namespace Xond\Silex;
+
+use Silex\Application;
+use Silex\ServiceProviderInterface;
+
 /**
  * This is a service provider that links Silex with the Xond libraries and generators.
  * This file registers the extended php libraries, register the config 
@@ -18,13 +23,6 @@
  * @version    $Revision$
  * @package    xond.gen
  */
-
-namespace Xond\Silex;
-
-use Silex\Application;
-use Silex\ServiceProviderInterface;
-
-
 class XondServiceProvider implements ServiceProviderInterface
 {
     public function register(Application $app)
@@ -71,11 +69,20 @@ class XondServiceProvider implements ServiceProviderInterface
         $app->get('/TestGen', '\Xond\Gen\TestGen::generate');
         
         // Models Generation
-        $app->get('/ModelGen', '\Xond\Gen\ModelGen::generate');
-        
+        $app->get('/Reverse', '\Xond\Gen\ModelGen::reverse');
+        $app->get('/BuildModel', '\Xond\Gen\ModelGen::build');
+                
         // Frontend Generation
         $app->get('/FrontEndGen', '\Xond\Gen\FrontEndGen::generate');
 
+        // Controller Generation
+        $app->get('/ControllerGen', '\Xond\Gen\ControllerGen::menu');
+        $app->get('/ControllerGen/{model}', '\Xond\Gen\ControllerGen::generate');
+        $app->get('/ControllerList', '\Xond\Gen\ControllerGen::controllerList');
+        
+        // Icon Fonts List
+        $app->get('/IconFonts', '\Xond\Util\Menu::iconFonts');
+        
         // RESTful backend
         $app->get('/rest/{model}', 'Xond\Rest\Get::init');
         $app->post('/rest/{model}', 'Xond\Rest\Post::init');

@@ -801,17 +801,9 @@ class InfoGen extends BaseGen {
         
         error_reporting(E_ALL);
         
-        // So that Silex's Request and Application accessible in any methods
-        $this->setRequest($request);
-        $this->setApp($app);
-        
-        // Get the config
-        $config = $app['xond.config'];
-        $this->setConfig($config);
-            
-        // Mark the start of gen process. Now using monolog
-        $app['monolog']->addInfo("Gen start at " . date ( 'Y-m-d H:i' ));
-        
+        // Initialize
+        $this->initialize($request, $app);
+                
         // Get the tables complete with their namespace (true), false otherwise.
         $maps = $this->getTables(BaseGen::TABLES_MAP);
         //echo sizeof($maps);

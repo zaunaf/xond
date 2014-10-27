@@ -1,0 +1,155 @@
+@CHARSET "UTF-8";
+html, body {
+    margin: 0;
+    padding: 0;
+    background-attachment: fixed;
+    background-position: 50% 50%;
+    background-size: cover;
+
+    height: 100%;
+    /*background-color:   #0176A0;*/
+    background-image:   -moz-radial-gradient(center, ellipse cover, #FFF 10%, #777 100%);
+    background-image:   -webkit-radial-gradient(center, ellipse cover, #FFF 10%, #777 100%);
+    background-image:   -o-radial-gradient(center, ellipse cover, #FFF 10%, #777 100%);
+    background-image:   -ms-radial-gradient(center, ellipse cover, #FFF 10%, #777 100%);
+    background-image:   radial-gradient(center, ellipse cover, #FFF 10%, #777 100%);
+}
+a {
+    text-decoration: underline;
+}
+a:hover {
+    text-decoration: none;
+}
+.bg-carbon{
+    background:
+        linear-gradient(27deg, #151515 5px, transparent 5px) 0 5px,
+        linear-gradient(207deg, #151515 5px, transparent 5px) 10px 0px,
+        linear-gradient(27deg, #222 5px, transparent 5px) 0px 10px,
+        linear-gradient(207deg, #222 5px, transparent 5px) 10px 5px,
+        linear-gradient(90deg, #1b1b1b 10px, transparent 10px),
+        linear-gradient(#1d1d1d 25%, #1a1a1a 25%, #1a1a1a 50%, transparent 50%, transparent 75%, #242424 75%, #242424);
+    background-color: #131313;
+    background-size: 20px 20px;
+}
+.bg-lines{
+    background-color: #E8E8E8;
+    background-image: linear-gradient(
+        45deg, 
+        rgba(255,255,255,0) 0%,
+        rgba(255,255,255,0) 40%,
+        #D2D2D1 40%,
+        #D2D2D1 60%,
+        rgba(255,255,255,0) 60%,
+        rgba(255,255,255,0) 100%
+    );
+    background-size: 4px 4px;
+}
+.bg-vertical-lines{
+    background-image: -webkit-gradient(
+        linear,
+        left top,
+        right top,
+        color-stop(.34, rgba(230,237,241,.05)),
+        color-stop(.67, rgba(230,237,241,0)));
+    -webkit-background-size: 5px 5px;
+}
+.bg-small-dots{
+    background: 
+    -webkit-radial-gradient(center, circle, rgba(255,255,255,.35), rgba(255,255,255,0) 20%, rgba(255,255,255,0) 21%), 
+    -webkit-radial-gradient(center, circle, rgba(0,0,0,.2), rgba(0,0,0,0) 20%, rgba(0,0,0,0) 21%), 
+    -webkit-radial-gradient(center, circle farthest-corner, #f0f0f0, #c0c0c0);
+    
+    background: -moz-radial-gradient(center, circle, rgba(255,255,255,.35), rgba(255,255,255,0) 20%, rgba(255,255,255,0) 21%), -webkit-radial-gradient(center, circle, rgba(0,0,0,.2), rgba(0,0,0,0) 20%, rgba(0,0,0,0) 21%), -webkit-radial-gradient(center, circle farthest-corner, #f0f0f0, #c0c0c0);
+    background: -ms-radial-gradient(center, circle, rgba(255,255,255,.35), rgba(255,255,255,0) 20%, rgba(255,255,255,0) 21%), -webkit-radial-gradient(center, circle, rgba(0,0,0,.2), rgba(0,0,0,0) 20%, rgba(0,0,0,0) 21%), -webkit-radial-gradient(center, circle farthest-corner, #f0f0f0, #c0c0c0);
+    background: -o-radial-gradient(center, circle, rgba(255,255,255,.35), rgba(255,255,255,0) 20%, rgba(255,255,255,0) 21%), -webkit-radial-gradient(center, circle, rgba(0,0,0,.2), rgba(0,0,0,0) 20%, rgba(0,0,0,0) 21%), -webkit-radial-gradient(center, circle farthest-corner, #f0f0f0, #c0c0c0);
+    background: radial-gradient(center, circle, rgba(255,255,255,.35), rgba(255,255,255,0) 20%, rgba(255,255,255,0) 21%), -webkit-radial-gradient(center, circle, rgba(0,0,0,.2), rgba(0,0,0,0) 20%, rgba(0,0,0,0) 21%), -webkit-radial-gradient(center, circle farthest-corner, #f0f0f0, #c0c0c0);
+    background-size: 10px 10px, 10px 10px, 100% 100%;
+    background-position: 1px 1px, 0px 0px, center center;
+}
+.bg-dots{
+    /* big (hole) dots */
+    background:
+    radial-gradient(rgba(0,0,0,.3) 15%, transparent 16%) 0 0,
+    radial-gradient(rgba(0,0,0,.3) 15%, transparent 16%) 8px 8px,
+    radial-gradient(rgba(255,255,255,.3) 15%, transparent 20%) 0 1px,
+    radial-gradient(rgba(255,255,255,.3) 15%, transparent 20%) 8px 9px;
+    background-color: rgba(0,0,0,.1);
+    background-size:16px 16px;
+}
+.bg-metal{
+    background-color: #AAAAAA transparent 100%;
+    background-image: 
+        linear-gradient(90deg, rgba(255,255,255,.01) 50%, transparent 50%),
+        linear-gradient(90deg, rgba(255,255,255,.02) 50%, transparent 50%),
+        linear-gradient(90deg, transparent 50%, rgba(255,255,255,.03) 50%),
+        linear-gradient(90deg, transparent 50%, rgba(255,255,255,.04) 50%),
+        linear-gradient(90deg, rgba(255,255,255,.05) 50%, transparent 50%),
+        linear-gradient(90deg, rgba(255,255,255,.06) 50%, transparent 50%),
+        linear-gradient(90deg, transparent 50%, rgba(255,255,255,.07) 50%),
+        linear-gradient(90deg, transparent 50%, rgba(255,255,255,.08) 50%)
+        ;
+    background-size: 13px, 19px, 27px, 35px, 47px, 57px, 63px, 71px;
+}
+.bg-metal2{
+    background-color: #AAAAAA transparent 100%;
+    background-image: 
+        linear-gradient(0deg, rgba(255,255,255,.01) 50%, transparent 50%),
+        linear-gradient(0deg, rgba(255,255,255,.02) 50%, transparent 50%),
+        linear-gradient(0deg, transparent 50%, rgba(255,255,255,.03) 50%),
+        linear-gradient(0deg, transparent 50%, rgba(255,255,255,.04) 50%),
+        linear-gradient(0deg, rgba(255,255,255,.05) 50%, transparent 50%),
+        linear-gradient(0deg, rgba(255,255,255,.06) 50%, transparent 50%),
+        linear-gradient(0deg, transparent 50%, rgba(255,255,255,.07) 50%),
+        linear-gradient(0deg, transparent 50%, rgba(255,255,255,.08) 50%)
+        ;
+    background-size: 13px, 19px, 27px, 35px, 47px, 57px, 63px, 71px;
+}
+.bg-tv-lines{
+    background: -moz-radial-gradient( center center, contain, #757575, transparent ), black;
+    background: -webkit-radial-gradient( center center, contain, #757575, transparent ), black; 
+    background: -o-radial-gradient( center center, contain, #757575, transparent ), black; 
+    background: -khtml-radial-gradient( center center, contain, #757575, transparent ), black; 
+    background: -ms-radial-gradient( center center, contain, #757575, transparent ), black; 
+    background: radial-gradient( center center, contain, #757575, transparent ), black;
+}
+.bg-red {
+    background-image: url(../images/bg-red.jpg);
+}
+.bg-orange {
+    background-image: url(../images/bg-orange.jpg);
+}
+.bg-yellow {
+    background-image: url(../images/bg-yellow.jpg);
+}
+.bg-green {
+    background-image: url(../images/bg-green.jpg);
+}
+.bg-cyan {
+    background-image: url(../images/bg-cyan.jpg);
+}
+.bg-blue {
+    background-image: url(../images/bg-blue.jpg);
+}
+.bg-purple {
+    background-image: url(../images/bg-purple.jpg);
+}
+.bg-pink {
+    background-image: url(../images/bg-pink.jpg);
+}
+.bg-black {
+    background-image: url(../images/bg-black.jpg);
+}
+.body {
+    max-width: 600px;
+    margin: 0 auto;
+    padding: 40px;
+    padding-top: 100px;
+}
+.body-s {
+    max-width: 400px;
+}
+@media screen and (max-width: 600px) {
+    .body {
+        padding: 20px;
+    }
+}

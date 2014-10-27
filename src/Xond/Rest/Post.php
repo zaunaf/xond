@@ -12,66 +12,31 @@ use Xond\Info\ColumnInfo;
 
 class Post extends Rest
 {
-    
     public function process()
     {
         // Reposess Vars
         $request = $this->getRequest();
         $app = $this->getApp();
         $config = $this->getConfig();
-        
+    
         // Get the tableInfo object
         $tInfo = $this->getTableInfoObj();
         $pkColInfo = $tInfo->getPkColumnInfo();
-        
+    
         // Get the peer object
         $p = $this->getPeerObj();
         $this->obj = "";
-        
-        // If composite FK, split the ID first
-        if ($tInfo->getIsCompositePk()) {
-            
-            $ids = explode(":", $this->getWhich());
-            
-            switch (sizeof($ids)) {
-                case 2:
-                    $this->obj = $p->retrieveByPK($ids[0], $ids[1]);
-                    break;
-                case 3:
-                    $this->obj = $p->retrieveByPK($ids[0], $ids[1], $ids[2]);
-                    break;
-                case 4:
-                    $this->obj = $p->retrieveByPK($ids[0], $ids[1], $ids[2], $ids[3]);
-                    break;
-                case 5:
-                    $this->obj = $p->retrieveByPK($ids[0], $ids[1], $ids[2], $ids[3], $ids[4]);
-                    break;
-            }
-        } else {
-            
-            // Get id directly
-            $id = $this->getWhich();
-            
-            // Find the object
-            $this->obj = $p->retrieveByPK($id);
-        }
-        
-        $this->setObj($this->obj);
-        
-        // Create Object if it's not created yet
+    
+        // POST by definition is CREATE
+        // So, no retrieve happens
+        // Also using $this->obj so that the object will be easy to manipulate directly by other method
         $modelClass = $this->getClassName();
-                
-        if (!is_object($this->obj)) {
-            $this->obj = new ${'modelClass'}();
-            $app['dispatcher']->dispatch('rest_post.new_object');
-        } else {
-            $app['dispatcher']->dispatch('rest_post.retrieved_object');
-        }
-        $app['dispatcher']->dispatch('rest_post.emerged_object');
-        
+        $this->obj = new $modelClass();
+        $app['dispatcher']->dispatch('rest_post.create');
+    
         // Retreive the array from object typed params
         $arr = get_object_vars($this->getParams());
-        
+    
         // Trim all space
         $arrData = array();
         foreach ($arr as $key => $value) {
@@ -79,47 +44,84 @@ class Post extends Rest
             $value = trim($value);
             $arr[$key] = ($value === "") ? null : $value;
         }
-        
+    
         // Setting all the properties of the new created object from the arry
         $this->obj->fromArray($arr, \BasePeer::TYPE_FIELDNAME);
-        $app['dispatcher']->dispatch('rest_post.update_object');
-        
-        // Setting the UUID
+        $app['dispatcher']->dispatch('rest_post.load_updates');
+    
+        // Setting the PrimaryKey
+        // There's 4 possibilities
+        // 1.  The PK is Composite. 
+        //     Action: do nothing. Because the front end should give the value of each PK Column 
+        // 2.  The PK is Pre-determined.
+        //     Action: Front end should pass the recommended PK via "_id" key. 
+        // 3.  The PK is UUID and needs to be generated.
+        //     Action: Backend generate it for each adapter/database engine
+        // 4.  The PK is Integer and is Serial/Autoincremented
+        //     Action: Do nothing. Null will do.
+        // Don't forget that in order to kick the right REST method (namely POST in this case), the record
+        // added in the Front end SHOULD ALWAYS give empty value for the primary key column.
+        // Double quote (empty string) will do.
+
+        // Composite PK
         if ($tInfo->getIsCompositePk()) {
 
             // do nothing
             
+        } else if (isset($arr["_id"])) {
+
+            // This feature enables user to set primary key by themself
+            // Just set "_id" on the record definition
+            $this->obj->setPrimaryKey($arr["_id"]);
+        
+        } else if ($pkColInfo->getIsPkUuid()) {
+        
+            // If it's a PK UUID
+            $uuid = gen_uuid();
+            $this->obj->setPrimaryKey($uuid);
+        
         } else {
             
-            if ($pkColInfo->getIsPkUuid()) {
-                // $uuid = strtoupper(\UUIDpg::mint(1)->__toString());
-                $uuid = pg_gen_uuid(PenggunaPeer::DATABASE_NAME);
-                $this->obj->setPrimaryKey($uuid);
-            }
+            // Also do nothing :)
             
         }
         
-        $app['dispatcher']->dispatch('rest_post.create_uuid');
-        
+        $app['dispatcher']->dispatch('rest_post.before_save');
+
         if ($this->obj->save()) {
-            
+        
             $success = true;
-            $this->setMessage('Berhasil mengupdate $modelName');
+            $modelName = $this->getModelName();
+            $this->setMessage("Berhasil menambahkan $modelName");
+        
+            // Register the data to the response data
+            $this->setResponseData($this->obj->toArray());
+            $this->setResponseCode('201');
+        
+            // Process the response string from the attached values
+            $this->createResponseStr();
+        
+            // Kick the after save event in case someone wants to mess with the return json. May be override it?
+            $app['dispatcher']->dispatch('rest_post.save');
+        
+        } else {
+            
+            $success = false;
+            $modelName = $this->getModelName();
+            $this->setMessage("Gagal menambahkan $modelName");
             
             // Register the data to the response data
             $this->setResponseData($this->obj->toArray());
-            $this->setResponseCode(200);
-            
-            // Kick the data_load event in case someone wants to mess with the value
-            $app['dispatcher']->dispatch('rest_post.data_load');
+            $this->setResponseCode('400');
             
             // Process the response string from the attached values
             $this->createResponseStr();
             
-            // Kick the response_str_load event in case someone wants to mess with the string. May be override it?
-            $app['dispatcher']->dispatch('rest_post.response_str_load');
+            // Kick the after save event in case someone wants to mess with the return json. May be override it?
+            $app['dispatcher']->dispatch('rest_put.save_failed');
             
         }
+        
     }
 
     /**
@@ -139,82 +141,71 @@ class Post extends Rest
 
         $rest = $this;
         
-        $app->on('rest_post.new_object', function(Event $e) use ($rest) {
-            $rest->onNewObject();
+        $app->on('rest_post.create', function(Event $e) use ($rest) {
+            $rest->onCreate();
         });
         
-        $app->on('rest_post.retrieved_object', function(Event $e) use ($rest) {
-            $rest->onRetrievedObject();
-        });
-        
-        $app->on('rest_post.emerged_object', function(Event $e) use ($rest) {
-            $rest->onEmergedObject();
-        });
-        
-        $app->on('rest_post.update_object', function(Event $e) use ($rest) {
-            $rest->onUpdateObject();
+        $app->on('rest_post.load_updates', function(Event $e) use ($rest) {
+            $rest->onLoadUpdates();
         });
 
-        $app->on('rest_post.create_uuid', function(Event $e) use ($rest) {
-            $rest->onCreateUuid();
+        $app->on('rest_post.before_save', function(Event $e) use ($rest) {
+            $rest->onBeforeSave();
         });
-            
-            
+
+        $app->on('rest_post.save', function(Event $e) use ($rest) {
+            $rest->onSave();
+        });
+         
+        return $app;    
     }
     
-    public function onNewObject(){
+    // Override this !
+    public function onCreate(){
         
     }
     
-    public function onRetrievedObject(){
-        
-        // Revive deleted record in softDelete configuration
+    public function onLoadUpdates(){
+    
+        $obj = $this->getObj();
+    
+        if (method_exists($obj, 'setLastUpdate')) {
+            // $obj->setLastUpdate(date('Y-m-d H:i:s'));
+            $obj->setLastUpdate('1970-01-01 01:00:00');
+        }
         if (method_exists($obj, 'setSoftDelete')) {
-            $this->obj->setSoftDelete(0);
+            $obj->setSoftDelete(0);
         }
-        
-    }
-    
-    public function onEmergedObject(){
-    
-    }
-    
-    public function onNewObject(){
-    
-    }
-    
-    public function onUpdateObject(){
-        
-        $this->obj = $this->getObj();
-        
-        if (method_exists($this->obj, 'setLastUpdate')) {
-            // $this->obj->setLastUpdate(date('Y-m-d H:i:s'));
-            $this->obj->setLastUpdate('1970-01-01 01:00:00');
+        if (method_exists($obj, 'setLastSync')) {
+            $obj->setLastSync('1970-01-01 00:00:00');
         }
-        if (method_exists($this->obj, 'setSoftDelete')) {
-            $this->obj->setSoftDelete(0);
-        }
-        if (method_exists($this->obj, 'setLastSync')) {
-            $this->obj->setLastSync('1970-01-01 00:00:00');
-        }
-        
+    
         /*
-         * if(!$this->obj->getLastSync()) { $this->obj->setLastSync('2000-01-01 00:00:00'); }
+         * if(!$obj->getLastSync()) { $obj->setLastSync('2000-01-01 00:00:00'); }
         */
-        // $this->obj->setUpdaterId('90915957-31F5-E011-819D-43B216F82ED4');
-        if (method_exists($this->obj, 'setUpdaterId')) {
-            
+        // $obj->setUpdaterId('90915957-31F5-E011-819D-43B216F82ED4');
+        if (method_exists($obj, 'setUpdaterId')) {
+    
             if ($this->getUserId()) {
-                $this->obj->setUpdaterId($this->getUserId());
+                $obj->setUpdaterId($this->getUserId());
             } else {
-                $this->obj->setUpdaterId('90915957-31F5-E011-819D-43B216F82ED4');
+                $obj->setUpdaterId('90915957-31F5-E011-819D-43B216F82ED4');
             }
-            
+    
         }
-        
+    
+        $this->setObj($obj);
     }
     
-    public function onCreateUuid(){
-        
+    // Override this !
+    public function onBeforeSave(){
+        //print_r($this->obj); die;
     }
+
+    // Override this !
+    public function onSave(){
+    
+    }
+    
+    
 }

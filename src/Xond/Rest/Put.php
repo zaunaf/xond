@@ -27,47 +27,46 @@ class Put extends Rest
         // Get the peer object
         $p = $this->getPeerObj();
         $this->obj = "";
+
+        // Getting the Data
+        // There's 2 possibilities
+        // 1.  The PK is Composite.
+        //     Action: split the PK first, because our GET service creates a virtual PK that is
+        //     the combined string representative of each PK. Currently, we support only composit of 5 PK columns.
+        // 2.  The PK is Normal.
+        //     Action: retrieveByPk.
+        // Don't forget that in order to kick the right REST method (namely PUT in this case), the record
+        // added in the Front end SHOULD ALWAYS give the correct value for the primary key column.
         
-        // If composite FK, split the ID first
         if ($tInfo->getIsCompositePk()) {
-            
+        
             $ids = explode(":", $this->getWhich());
-            
+        
             switch (sizeof($ids)) {
-                case 2:
-                    $this->obj = $p->retrieveByPK($ids[0], $ids[1]);
-                    break;
-                case 3:
-                    $this->obj = $p->retrieveByPK($ids[0], $ids[1], $ids[2]);
-                    break;
-                case 4:
-                    $this->obj = $p->retrieveByPK($ids[0], $ids[1], $ids[2], $ids[3]);
-                    break;
-                case 5:
-                    $this->obj = $p->retrieveByPK($ids[0], $ids[1], $ids[2], $ids[3], $ids[4]);
-                    break;
+            	case 2:
+            	    $this->obj = $p->retrieveByPK($ids[0], $ids[1]);
+            	    break;
+            	case 3:
+            	    $this->obj = $p->retrieveByPK($ids[0], $ids[1], $ids[2]);
+            	    break;
+            	case 4:
+            	    $this->obj = $p->retrieveByPK($ids[0], $ids[1], $ids[2], $ids[3]);
+            	    break;
+            	case 5:
+            	    $this->obj = $p->retrieveByPK($ids[0], $ids[1], $ids[2], $ids[3], $ids[4]);
+            	    break;
             }
-        } else {
             
+        } else {
+        
             // Get id directly from http parameters
             $id = $this->getWhich();
-            
+        
             // Find the object
             $this->obj = $p->retrieveByPK($id);
         }
         
-        $this->setObj($this->obj);
-        
-        // Create Object if it's not created yet
-        $modelClass = $this->getClassName();
-                
-        if (!is_object($this->obj)) {
-            $this->obj = new ${'modelClass'}();
-            $app['dispatcher']->dispatch('rest_post.new_object');
-        } else {
-            $app['dispatcher']->dispatch('rest_post.retrieved_object');
-        }
-        $app['dispatcher']->dispatch('rest_post.emerged_object');
+        $app['dispatcher']->dispatch('rest_put.retrieve');
         
         // Retreive the array from object typed params
         $arr = get_object_vars($this->getParams());
@@ -82,61 +81,42 @@ class Put extends Rest
         
         // Setting all the properties of the new created object from the arry
         $this->obj->fromArray($arr, \BasePeer::TYPE_FIELDNAME);
-        $app['dispatcher']->dispatch('rest_post.update_object');
+        $app['dispatcher']->dispatch('rest_put.before_save');
         
-        // Setting the UUID
-        if ($tInfo->getIsCompositePk()) {
-
-            // do nothing
-            
+        if ($this->obj->save()) {
+        
+            $success = true;
+            $modelName = $this->getModelName();
+            $this->setMessage("Berhasil mengupdate $modelName");
+        
+            // Register the data to the response data
+            $this->setResponseData($this->obj->toArray());
+            $this->setResponseCode('200');
+        
+            // Process the response string from the attached values
+            $this->createResponseStr();
+        
+            // Kick the after save event in case someone wants to mess with the return json. May be override it?
+            $app['dispatcher']->dispatch('rest_put.save');
+                    
         } else {
+
+            $success = true;
+            $modelName = $this->getModelName();
+            $this->setMessage("Gagal mengupdate $modelName");
             
-            if ($pkColInfo->getIsPkUuid()) {
-                // $uuid = strtoupper(\UUIDpg::mint(1)->__toString());
-                $uuid = pg_gen_uuid(PenggunaPeer::DATABASE_NAME);
-                $this->obj->setPrimaryKey($uuid);
-            }
+            // Register the data to the response data
+            $this->setResponseData($this->obj->toArray());
+            $this->setResponseCode('400');
+            
+            // Process the response string from the attached values
+            $this->createResponseStr();
+            
+            // Kick the after save event in case someone wants to mess with the return json. May be override it?
+            $app['dispatcher']->dispatch('rest_put.save_failed');
             
         }
         
-        $app['dispatcher']->dispatch('rest_post.create_uuid');
-        
-        try {
-            if ($this->obj->save()) {
-                
-                $success = true;
-                $this->setMessage('Berhasil mengupdate $modelName');
-                
-                // Register the data to the response data
-                $this->setResponseData($this->obj->toArray());
-                $this->setResponseCode(200);
-                
-                // Kick the data_load event in case someone wants to mess with the value
-                $app['dispatcher']->dispatch('rest_post.data_load');
-                
-                // Process the response string from the attached values
-                $this->createResponseStr();
-                
-                // Kick the response_str_load event in case someone wants to mess with the string. May be override it?
-                $app['dispatcher']->dispatch('rest_post.response_str_load');
-                
-                //$outStr = "{ 'success' : true, 'message' : 'Berhasil mengupdate $modelName', 'rows' : " . json_encode($this->obj->toArray()) . " }";
-            }
-        } catch (\Exception $e) {
-            
-            // print_r($e); die;
-            // echo $e->getCause()->getMessage(); die;
-            // $success = false;
-            // $str = $this->errorProcess($e);
-            // echo $str; die;
-            // $str = $e->getCause()->getMessage();
-            // $outStr = "{ 'success' : false, 'message' : 'Gagal menyimpan $modelName(" . $str . ")' }";
-            // $outStr = "{ 'success' : false, 'message' : 'Gagal menyimpan $modelName' }";
-            
-            // Handle exceptions.
-            $this->handleException($e);
-            $this->createExceptionResponseStr();
-        }
     }
 
     /**
@@ -156,53 +136,33 @@ class Put extends Rest
 
         $rest = $this;
         
-        $app->on('rest_post.new_object', function(Event $e) use ($rest) {
-            $rest->onNewObject();
+        $app->on('rest_put.retrieve', function(Event $e) use ($rest) {
+            $rest->onRetrieve();
         });
         
-        $app->on('rest_post.retrieved_object', function(Event $e) use ($rest) {
-            $rest->onRetrievedObject();
+        $app->on('rest_put.before_save', function(Event $e) use ($rest) {
+            $rest->onBeforeSave();
         });
         
-        $app->on('rest_post.emerged_object', function(Event $e) use ($rest) {
-            $rest->onEmergedObject();
-        });
-        
-        $app->on('rest_post.update_object', function(Event $e) use ($rest) {
-            $rest->onUpdateObject();
-        });
-
-        $app->on('rest_post.create_uuid', function(Event $e) use ($rest) {
-            $rest->onCreateUuid();
+        $app->on('rest_put.save', function(Event $e) use ($rest) {
+            $rest->onSave();
         });
             
-            
+        return $app;
     }
     
-    public function onNewObject(){
-        
-    }
-    
-    public function onRetrievedObject(){
+    // Override this !
+    public function onRetrieve(){
         
         // Revive deleted record in softDelete configuration
-        if (method_exists($obj, 'setSoftDelete')) {
+        if (method_exists($this->obj, 'setSoftDelete')) {
             $this->obj->setSoftDelete(0);
         }
         
     }
     
-    public function onEmergedObject(){
-    
-    }
-    
-    public function onNewObject(){
-    
-    }
-    
-    public function onUpdateObject(){
-        
-        $this->obj = $this->getObj();
+    // Override this !
+    public function onBeforeSave(){
         
         if (method_exists($this->obj, 'setLastUpdate')) {
             // $this->obj->setLastUpdate(date('Y-m-d H:i:s'));
@@ -231,7 +191,8 @@ class Put extends Rest
         
     }
     
-    public function onCreateUuid(){
+    // Override this !
+    public function onSave(){
         
     }
 }
