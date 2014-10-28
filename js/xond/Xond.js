@@ -1,3 +1,28 @@
+
+
+// If there is, lets say 6 digit of numbers, get the most significant numbers without 0s
+// For example: 102390 --> 10239. 128000 --> 128
+function getSignificantDigits(number) {
+  
+  var str = (typeof number === 'number') ? number.toString() : number.trim();
+  var res = "";
+  var sig = false;
+
+  for (var i = (str.length-1); i >= 0; i--) {
+
+    if (str[i] === '0' && !sig) {
+      //lanjut
+    } else {
+      //non zero value found! It's all significant now
+      sig = true;
+      res = str[i] + res;
+      //console.log(i + ":" + str[i]);
+    }
+
+  }
+  return res;
+}
+    
 function in_array (needle, haystack, argStrict) {
   // http://kevin.vanzonneveld.net
   // +   original by: Kevin van Zonneveld (http://kevin.vanzonneveld.net)

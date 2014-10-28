@@ -99,7 +99,12 @@ class Get extends Rest
         // Handle query
         $filterProperty = "";
         
+        // Get the query sent
         $query = $request->get('query');
+        
+        // Fuzzy searching
+        $query = str_replace(" ", "%", $query);
+        
         if ($query) {
             $query = "%" . $query . "%";
             $json = json_decode($request->get('filter'));
@@ -107,10 +112,12 @@ class Get extends Rest
             
             $filterProperty = $tInfo->getDisplayField();
             // $columnName = $this->getPeerObj()->getTableMap()->getName().".".$filterProperty;
-            $columnName = $this->getPeerObj()
-                ->getTableMap()
-                ->getName() . "." . $tInfo->getDisplayField();
+            //$columnName = $this->getPeerObj()
+            //    ->getTableMap()
+            //    ->getName() . "." . $tInfo->getDisplayField();
             // echo "Columname: ".$columName."\n";
+            
+            $columnName = Rest::convertToColumnName($tInfo, $filterProperty);
             
             $c->add($columnName, $query, \Criteria::LIKE);
         }
@@ -281,7 +288,8 @@ class Get extends Rest
         $app['dispatcher']->dispatch('rest_get.calc_params');
         
         foreach ($this->getParams() as $key => $val) {
-            if (! in_array($key, array(
+            
+            if (!in_array($key, array(
                 "limit",
                 "start",
                 "query",
@@ -325,49 +333,67 @@ class Get extends Rest
                     $custom = substr($val, 0, 1);
                     
                     
+                    // There are 4 possibilities of param filter
+                    // 1) Any params (PK, FK or anything) with wildcard (*) match
+                    // 2) Exact match for columns ending with "_id"
+                    // 3) Switcher only, no need of val ISNULL, ISNOTNULL and ISEMPTY
+                    // 4) Regular string. Fuzzy searching then applied
+                    // 5) Any else type. Just match it.
                     
-                    if ($id == "_id") {
+                    // Wildcard match
+                    if (strpos($val, "*") >= 0) {
+                        
+                        $val = str_replace("*", "%", $val);
+                        if (get_adapter() == 'pgsql') {
+                            $c->add($columnName, $val, \Criteria::ILIKE);
+                        } else {
+                            $c->add($columnName, $val, \Criteria::LIKE);
+                        }
+
+                    // It's an id. If the ID is a stupid string, you might want to use no.1
+                    } else if ($id == "_id") {
                         
                         $c->add($columnName, $val, \Criteria::EQUAL);
+
+                    // Switcher, if non standard value is given as params
+                    } else if ($custom == "#") {
+                        switch ($val) {
+                        	case "#ISNULL":
+                        	    // echo "#ISNULL";
+                        	    $c->add($columnName, NULL, \Criteria::ISNULL);
+                        	    break;
+                        	case "#ISNOTNULL":
+                        	    // echo "#ISNOTNULL";
+                        	    $c->add($columnName, NULL, \Criteria::ISNOTNULL);
+                        	    break;
+                        	case "#ISEMPTY":
+                        	    // echo "#ISEMPTY";
+                        	    $c->add($columnName, "", \Criteria::EQUAL);
+                        	    break;
+                        	default:
+                        	    break;
+                        }
+                    
+                    // If it's a string or text. Fuzzy search.
+                    } else if (in_array($typeColumn, array(
+                        "string",
+                        "text"
+                    ))) {
+                        $val = str_replace(" ", "%", $val);
+                        $val = "%" . $val . "%";
                         
-                    } else {
-                        
-                        if (in_array($typeColumn, array(
-                            "string",
-                            "text"
-                        ))) {
-                            $val = str_replace(" ", "%", $val);
-                            $val = "%" . $val . "%";
-                            
-                            if (get_adapter() == 'pgsql') {
-                                $c->add($columnName, $val, \Criteria::ILIKE);
-                            } else {
-                                $c->add($columnName, $val, \Criteria::LIKE);
-                            }
+                        if (get_adapter() == 'pgsql') {
+                            $c->add($columnName, $val, \Criteria::ILIKE);
                         } else {
-                            $c->add($columnName, $val, \Criteria::EQUAL);
+                            $c->add($columnName, $val, \Criteria::LIKE);
                         }
-                        
-                        // Switcher, if non standard value is given as params
-                        if ($custom == "#") {
-                            switch ($val) {
-                                case "#ISNULL":
-                                    // echo "#ISNULL";
-                                    $c->add($columnName, NULL, \Criteria::ISNULL);
-                                    break;
-                                case "#ISNOTNULL":
-                                    // echo "#ISNOTNULL";
-                                    $c->add($columnName, NULL, \Criteria::ISNOTNULL);
-                                    break;
-                                case "#ISEMPTY":
-                                    // echo "#ISEMPTY";
-                                    $c->add($columnName, "", \Criteria::EQUAL);
-                                    break;
-                                default:
-                                    break;
-                            }
-                        }
+                    
+                    // Everything else
+                    } else {
+                        $c->add($columnName, $val, \Criteria::EQUAL);
                     }
+                    
+                
                 }
             }
         }

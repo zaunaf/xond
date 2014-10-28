@@ -20,8 +20,6 @@ function shutdown_handler() {
 register_shutdown_function('shutdown_handler');
 */
 
-/////////
-
 function isFloat($val) {
     $pattern = '/^[+-]?(\d*\.\d+([eE]?[+-]?\d+)?|\d+[eE][+-]?\d+)$/';
     return preg_match($pattern, trim($val));

@@ -4,12 +4,70 @@ Ext.define('{{appName}}.view._components.grid.{{table.getPhpName}}', {
     title: '',
     selType: 'rowmodel',
     autoScroll: true,
+    createStore: function() {
+        return Ext.create('{{appName}}.store.{{table.getPhpName}}');
+    },
+    createEditing: function() {
+        return Ext.create('Ext.grid.plugin.CellEditing', {
+            clicksToEdit: 2
+        });
+    },
+    createDockedItems: function() {
+        return [{
+            xtype: 'toolbar',
+            items: [{
+                xtype: 'button',
+                text: 'Tambah',
+                iconCls: 'fa fa-plus fa-lg glyph-dark-green glyph-shadow',
+                scope: this,
+                action: 'add'
+            }, {
+                xtype: 'button',
+                text: 'Ubah',
+                iconCls: 'fa fa-eraser fa-lg glyph-dark-orange glyph-shadow',
+                itemId: 'edit',
+                scope: this,
+                action: 'edit'
+            }, {
+                xtype: 'button',
+                text: 'Simpan',
+                iconCls: 'fa fa-check fa-lg glyph-blue glyph-shadow',
+                itemId: 'save',
+                scope: this,
+                action: 'save'
+            }, {
+                xtype: 'button',
+                text: 'Hapus',
+                iconCls: 'fa fa-remove fa-lg glyph-red glyph-shadow',
+                itemId: 'delete',
+                scope: this,
+                action: 'delete'
+            }]
+        }];
+    },
+    createBbar: function(){
+        return Ext.create('Ext.PagingToolbar', {
+            store: this.store,
+            displayInfo: true,
+            displayMsg: 'Displaying data {0} - {1} of {2}',
+            emptyMsg: "Tidak ada data"
+        });
+    },
     initComponent: function() {
         
         var grid = this;
         
-        this.store = Ext.create('{{appName}}.store.{{table.getPhpName}}');
+        this.store = this.createStore;
         
+        // You can instaniate the component with basic parameters that affects filtering of the store
+        // For example:
+        // {
+        //     xtype: 'yourgrid',
+        //     baseParams: {
+        //         area_id: 120,
+        //         status_id: 1
+        //     }
+        // }      
         if (this.initialConfig.baseParams) {
             
             var baseParams = this.initialConfig.baseParams;
@@ -32,12 +90,10 @@ Ext.define('{{appName}}.view._components.grid.{{table.getPhpName}}', {
             }
         });
         
-        var cellEditing = Ext.create('Ext.grid.plugin.CellEditing', {
-            clicksToEdit: 2
-        });
+        var editing = this.createEditing;
 
-        this.rowEditing = cellEditing;
-        this.plugins = [cellEditing];
+        this.rowEditing = rowEditing;
+        this.plugins = [rowEditing];
 
 {% for col in columns %}
 {% if col.getIsFk == 1 %}
@@ -161,44 +217,9 @@ Ext.define('{{appName}}.view._components.grid.{{table.getPhpName}}', {
 {% endfor %}
         }];
         
-        this.dockedItems = [{
-            xtype: 'toolbar',
-            items: [{
-                xtype: 'button',
-                text: 'Tambah',                
-                iconCls: 'fa fa-plus fa-lg glyph-dark-green glyph-shadow',
-                scope: this,
-                action: 'add'
-            }, {
-                xtype: 'button',
-                text: 'Ubah',            
-                iconCls: 'fa fa-eraser fa-lg glyph-dark-orange glyph-shadow',
-                itemId: 'edit',
-                scope: this,
-                action: 'edit'
-            }, {
-                xtype: 'button',
-                text: 'Simpan',            
-                iconCls: 'fa fa-check fa-lg glyph-blue glyph-shadow',
-                itemId: 'save',
-                scope: this,
-                action: 'save'
-            }, {    
-                xtype: 'button',
-                text: 'Hapus',    
-                iconCls: 'fa fa-remove fa-lg glyph-red glyph-shadow',
-                itemId: 'delete',
-                scope: this,
-                action: 'delete'
-            }]
-        }];
-        
-        this.bbar = Ext.create('Ext.PagingToolbar', {
-            store: this.store,
-            displayInfo: true,
-            displayMsg: 'Displaying data {0} - {1} of {2}',
-            emptyMsg: "Tidak ada data"
-        });
+        this.dockedItems = this.createDockedItems();
+
+        this.bbar = this.createBbar();
         
         this.callParent(arguments);
     }
