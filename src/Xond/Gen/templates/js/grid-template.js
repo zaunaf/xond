@@ -57,7 +57,7 @@ Ext.define('{{appName}}.view._components.grid.{{table.getPhpName}}', {
         
         var grid = this;
         
-        this.store = this.createStore;
+        this.store = this.createStore();
         
         // You can instaniate the component with basic parameters that affects filtering of the store
         // For example:
@@ -90,10 +90,10 @@ Ext.define('{{appName}}.view._components.grid.{{table.getPhpName}}', {
             }
         });
         
-        var editing = this.createEditing;
+        var editing = this.createEditing();
 
-        this.rowEditing = rowEditing;
-        this.plugins = [rowEditing];
+        this.rowEditing = editing;
+        this.plugins = [editing];
 
 {% for col in columns %}
 {% if col.getIsFk == 1 %}
