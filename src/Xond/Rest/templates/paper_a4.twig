@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<html lang="en" moznomarginboxes mozdisallowselectionprint>
+<head>
+<meta charset="UTF-8" />
+<title>{{title}}</title>
+<link href='/resources/font/raleway/raleway-light.css' rel='stylesheet' type='text/css'>    
+<style type="text/css">
+
+@media screen {
+
+    body
+    {
+        background-color: #ddd;
+    }
+
+    .box
+    {
+        position: relative;
+        /* width: 500px;*/
+        width: 21cm; 
+        /*height: 27.5cm; */
+        padding: 50px;
+        margin: 0 auto;
+        margin-top: 20px;
+        margin-bottom: 20px;
+        background-color: #fff;
+        -webkit-box-shadow: 0 0 4px rgba(0, 0, 0, 0.2), inset 0 0 50px rgba(0, 0, 0, 0.1);
+        -moz-box-shadow: 0 0 4px rgba(0, 0, 0, 0.2), inset 0 0 50px rgba(0, 0, 0, 0.1);
+        box-shadow: 0 0 5px rgba(0, 0, 0, 0.2), inset 0 0 50px rgba(0, 0, 0, 0.1);
+    }
+
+    .box:before, .box:after
+    {
+        position: absolute;
+        width: 30%;
+        height: 10px;
+        content: ' ';
+        left: 8px;
+        bottom: 12px;
+        background: transparent;
+        -webkit-transform: skew(-5deg) rotate(-5deg);
+        -moz-transform: skew(-5deg) rotate(-5deg);
+        -ms-transform: skew(-5deg) rotate(-5deg);
+        -o-transform: skew(-5deg) rotate(-5deg);
+        transform: skew(-5deg) rotate(-5deg);
+        -webkit-box-shadow: 0 6px 14px rgba(0, 0, 0, 0.5);
+        -moz-box-shadow: 0 6px 14px rgba(0, 0, 0, 0.5);
+        box-shadow: 0 6px 14px rgba(0, 0, 0, 0.5);
+        z-index: -1;
+    } 
+
+    .box:after
+    {
+        left: auto;
+        right: 8px;
+        -webkit-transform: skew(5deg) rotate(5deg);
+        -moz-transform: skew(5deg) rotate(5deg);
+        -ms-transform: skew(5deg) rotate(5deg);
+        -o-transform: skew(5deg) rotate(5deg);
+        transform: skew(5deg) rotate(5deg);
+    } 
+
+
+}
+
+@media print {
+    
+    @page
+    {
+        /*margin:0;*/
+    }
+
+    body {
+        /*padding: 20px;*/
+    }
+
+}
+
+@media screen, print {
+
+    body {
+
+        font-family: arial, helvetica, freesans, sans-serif;
+        font-size: 100%;
+        color: #333;
+    }
+
+    h1, h2
+    {
+        font-family: Raleway;
+        color: #777;
+        font-size: 1.6em;
+        font-weight: normal;
+        margin: 0;
+    }
+
+    h2
+    {
+        font-size: 1em;
+        margin-top: 0;
+    }
+
+    p
+    {
+        color: #777;
+        font-weight: thin;
+        font-size:12px;
+    }
+    /*h1 { text-shadow: -1px -1px 1px #fff, 1px 1px 1px #333; color: #888; opacity: 2; font: 25px 'Raleway'; }*/
+
+    /*table a:link {
+        color: #666;
+        font-weight: bold;
+        text-decoration:none;
+    }
+    table a:visited {
+        color: #999999;
+        font-weight:bold;
+        text-decoration:none;
+    }
+    table a:active,
+    table a:hover {
+        color: #bd5a35;
+        text-decoration:underline;
+    }*/
+
+
+    table {
+        font-family:Arial, Helvetica, sans-serif;
+        color:#666;
+        font-size:12px;
+        text-shadow: 1px 1px 0px #fff;
+        background:#eaebec;
+        /*margin:20px;*/
+        border:#ccc 1px solid;
+
+        -moz-border-radius:3px;
+        -webkit-border-radius:3px;
+        border-radius:3px;
+
+        -moz-box-shadow: 0 1px 2px #d1d1d1;
+        -webkit-box-shadow: 0 1px 2px #d1d1d1;
+        box-shadow: 0 1px 2px #d1d1d1;
+
+        /* Paging */
+         -fs-table-paginate: paginate;
+    }
+    table th {
+        padding:11px 15px 12px 15px;
+        border-top:1px solid #fafafa;
+        border-bottom:1px solid #e0e0e0;
+
+        background: #ededed;
+        background: -webkit-gradient(linear, left top, left bottom, from(#ededed), to(#ebebeb));
+        background: -moz-linear-gradient(top,  #ededed,  #ebebeb);
+    }
+    table th:first-child{
+        text-align: left;
+        padding-left:20px;
+    }
+    table tr:first-child th:first-child{
+        -moz-border-radius-topleft:3px;
+        -webkit-border-top-left-radius:3px;
+        border-top-left-radius:3px;
+    }
+    table tr:first-child th:last-child{
+        -moz-border-radius-topright:3px;
+        -webkit-border-top-right-radius:3px;
+        border-top-right-radius:3px;
+    }
+    table tr{
+        text-align: center;
+        padding-left:20px;
+    }
+    table tr td:first-child{
+        text-align: left;
+        padding-left:20px;
+        border-left: 0;
+    }
+    table tr td {
+        padding:8px;
+        border-top: 1px solid #ffffff;
+        border-bottom:1px solid #e0e0e0;
+        border-left: 1px solid #e0e0e0;
+        
+        background: #fafafa;
+        background: -webkit-gradient(linear, left top, left bottom, from(#fbfbfb), to(#fafafa));
+        background: -moz-linear-gradient(top,  #fbfbfb,  #fafafa);
+    }
+    table tr.even td{
+        background: #f6f6f6;
+        background: -webkit-gradient(linear, left top, left bottom, from(#f8f8f8), to(#f6f6f6));
+        background: -moz-linear-gradient(top,  #f8f8f8,  #f6f6f6);
+    }
+    table tr:last-child td{
+        border-bottom:0;
+    }
+    table tr:last-child td:first-child{
+        -moz-border-radius-bottomleft:3px;
+        -webkit-border-bottom-left-radius:3px;
+        border-bottom-left-radius:3px;
+    }
+    table tr:last-child td:last-child{
+        -moz-border-radius-bottomright:3px;
+        -webkit-border-bottom-right-radius:3px;
+        border-bottom-right-radius:3px;
+    }
+/*
+    table tr:hover td{
+        background: #f2f2f2;
+        background: -webkit-gradient(linear, left top, left bottom, from(#f2f2f2), to(#f0f0f0));
+        background: -moz-linear-gradient(top,  #f2f2f2,  #f0f0f0);  
+    }    
+*/
+    thead td {
+        margin-top: 30px;
+    }
+    tfoot td {
+        border-bottom-width: 0px ;
+        border-top: 2px solid #333333 ;
+        padding-top: 20px ;
+    }
+
+}
+
+</style>
+
+</head>
+<body>
+
+<div class="box">
+
+{% block content %}
+
+<h1>Pure CSS3 Paper Curls Without Images</h1>
+
+<p>No images or additional elements are used to create this curled box effect.</p>
+
+<p>For more information, please please refer to:<br />
+<a href="http://blogs.sitepoint.com/pure-css3-paper-curl/">Pure CSS3 Paper Curls Without Images</a></p>
+
+<h2>No Restrictions</h2>
+
+<p>This example code was developed by <a href="http://twitter.com/craigbuckler">Craig Buckler</a> of <a href="http://optimalworks.net/">OptimalWorks.net</a> for <a href="http://sitepoint.com/">SitePoint.com</a>.</p>
+
+<p>It can be used without any restrictions but please don't expect 24/7 support! A link back to <a href="http://www.sitepoint.com/">SitePoint.com</a> is appreciated.</p>
+
+{% endblock %}
+
+</div>
+
+</body>
+</html>

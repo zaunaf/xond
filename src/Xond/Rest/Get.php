@@ -1,4 +1,12 @@
 <?php
+/**
+ * This file is part of the Xond package.
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
+ *
+ * @license    MIT License
+ */
+
 namespace Xond\Rest;
 
 use Silex\Application;
@@ -65,7 +73,7 @@ class Get extends Rest
         $config = $this->getConfig();
         
         // Create criteria for matching
-        $c = new \Criteria();
+        $this->c = new \Criteria();
         
         // Get the peer object for query management
         $p = $this->getPeerObj();
@@ -119,14 +127,14 @@ class Get extends Rest
             
             $columnName = Rest::convertToColumnName($tInfo, $filterProperty);
             
-            $c->add($columnName, $query, \Criteria::LIKE);
+            $this->c->add($columnName, $query, \Criteria::LIKE);
         }
         
-        $c = $this->injectFilter($c);
-        $c = $this->handleId($c);
-        $c = $this->handleParams($c);
-        $c = $this->handleBigLeftJoinFk($c);
-        $c = $this->handleBigRightJoinFk($c);
+        $this->c = $this->injectFilter($this->c);
+        $this->c = $this->handleId($this->c);
+        $this->c = $this->handleParams($this->c);
+        $this->c = $this->handleBigLeftJoinFk($this->c);
+        $this->c = $this->handleBigRightJoinFk($this->c);
         
         // Get total number of row exists
         // print_r($c); die;
@@ -134,105 +142,28 @@ class Get extends Rest
         // $rowCount = $p->doCount($c);
         
         // Do row count
-        $rowCount = $p->doCount($c);
+        $rowCount = $p->doCount($this->c);
         $this->setRowCount($rowCount);
         
         // Kick the count event
         $app['dispatcher']->dispatch('rest_get.count');
         
-        // print_r($c); die;
         // Set limit. Limit will be disabled when $limit = 0. Be careful though ;)
-        $c->setOffset($this->getStart());
+        $this->c->setOffset($this->getStart());
         if ($this->getLimit() > 0) {
-            $c->setLimit($this->getLimit());
+            $this->c->setLimit($this->getLimit());
         }
         
         // Set order by primary key
-        $p->doSelect($c); // What is THIS ?
+        // $p->doSelect($this->c); // What is THIS ?
         
         $connection = \Propel::getConnection(\Propel::getDefaultDB());
         $connection->useDebug(false);
         
-        // print_r("Last Query: ". $c->toString()); die();
-        $tArr = $p->doSelect($c, $connection);
+        // print_r("Last Query: ". $this->c->toString()); die();
+        $tArr = $p->doSelect($this->c, $connection);
         
-        // $id = $p->getFieldNames(\BasePeer::TYPE_FIELDNAME);
-        $fieldNames = $this->createFieldNames($this->getModelName());
-        $this->setFieldNames($fieldNames);
-        
-        // Inital vals
-        $outArr = array();
-        
-        // Process for all row
-        foreach ($tArr as $t) {
-            
-            // Search for FK columns
-            /*
-             * $cols = $tInfo->getColumns(); foreach ($cols as $col) { $col = new ColumnInfo(); if ($col->getIsFk()) { $colPhpName = $col->getColumnPhpName(); } } $tInfo = new PtkTableInfo(); $tInfo->get $table = new Ptk(); $table->getSekolah()->getNama();
-             */
-            
-            $arr = $t->toArray(\BasePeer::TYPE_FIELDNAME);
-            
-            // Cleans odd decimal / float values for FK //
-            // print_r($arr); die;
-            $counter = 0;
-            foreach ($arr as $key => $val) {
-                // echo "$key = $val ".($this->floatBukan($val) ? "Float" : "Not float")."|"; continue;
-                if (($counter == 0) && isFloat($val)) {
-                    // echo $val."<br>";
-                    $arr["$key"] = intval($val);
-                    // break;
-                }
-                $counter ++;
-            }
-            
-            $arr = $this->addFkStrings($arr, $t);
-            
-            // Handling for composite PKs //
-            if ($tInfo->getIsCompositePk()) {
-                
-                $cols = $tInfo->getColumns();
-                
-                $pkName = $tInfo->getPkName();
-                $virtualPkStr = "";
-                
-                $i = 1;
-                
-                foreach ($cols as $col) {
-                    // echo $col->getName()."\n";
-                    // Skip first column(virtual column)
-                    if ($i == 1) {
-                        $i ++;
-                        continue;
-                    }
-                    
-                    if ($col->getIsPk()) {
-                        
-                        $colName = $col->getName();
-                        $virtualPkStr .= ($i > 2) ? ":" : "";
-                        $virtualPkStr .= $arr["$colName"];
-                        // echo "Found PK : $colName<br>\n";
-                        // echo "Value: ". $arr["$colName"]."<br>\n";
-                        // echo "Current val: ".$virtualPkStr."<br>\n";
-                    }
-                    $i ++;
-                }
-                
-                $arr["$pkName"] = $virtualPkStr;
-                
-                // print_r($id);
-                
-                // Removing the pk from column list
-                // $key = array_search($pkName, $id);
-                // unset($id[$key]);
-                
-                // Add pkname to the top using merge
-                array_unshift($id, $pkName);
-                // print_r($id);
-            }
-            
-            $outArr[] = $arr;
-        }
+        $outArr = $this->processRows($tArr);
         
         // Register the data to the response data            
         $this->setResponseData($outArr);
@@ -254,7 +185,97 @@ class Get extends Rest
         // return "Processing GET for model ".$request->get('model')." number ".$request->get('which');
         // return "Processing GET for model ".$this->getModelName()." number ".$this->getWhich();
     }
+    
+    /**
+     * Process Rows: skip int keys, add support for Composite PK 
+     * @param unknown $tArr
+     * @return multitype:string
+     */
+    private function processRows($tArr) {
+        
+        // $id = $p->getFieldNames(\BasePeer::TYPE_FIELDNAME);
+        $fieldNames = $this->createFieldNames($this->getModelName());
+        $this->setFieldNames($fieldNames);
+        $tInfo = $this->getTableInfoObj();
+        
+        // Inital vals
+        $outArr = array();
+        
+        // Process for all row
+        foreach ($tArr as $t) {
+        
+            // Search for FK columns
+            /*
+            * $cols = $tInfo->getColumns(); foreach ($cols as $col) { $col = new ColumnInfo(); if ($col->getIsFk()) { $colPhpName = $col->getColumnPhpName(); } } $tInfo = new PtkTableInfo(); $tInfo->get $table = new Ptk(); $table->getSekolah()->getNama();
+            */
+        
+            $arr = $t->toArray(\BasePeer::TYPE_FIELDNAME);
+        
+            // Cleans odd decimal / float values for FK //
+            // print_r($arr); die;
+            $counter = 0;
+            foreach ($arr as $key => $val) {
+                // echo "$key = $val ".($this->floatBukan($val) ? "Float" : "Not float")."|"; continue;
+                if (($counter == 0) && isFloat($val)) {
+                    // echo $val."<br>";
+                    $arr["$key"] = intval($val);
+                    // break;
+                }
+                $counter ++;
+            }
+            
+            $arr = $this->addFkStrings($arr, $t);
 
+            // Handling for composite PKs //
+            if ($tInfo->getIsCompositePk()) {
+
+                $cols = $tInfo->getColumns();
+    
+                $pkName = $tInfo->getPkName();
+                $virtualPkStr = "";
+    
+                $i = 1;
+    
+                foreach ($cols as $col) {
+                // echo $col->getName()."\n";
+                    // Skip first column(virtual column)
+                    if ($i == 1) {
+                        $i ++;
+                        continue;
+                    }
+    
+                    if ($col->getIsPk()) {
+        
+                        $colName = $col->getName();
+                        $virtualPkStr .= ($i > 2) ? ":" : "";
+                        $virtualPkStr .= $arr["$colName"];
+                        // echo "Found PK : $colName<br>\n";
+                        // echo "Value: ". $arr["$colName"]."<br>\n";
+                        // echo "Current val: ".$virtualPkStr."<br>\n";
+                    }
+                    $i ++;
+                }
+        
+                $arr["$pkName"] = $virtualPkStr;
+        
+                // print_r($id);
+        
+                // Removing the pk from column list
+                // $key = array_search($pkName, $id);
+                // unset($id[$key]);
+        
+                // Add pkname to the top using merge
+                array_unshift($id, $pkName);
+                // print_r($id);
+            }
+            
+            $outArr[] = $arr;
+        }
+        
+        return $outArr;
+        
+    }
+    
     private function handleId(\Criteria $c)
     {
         
@@ -635,23 +656,23 @@ class Get extends Rest
         $rest = $this;
     
         $app->on('rest_get.calc_offset', function(Event $e) use ($rest) {
-            $rest->onCalcOffset();
+            $rest->onCalcOffset($e, $rest);
         });
     
         $app->on('rest_get.calc_limit', function(Event $e) use ($rest) {
-            $rest->onCalcLimit();
+            $rest->onCalcLimit($e, $rest);
         });
 
         $app->on('rest_get.count', function(Event $e) use ($rest) {
-            $rest->onCount();
+            $rest->onCount($e, $rest);
         });
         
         $app->on('rest_get.data_load', function(Event $e) use ($rest) {
-            $rest->onDataLoad();
+            $rest->onDataLoad($e, $rest);
         });
         
         $app->on('rest_get.response_str_load', function(Event $e) use ($rest) {
-            $rest->onResponseStrLoad();
+            $rest->onResponseStrLoad($e, $rest);
         });
             
         return $app;
@@ -663,23 +684,23 @@ class Get extends Rest
     //     $this->log("Counted records, result: ".$this->getRowCount()." rows found<br>\r\n");
     // }
     
-    public function onCalcOffset(){
+    public function onCalcOffset($e, $rest){
         
     }
     
-    public function onCalcLimit(){
+    public function onCalcLimit($e, $rest){
     
     }
     
-    public function onCount(){
+    public function onCount($e, $rest){
     
     }
     
-    public function onDataLoad(){
+    public function onDataLoad($e, $rest){
     
     }
     
-    public function onResponseStrLoad(){
+    public function onResponseStrLoad($e, $rest){
     
     }
     

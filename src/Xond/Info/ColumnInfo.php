@@ -1,6 +1,23 @@
 <?php
 
+/**
+ * This file is part of the Xond package.
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
+ *
+ * @license    MIT License
+ */
+
 namespace Xond\Info;
+
+/**
+ * This is a base class that will be instaniated by the TableInfo to define its columns
+ * for ExtJS components generation.
+ *
+ * @author     Donny Fauzan <donny.fauzan@gmail.com> (Nufaza)
+ * @version    $Revision$
+ * @package    xond.info
+ */
 
 class ColumnInfo 
 {

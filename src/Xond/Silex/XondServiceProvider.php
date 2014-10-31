@@ -88,7 +88,10 @@ class XondServiceProvider implements ServiceProviderInterface
         $app->post('/rest/{model}', 'Xond\Rest\Post::init');
         $app->put('/rest/{model}/{which}', 'Xond\Rest\Put::init');
         $app->delete('/rest/{model}/{which}', 'Xond\Rest\Delete::init');
-
+        
+        // REST Printing
+        $app->get('/print/{model}', 'Xond\Rest\Printing::init');
+        
     }
 
     public function boot(Application $app)

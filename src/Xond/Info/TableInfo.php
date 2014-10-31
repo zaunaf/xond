@@ -1,7 +1,25 @@
 <?php
 
+/**
+ * This file is part of the Xond package.
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
+ *
+ * @license    MIT License
+ */
+
 namespace Xond\Info;
 
+/**
+ * This is an abstract base class that will be extended to many classes as defined by 
+ * the database model. The file will be extended firstly to it's base model definition
+ * and then further extended to user editable classes to costumize it more, enabling users
+ * adapt the GUI requirement of ExtJS components layouts and config.
+ *
+ * @author     Donny Fauzan <donny.fauzan@gmail.com> (Nufaza)
+ * @version    $Revision$
+ * @package    xond.info
+ */
 class TableInfo
 {
     protected $name;

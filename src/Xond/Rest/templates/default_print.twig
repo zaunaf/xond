@@ -1,0 +1,32 @@
+{% extends 'paper_a4.twig' %}
+
+{% block content %}
+
+<h1>{{title}}</h1>
+<h2>{{subtitle}}</h2>
+<br>
+<!-- Barakatak. Halo {{nama}} {{nama_blk}} !! -->
+
+<table cellspacing='0' width='100%'> <!-- cellspacing='0' is important, must stay -->
+    <thead>
+    <tr>
+        {% for h in headers %}<th>{{h}}</th>{% endfor %}
+    </tr>
+    </thead>
+    <tbody>
+{% for d in data %}
+    <tr {% if loop.index0 is even %}class='even'{% endif %}>
+{% for c in columns %}
+        <td>{{attribute(d, c)}}</td>
+{% endfor %}
+    </tr>
+{% endfor %}
+</table>
+<p>
+    <i>
+Dicetak dari Aplikasi {{appname}} pada tanggal {{ "now"|date("d/m/Y") }} pukul {{ "now"|date("H:i") }}.
+    </i>
+</p>
+
+
+{% endblock %}
