@@ -64,7 +64,7 @@ class Xond
             $peerObj = new ${'peerName'} ();
             return $peerObj;
         } else {
-            throw new Exception("No such model. Don't forget to build.", 404);
+            throw new \Exception("No such model. Don't forget to build.", 404);
         }
     
     }

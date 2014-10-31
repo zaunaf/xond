@@ -148,6 +148,7 @@ class Get extends Rest
         // Kick the count event
         $app['dispatcher']->dispatch('rest_get.count');
         
+        
         // Set limit. Limit will be disabled when $limit = 0. Be careful though ;)
         $this->c->setOffset($this->getStart());
         if ($this->getLimit() > 0) {
@@ -156,7 +157,6 @@ class Get extends Rest
         
         // Set order by primary key
         // $p->doSelect($this->c); // What is THIS ?
-        
         $connection = \Propel::getConnection(\Propel::getDefaultDB());
         $connection->useDebug(false);
         
@@ -191,7 +191,7 @@ class Get extends Rest
      * @param unknown $tArr
      * @return multitype:string
      */
-    private function processRows($tArr) {
+    public function processRows($tArr) {
         
         // $id = $p->getFieldNames(\BasePeer::TYPE_FIELDNAME);
         $fieldNames = $this->createFieldNames($this->getModelName());
@@ -310,6 +310,10 @@ class Get extends Rest
         
         foreach ($this->getParams() as $key => $val) {
             
+            // Unset or skip empty params
+            if ($val == "") {
+                continue;
+            } 
             if (!in_array($key, array(
                 "limit",
                 "start",
