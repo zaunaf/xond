@@ -18,27 +18,31 @@ Ext.define('{{appName}}.view._components.grid.{{table.getPhpName}}', {
             items: [{
                 xtype: 'button',
                 text: 'Tambah',
-                iconCls: 'fa fa-plus fa-lg glyph-dark-green glyph-shadow',
+                // iconCls: 'fa fa-plus fa-lg glyph-dark-green glyph-shadow',
+                iconCls: 'ic-add',
                 scope: this,
                 action: 'add'
             }, {
                 xtype: 'button',
                 text: 'Ubah',
-                iconCls: 'fa fa-eraser fa-lg glyph-dark-orange glyph-shadow',
+                // iconCls: 'fa fa-eraser fa-lg glyph-dark-orange glyph-shadow',
+                iconCls: 'ic-pencil',
                 itemId: 'edit',
                 scope: this,
                 action: 'edit'
             }, {
                 xtype: 'button',
                 text: 'Simpan',
-                iconCls: 'fa fa-check fa-lg glyph-blue glyph-shadow',
+                // iconCls: 'fa fa-check fa-lg glyph-blue glyph-shadow',
+                iconCls: 'ic-disk',
                 itemId: 'save',
                 scope: this,
                 action: 'save'
             }, {
                 xtype: 'button',
                 text: 'Hapus',
-                iconCls: 'fa fa-remove fa-lg glyph-red glyph-shadow',
+                // iconCls: 'fa fa-remove fa-lg glyph-red glyph-shadow',
+                iconCls: 'ic-cross',
                 itemId: 'delete',
                 scope: this,
                 action: 'delete'

@@ -239,6 +239,7 @@ class Export extends Get {
         // Get Parameters from the request
         $title = $this->getRequest()->get('title') ? $this->getRequest()->get('title') : $this->getTableInfoObj()->getPhpName();
         $subTitle = $this->getRequest()->get('subtitle') ? $this->getRequest()->get('subtitle') : "-";
+        $fileName = $this->getRequest()->get('filename') ? $this->getRequest()->get('filename') : "-";
         
         $displayColumns = $this->getRequest()->get('display_columns');
         $skipColumns = $this->getRequest()->get('skip_columns');
@@ -261,12 +262,13 @@ class Export extends Get {
             "appname" => $appName,
             "title" => $title,
             "subtitle" => $subTitle,
+            "filename" => $fileName,
             "columns" => $this->getColumnNames(),
             "headers" => $this->getColumnHeaders(),
             "data" => $this->getResponseData()
         );
         
-        $this->export($exportData);
+        $this->doExport($exportData);
         die;
     }
 

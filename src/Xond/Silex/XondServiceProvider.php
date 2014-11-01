@@ -91,6 +91,7 @@ class XondServiceProvider implements ServiceProviderInterface
         
         // REST Printing
         $app->get('/print/{model}', 'Xond\Rest\Printing::init');
+        $app->get('/excel/{model}', 'Xond\Rest\Excel::init');
         
     }
 

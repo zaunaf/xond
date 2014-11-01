@@ -62,8 +62,8 @@ class Printing extends Export {
     
     public function doExport($exportData) {
         
-        $twig = $this->getTwig();
         $this->setTemplate('default_print.twig');
+        $twig = $this->getTwig();
         
         $outStr = $twig->render($this->getTemplate(), $exportData);
         die($outStr);
