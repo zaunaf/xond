@@ -255,6 +255,12 @@ class Export extends Get {
             // Yaaaa..
         }
         
+        // Alternatives to show/display columns is via the restconfig parameters
+        // Start
+        
+        
+        // End
+        
         $config = $this->getConfig();
         $appName = $config['nama_aplikasi'];
         

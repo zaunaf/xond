@@ -104,6 +104,9 @@ class Get extends Rest
         // Get TableInfo
         $tInfo = $this->getTableInfoObj();
         
+        
+        //// QUERY HANDLING ////
+        
         // Handle query
         $filterProperty = "";
         
@@ -129,25 +132,39 @@ class Get extends Rest
             
             $this->c->add($columnName, $query, \Criteria::LIKE);
         }
-        
+
+        // If a custom descendants of the class want to add some filter injection
         $this->c = $this->injectFilter($this->c);
+        
+        // For loading big reference renderer (CHECK AGAIN) 
         $this->c = $this->handleId($this->c);
+        
+        // This is the MAIN parameter handling for the class
         $this->c = $this->handleParams($this->c);
+        
+        // Enable left and right filtering (CHECK AGAIN)
         $this->c = $this->handleBigLeftJoinFk($this->c);
         $this->c = $this->handleBigRightJoinFk($this->c);
         
+        // NEW: Enable drilldown grid //
+        if ($request->get('restconfig')) {
+        	$this->c = $this->handleHierarchialData($this->c);
+        }
+        
         // Get total number of row exists
         // print_r($c); die;
-        // print_r($c->toString()); die();
+        // echo $this->c->toString(); die();
         // $rowCount = $p->doCount($c);
         
         // Do row count
         $rowCount = $p->doCount($this->c);
         $this->setRowCount($rowCount);
         
-        // Kick the count event
-        $app['dispatcher']->dispatch('rest_get.count');
+        //// Kick the count event ////
         
+        // Coders can then stop here, and process the full (un-paged data) 
+        // for other purposes such as exporting and filtering
+        $app['dispatcher']->dispatch('rest_get.count');
         
         // Set limit. Limit will be disabled when $limit = 0. Be careful though ;)
         $this->c->setOffset($this->getStart());
@@ -278,6 +295,7 @@ class Get extends Rest
     
     private function handleId(\Criteria $c)
     {
+        //// CHECK THIS ////
         
         // Handle id(request to fill remote loaded big reference combo)
         $id = $this->getRequest()->get('id');
@@ -286,10 +304,15 @@ class Get extends Rest
             
             $t = $this->getTableInfoObj();
             $pkName = $t->getPkName();
-            $columnName = $this->getPeerObj()
-                ->getTableMap()
-                ->getName() . "." . $pkName;
+            
+            //$columnName = $this->getPeerObj()
+            //    ->getTableMap()
+            //    ->getName() . "." . $pkName;
+            
+            $tInfo = $this->getTableInfoObj();
+            $columnName = Rest::convertToColumnName($tInfo, $pkName);
             $c->add($columnName, $id, \Criteria::EQUAL);
+            
         }
         
         return $c;
@@ -314,6 +337,8 @@ class Get extends Rest
             if ($val == "") {
                 continue;
             } 
+            
+            // Skip if the key is reserved keywords
             if (!in_array($key, array(
                 "limit",
                 "start",
@@ -323,9 +348,11 @@ class Get extends Rest
                 "_dc",
                 "sort",
                 "filter",
-                "id"
+                "id",
+                "restconfig"
             ))) {
                 
+                // If the key detected is one of the sorting keywords
                 if ($key == "ascending") {
                     $c->addAscendingOrderByColumn($this->getPeerObj()
                         ->getTableMap()
@@ -339,15 +366,14 @@ class Get extends Rest
                     continue;
                 }
                 
+                // If the key MATCH any of the column name of the module
+                // Then process them one by one 
+                // Translating them to each corresponding behaviour
+                
                 if ($tInfo->getColumnByName($key)) {
                     
                     $cInfo = $tInfo->getColumnByName($key);
                     
-                    /*
-                    $columnName = $this->getPeerObj()
-                        ->getTableMap()
-                        ->getName() . "." . $key;
-                    */
                     $columnName = Rest::convertToColumnName($tInfo, $cInfo->getName());
                     $typeColumn = $cInfo->getType();
                     
@@ -357,16 +383,21 @@ class Get extends Rest
                     // Custom parameter value, non variable
                     $custom = substr($val, 0, 1);
                     
+                    // There are 6 possibilities of param filter
+                    // 1) JSON encoded array
+                    // 2) Any params (PK, FK or anything) with wildcard (*) match
+                    // 3) Exact match for columns ending with "_id"
+                    // 4) Switcher only, no need of val ISNULL, ISNOTNULL and ISEMPTY
+                    // 5) Regular string. Fuzzy searching then applied
+                    // 6) Any else type. Just match it.
                     
-                    // There are 4 possibilities of param filter
-                    // 1) Any params (PK, FK or anything) with wildcard (*) match
-                    // 2) Exact match for columns ending with "_id"
-                    // 3) Switcher only, no need of val ISNULL, ISNOTNULL and ISEMPTY
-                    // 4) Regular string. Fuzzy searching then applied
-                    // 5) Any else type. Just match it.
+                    // Detect JSON, it's an array !
+                    if ($custom == "[") {
+
+                        $c->add($columnName, json_decode($val), \Criteria::IN);
                     
                     // Wildcard match
-                    if (strpos($val, "*") >= 0) {
+                    } else if (strpos($val, "*") >= 0) {
                         
                         $val = str_replace("*", "%", $val);
                         if (get_adapter() == 'pgsql') {
@@ -375,6 +406,7 @@ class Get extends Rest
                             $c->add($columnName, $val, \Criteria::LIKE);
                         }
 
+                        
                     // It's an id. If the ID is a stupid string, you might want to use no.1
                     } else if ($id == "_id") {
                         
@@ -644,6 +676,173 @@ class Get extends Rest
     //     $this->setResponseStr(tableJson($this->getResponseData(), $this->getRowCount(), $this->getFieldNames()));
     // }
     
+
+    public function handleHierarchialData($c) {
+        
+        /* SCENARIO 
+           1) Define restconfig below as part of grid config:
+                restconfig: {
+                    title: 'Guru Kepegawaian',
+                    subtitle: '',
+                    filename: 'gurukepegawaian',
+                    aggregate: {
+                        aggregate_column: 'nama_sekolah',
+                        initial_value: '000000 ',
+                        hierarchy: [{
+                            name: 'Nasional',
+                            table_name: 'mst_wilayah',
+                            table_id: 'kode_wilayah',
+                            display_column: 'nama',
+                            level: 0
+                        },{
+                            name: 'Propinsi',
+                            table_name: 'mst_wilayah',
+                            table_id: 'kode_wilayah',
+                            parent_column: 'mst_kode_wilayah',
+                            display_column: 'nama',
+                            level: 1
+                        },{
+                            name: 'Kab/Kota',
+                            table_name: 'mst_wilayah',
+                            table_id: 'kode_wilayah',
+                            parent_column: 'mst_kode_wilayah',
+                            display_column: 'nama',
+                            level: 2
+                        },{
+                            name: 'Kecamatan',
+                            table_name: 'mst_wilayah',
+                            table_id: 'kode_wilayah',
+                            parent_column: 'mst_kode_wilayah',
+                            display_column: 'nama',
+                            link_local: 'kabupaten_kota_id',
+                            level: 3
+                        }]
+                    },
+                    columns: [{
+                        name: 'nama_sekolah',
+                        width: 350,
+                    },{
+                        name: 'kode_wilayah',
+                        align: 'right',
+                        width: 120,
+                    },{
+                        name: 'jumlah_pns',
+                        header: 'Jumlah PNS',
+                        align: 'right',
+                        width: 130,
+                        summary: 'sum'
+                    },{
+                        name: 'jumlah_non_pns',
+                        header: 'Jumlah Non-PNS',
+                        align: 'right',
+                        width: 130,
+                        summary: 'sum'
+                    }]
+                }
+            2) Load data with initial params
+            3)  
+            
+        */
+        
+        // Restconfig
+        $restconfig = json_decode($this->getRequest()->get('restconfig'));
+        
+        // Fetch the level we currently access from the Hierarch model
+        $level = $this->getRequest()->get('_level');
+
+        // Check the level of the current filter
+        // -- not implemented yet -- 
+        
+        // Load Aggregate Info. This list from the highest to lowest hierarchy
+        $agg = $restconfig->aggregate;
+        
+        // Load columns to be displayed
+        $cols = $restconfig->columns;
+        
+        // Get the table info of the current model
+        $tInfo = $this->getTableInfoObj();
+        
+        // Load the appName for tableInfo generation purposes
+        $appName = $this->appName;
+        
+        // Last Index of The Hierarchy
+        $lastIndex = (sizeof($agg->hierarchy)-1);
+        
+        // Check the level first. If the level equals last Index's level, skip all this mayhem
+        if ($agg->hierarchy[$lastIndex]->level == $level) {
+            
+            // Stopping leaving the Criteria intact
+            return $c;
+
+        } 
+        
+        // THIS IS THE TRICKY PART //
+        // We need to: 
+        // 1st. Clear select columns
+        // 2nd. Loop each hierarchy and then stop on the level called
+        
+        
+        $c->clearSelectColumns();
+        
+        
+        for ($i = $lastIndex; $i >= 0; $i--) {
+            
+            echo $agg->hierarchy[$i]->name."|".$agg->hierarchy[$i]->level;
+            
+        }
+        
+        /*
+            // H child
+            $hc = $agg->hierarchy[$i];
+            $childModelName = phpNamize($hc->tableName);
+            $childTableInfo = Xond::createTableInfo($childModelName, $this->appName);
+        
+            // H parent
+            $hp = $agg->hierarchy[$i-1];
+            $parentModelName = phpNamize($hp->tableName);
+            $parentTableInfo = Xond::createTableInfo($parentModelName, $this->appName);
+        
+        
+            if ($i == $lastIndex) {
+        
+                if (isset($hc->link_local)) {
+                    $c->addJoin( Rest::convertToColumnName($childTableInfo, $hc->link_local), Rest::convertToColumnName($parentTableInfo, $hp->table_id) );
+                } else {
+                    throw new Exception("We need to have 'link_local' attribute in the lowest hierarchy settings.");
+                }
+        
+            } else {
+                $c->addJoin( Rest::convertToColumnName($childTableInfo, $hc->parent_column), Rest::convertToColumnName($parentTableInfo, $hp->table_id) );
+            }
+        }
+        
+        foreach ($cols as $col) {
+            
+            $columnStr = "";
+            
+            if (@$col->summary == "sum") {
+                $columnStr = " sum( ".Rest::convertToColumnName($tInfo, $col->name). ") ";
+            } else if (@$col->summary == "count") {
+                $columnStr = " count( ".Rest::convertToColumnName($tInfo, $col->name). ") ";
+            } else {
+                $columnStr = " ( ".Rest::convertToColumnName($tInfo, $col->name). ") ";
+            }
+            $c->addAsColumn($col->name, $columnStr);
+            
+        }
+        
+        
+        foreach ($cols as $col) {
+        
+            $columnStr = "";
+        
+            if (!isset($col->summary)) {
+                $c->addGroupByColumn(Rest::convertToColumnName($tInfo, $col->name));
+            }
+        }
+        return $c;
+        */
+    }
     
     ////////////////////////
     /// Event Management ///

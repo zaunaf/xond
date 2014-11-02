@@ -1,4 +1,13 @@
-
+// Get Primary Keys from REST Response.
+// Assumptions data: rows. 
+function getColumnArrayFromRestResponse(request, column) {
+  var rows = request.rows;
+  var outArr = [];
+  for (var i = 0; i < rows.length; i++) {
+    outArr[i] = rows[i][column];
+  }
+  return outArr;
+}
 
 // If there is, lets say 6 digit of numbers, get the most significant numbers without 0s
 // For example: 102390 --> 10239. 128000 --> 128

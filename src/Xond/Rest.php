@@ -12,33 +12,33 @@ use SpmDikdas\Model\BentukPendidikanPeer;
 
 class Rest
 {   
-	private $app;
-	private $request;
-	private $config;
+	public $app;
+	public $request;
+	public $config;
 	
-    private $appName;
-    private $modelName;
-    private $className;
+    public $appName;
+    public $modelName;
+    public $className;
     
-    private $peerObj;
-    private $tableInfoObj;
+    public $peerObj;
+    public $tableInfoObj;
     
     // For GET
-    private $rowCount;
-    private $fieldNames;
-    private $responseData;
+    public $rowCount;
+    public $fieldNames;
+    public $responseData;
     
     // For POST, PUT
-    private $id;
-    private $obj;
+    public $id;
+    public $obj;
 
     // For All Methods
-    private $message = "";
-    private $responseCode;
-    private $responseStr;
+    public $message = "";
+    public $responseCode;
+    public $responseStr;
 	
-    private $exceptionMsg;
-    private $exceptionCode;
+    public $exceptionMsg;
+    public $exceptionCode;
     
     /**
      * The request landed here. The same happens for custom REST providers
