@@ -14,9 +14,11 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Security\Acl\Exception\Exception;
 use Symfony\Component\EventDispatcher\Event;
+use Xond\Xond;
 use Xond\Rest;
 use Xond\Info\TableInfo;
 use Xond\Info\ColumnInfo;
+use SimptkEis\Model\PenggunaPeer;
 
 class Get extends Rest
 {
@@ -133,32 +135,48 @@ class Get extends Rest
             $this->c->add($columnName, $query, \Criteria::LIKE);
         }
 
-        // If a custom descendants of the class want to add some filter injection
-        $this->c = $this->injectFilter($this->c);
-        
-        // For loading big reference renderer (CHECK AGAIN) 
-        $this->c = $this->handleId($this->c);
-        
-        // This is the MAIN parameter handling for the class
-        $this->c = $this->handleParams($this->c);
-        
-        // Enable left and right filtering (CHECK AGAIN)
-        $this->c = $this->handleBigLeftJoinFk($this->c);
-        $this->c = $this->handleBigRightJoinFk($this->c);
-        
         // NEW: Enable drilldown grid //
+        // Still not support combining with other handler //
         if ($request->get('restconfig')) {
-        	$this->c = $this->handleHierarchialData($this->c);
-        }
+
+            $this->c = $this->handleHierarchialData($this->c);
         
+        } else {
+        
+            // If a custom descendants of the class want to add some filter injection
+            $this->c = $this->injectFilter($this->c);
+            
+            // For loading big reference renderer (CHECK AGAIN) 
+            $this->c = $this->handleId($this->c);
+            
+            // This is the MAIN parameter handling for the class
+            $this->c = $this->handleParams($this->c);
+            
+            // Enable left and right filtering (CHECK AGAIN)
+            $this->c = $this->handleBigLeftJoinFk($this->c);
+            $this->c = $this->handleBigRightJoinFk($this->c);
+            
+        }
         // Get total number of row exists
         // print_r($c); die;
         // echo $this->c->toString(); die();
         // $rowCount = $p->doCount($c);
         
         // Do row count
-        $rowCount = $p->doCount($this->c);
-        $this->setRowCount($rowCount);
+        if ($request->get('restconfig')) {
+        
+            // Special: RESTCONFIG
+            $stmt = $p->doSelectStmt($this->c);
+            $outArr = $stmt->fetchAll(\PDO::FETCH_ASSOC);
+            $this->setRowCount(sizeof($outArr));
+            
+        } else {
+        
+            // Standard:
+            $rowCount = $p->doCount($this->c);
+            $this->setRowCount($rowCount);
+        }
+        
         
         //// Kick the count event ////
         
@@ -178,10 +196,19 @@ class Get extends Rest
         $connection->useDebug(false);
         
         // print_r("Last Query: ". $this->c->toString()); die();
-        $tArr = $p->doSelect($this->c, $connection);
+        if ($request->get('restconfig')) {
+            
+            // Special: RESTCONFIG
+            $stmt = $p->doSelectStmt($this->c);
+            $outArr = $stmt->fetchAll(\PDO::FETCH_ASSOC);
         
-        $outArr = $this->processRows($tArr);
+        } else {
         
+            // Standard: 
+            $tArr = $p->doSelect($this->c, $connection);
+            $outArr = $this->processRows($tArr);
+        }
+                
         // Register the data to the response data            
         $this->setResponseData($outArr);
         $this->setResponseCode(200);
@@ -714,7 +741,7 @@ class Get extends Rest
                             table_id: 'kode_wilayah',
                             parent_column: 'mst_kode_wilayah',
                             display_column: 'nama',
-                            link_local: 'kabupaten_kota_id',
+                            link_local: 'kode_wilayah',
                             level: 3
                         }]
                     },
@@ -749,7 +776,7 @@ class Get extends Rest
         
         // Fetch the level we currently access from the Hierarch model
         $level = $this->getRequest()->get('_level');
-
+    
         // Check the level of the current filter
         // -- not implemented yet -- 
         
@@ -772,7 +799,7 @@ class Get extends Rest
         if ($agg->hierarchy[$lastIndex]->level == $level) {
             
             // Stopping leaving the Criteria intact
-            return $c;
+            return $this->handleParams($c);
 
         } 
         
@@ -780,68 +807,87 @@ class Get extends Rest
         // We need to: 
         // 1st. Clear select columns
         // 2nd. Loop each hierarchy and then stop on the level called
-        
-        
+
+        // Clearing columns
         $c->clearSelectColumns();
         
-        
-        for ($i = $lastIndex; $i >= 0; $i--) {
+        for ($i = $lastIndex; $i > 0; $i--) {
             
-            echo $agg->hierarchy[$i]->name."|".$agg->hierarchy[$i]->level;
-            
-        }
-        
-        /*
-            // H child
+            // When $i = 1 downwards
             $hc = $agg->hierarchy[$i];
-            $childModelName = phpNamize($hc->tableName);
+            $childModelName = phpNamize($hc->table_name);
             $childTableInfo = Xond::createTableInfo($childModelName, $this->appName);
-        
+            $childPeer = Xond::createPeer($childModelName, $this->appName);
+            $childMap = Xond::createTableMap($childModelName, $this->appName);
+            
+            // Preparing alias
+            $c->addAlias($hc->alias, $childMap->getName());
+            
             // H parent
             $hp = $agg->hierarchy[$i-1];
-            $parentModelName = phpNamize($hp->tableName);
+            $parentModelName = phpNamize($hp->table_name);
             $parentTableInfo = Xond::createTableInfo($parentModelName, $this->appName);
-        
-        
-            if ($i == $lastIndex) {
-        
-                if (isset($hc->link_local)) {
-                    $c->addJoin( Rest::convertToColumnName($childTableInfo, $hc->link_local), Rest::convertToColumnName($parentTableInfo, $hp->table_id) );
-                } else {
-                    throw new Exception("We need to have 'link_local' attribute in the lowest hierarchy settings.");
-                }
-        
-            } else {
-                $c->addJoin( Rest::convertToColumnName($childTableInfo, $hc->parent_column), Rest::convertToColumnName($parentTableInfo, $hp->table_id) );
+            $parentPeer = Xond::createPeer($parentModelName, $this->appName);
+            $parentMap = Xond::createTableMap($parentModelName, $this->appName);
+            
+            // Preparing alias
+            $c->addAlias($hp->alias, $parentMap->getName());
+            
+            // Then add the Join
+            $c->addJoin(
+                $parentPeer->alias($hc->alias, Rest::convertToColumnName($childTableInfo, $hc->parent_column)),
+                $parentPeer->alias($hp->alias, Rest::convertToColumnName($parentTableInfo, $hp->table_id))
+            );
+            
+            //echo "$i | $level\r\n";
+            
+            // End the query with a filter
+            if ($i == $level) {
+                $c->add(
+                    $childPeer->alias($hc->alias, Rest::convertToColumnName($childTableInfo, $hc->parent_column)),
+                    $this->getRequest()->get($hp->table_id)
+                );
+                break;
             }
-        }
+                  
+        } 
         
+        // Add columns.
+        // The columns NEED to be the "child" part of the hierarchy (last $hc on the code).
+        // There's several possibility of values here:
+        // 1) It's the non calculating column. This should display what the hierarchy table's 
+        //    string representation. This is important: 
+        //        NAME THE COLUMN EXACTLY LIKE THE DISPLAYING (STRING REP) OF THE BASE DATA.
+        // 2) It's the calculating column. SUM ( them ) and name it the same.
+            
         foreach ($cols as $col) {
             
-            $columnStr = "";
-            
-            if (@$col->summary == "sum") {
-                $columnStr = " sum( ".Rest::convertToColumnName($tInfo, $col->name). ") ";
+            if ($col->name == $agg->aggregate_column) {
+                $columnStr = $childPeer->alias($hc->alias, Rest::convertToColumnName($childTableInfo, $hc->display_column));
+            } else if (@$col->summary == "sum") {
+                $columnStr = "sum(".Rest::convertToColumnName($tInfo, $col->name). ") ";
             } else if (@$col->summary == "count") {
-                $columnStr = " count( ".Rest::convertToColumnName($tInfo, $col->name). ") ";
+                $columnStr = " count(".Rest::convertToColumnName($tInfo, $col->name). ") ";    
             } else {
-                $columnStr = " ( ".Rest::convertToColumnName($tInfo, $col->name). ") ";
+                $columnStr = $childPeer->alias($hc->alias, Rest::convertToColumnName($childTableInfo, $col->name));
             }
-            $c->addAsColumn($col->name, $columnStr);
             
+            $c->addAsColumn($col->name, $columnStr);
         }
         
-        
+        // Group columns
         foreach ($cols as $col) {
-        
-            $columnStr = "";
-        
-            if (!isset($col->summary)) {
-                $c->addGroupByColumn(Rest::convertToColumnName($tInfo, $col->name));
+            if (!@$col->summary) {
+                if ($col->name == $agg->aggregate_column) {
+                    $c->addGroupByColumn($childPeer->alias($hc->alias, Rest::convertToColumnName($childTableInfo, $hc->display_column)));
+                } else {
+                    $c->addGroupByColumn($childPeer->alias($hc->alias, Rest::convertToColumnName($childTableInfo, $col->name)));
+                }
             }
         }
+
         return $c;
-        */
+        
     }
     
     ////////////////////////

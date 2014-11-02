@@ -68,6 +68,20 @@ class Xond
         }
     
     }
+
+    /**
+     * Get the Map Object for the given ModelName
+     *
+     * @param string $className
+     * @throws Exception
+     * @return unknown
+     */
+    public static function createTableMap($modelName="", $appName) {
+        
+        $peerObj = Xond::createPeer($modelName, $appName);
+        return $peerObj->getTableMap();
+    }
+    
     
     /**
      * Create Table Info Object for the given ModelName
