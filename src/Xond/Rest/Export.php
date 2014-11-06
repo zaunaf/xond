@@ -122,6 +122,22 @@ class Export extends Get {
     public function getDisplayColumns() {
         return $this->display_columns;
     }
+
+    /**
+     * Set which headers column to display
+     * @param array $array
+     */
+    public function setDisplayHeaders($array) {
+        $this->display_headers = $array;
+    }
+    
+    /**
+     * Get the displayed columns
+     * @return array
+     */
+    public function getDisplayHeaders() {
+        return $this->display_headers;
+    }
     
     /**
      * Override this if you want custom fields.
@@ -175,7 +191,10 @@ class Export extends Get {
         
         $displayColumn = false;
         $skipColumn = false;
-        
+
+        if ($this->getDisplayHeaders()) {
+            return $this->getDisplayHeaders();
+        }
         
         foreach ($cols as $c) {
             //$c = new ColumnInfo();
@@ -242,6 +261,7 @@ class Export extends Get {
         $fileName = $this->getRequest()->get('filename') ? $this->getRequest()->get('filename') : "-";
         
         $displayColumns = $this->getRequest()->get('display_columns');
+        $displayHeaders = $this->getRequest()->get('display_headers');
         $skipColumns = $this->getRequest()->get('skip_columns');
         
         // This states that if displayColumns stated, skipColumns is not processed
@@ -253,6 +273,11 @@ class Export extends Get {
             $this->setSkipColumns($skipColumnsArr);
         } else {
             // Yaaaa..
+        }
+
+        if ($displayHeaders) {
+            $displayHeadersArr = json_decode($displayHeaders);
+            $this->setDisplayHeaders($displayHeadersArr);
         }
         
         // Alternatives to show/display columns is via the restconfig parameters

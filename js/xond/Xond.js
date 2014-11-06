@@ -264,3 +264,128 @@ Ext.override('Ext.field.Number', {
     }
 
 });
+
+Ext.override( Ext.grid.Panel, {
+    getColumnByName: function(colname){
+        //return this.down('[dataIndex='+ colname +']');
+        var retVal={};
+        for (var i=0; i < this.columns.length; i++) {
+            //console.log( this.columns[i].dataIndex + '|' + colname);
+            if (this.columns[i].dataIndex==colname){
+                retVal = this.columns[i];
+            }
+        }
+        return retVal;
+    },
+    /* Set this column visible */
+    changeVisibleColumn: function(colname) {
+        this.getColumnByName(colname).setVisible(true);
+    },
+    /* Show multiple columns visible by array */
+    changeVisibleColumns: function(arr){
+        // Hide them all first
+        for (var i = 0; i < this.columns.length; i++) {
+            this.columns[i].setVisible(false);
+        }
+        // Check using column name one by one 
+        for (var j = 0; j < arr.length; j++) {
+            this.changeVisibleColumn(arr[j]);
+        }
+    },
+    changeHeader: function(colname,text){
+        this.getColumnByName(colname).setText(text);
+    },
+    /* NEED to be called after changeVisibleColumns change the configuration of visibiltiy of the columns */
+    changeHeaders: function(headerArr){
+        var visibleCols = [];
+        for (var i=0; i < this.columns.length; i++) {
+            if (this.columns[i].isVisible()) {
+                visibleCols.push(this.columns[i]);
+            }
+        }
+        if (headerArr.length != visibleCols.length) {
+            console.log('Number of columns header to set is different with the number of the visible columns');
+            return false;
+        }
+        for (var j=0; j < visibleCols.length; j++) {
+            //console.log(visibleCols[j].dataIndex + '|' + headerArr[j]);
+            this.changeHeader(visibleCols[j].dataIndex, headerArr[j]);
+        }
+    },
+    changeWidth: function(colname, width){
+        this.getColumnByName(colname).setWidth(width);
+    },
+    /* NEED to be called after changeVisibleColumns change the configuration of visibiltiy of the columns */
+    changeWidths: function(widthArr){
+        var visibleCols = [];
+        for (var i=0; i < this.columns.length; i++) {
+            if (this.columns[i].isVisible()) {
+                visibleCols.push(this.columns[i]);
+            }
+        }
+        if (widthArr.length != visibleCols.length) {
+            console.log('Number of columns width to set is different with the number of the visible columns');
+            return false;
+        }
+        for (var j=0; j<visibleCols.length; j++) {
+            this.changeWidth(visibleCols[j].dataIndex, widthArr[j]);
+        }
+    },
+    changeAlign: function(colname, align){
+        this.getColumnByName(colname).align=align;
+    },
+    /* NEED to be called after changeVisibleColumns change the configuration of visibiltiy of the columns */
+    changeAligns: function(alignArr){
+        var visibleCols = [];
+        for (var i=0; i < this.columns.length; i++) {
+            if (this.columns[i].isVisible()) {
+                visibleCols.push(this.columns[i]);
+            }
+        }
+        if (alignArr.length != visibleCols.length) {
+            console.log('Number of columns align to set is different with the number of the visible columns');
+            return false;
+        }
+        for (var j=0; j < visibleCols.length; j++) {
+            this.changeAlign(visibleCols[j].dataIndex, alignArr[j]);
+        }
+    },
+    changeRenderer: function(colname, renderer){
+        var col = this.getColumnByName(colname);
+        switch (renderer) {
+            case 'number':
+                col.renderer = function (v, meta, record) {
+                    return (v > 0) ? Ext.util.Format.number(v, '0,000') : 0;
+                };
+                break;
+            case 'percent':
+                col.renderer = function (v, meta, record) {
+                    return (v > 0) ? Ext.util.Format.number(v, '0,000') + '%' : 0;
+                };
+                break;
+            case 'check':
+                console.log('updating renderer check');
+                col.renderer = function (v, meta, record) {
+                    return (v > 0) ? "<img width=16 height=16 src='resources/icons2/tick.png'>": "<img width=16 height=16 src='resources/icons2/cross.png'>";
+                };
+                break;
+            default:
+                break;
+        }
+    },
+    changeRenderers: function(rendererArr){
+        var visibleCols = [];
+        for (var i=0; i < this.columns.length; i++) {
+            if (this.columns[i].isVisible()) {
+                visibleCols.push(this.columns[i]);
+            }
+        }
+        if (rendererArr.length != visibleCols.length) {
+            console.log('Number of columns align to set is different with the number of the visible columns');
+            return false;
+        }
+        for (var j=0; j < visibleCols.length; j++) {
+            this.changeRenderer(visibleCols[j].dataIndex, rendererArr[j]);
+        }
+    }
+});

@@ -33,7 +33,7 @@ Ext.define('Xond.window.Print', {
 
         me.buttons = [{
             text: 'Cetak',
-            glyph: '61487@font-awesome',
+            glyph: '61487@FontAwesome',
             tooltip: 'Cetak langsung menggunakan default printer',
             handler: function() {
                 
@@ -51,7 +51,7 @@ Ext.define('Xond.window.Print', {
         //     }
         },{
             text: 'Batal',
-            glyph: '61714@font-awesome',
+            glyph: '61714@FontAwesome',
             tooltip: 'Batal mencetak',
             handler: function() {
                 me.close();
