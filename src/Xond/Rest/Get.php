@@ -138,7 +138,7 @@ class Get extends Rest
         // NEW: Enable drilldown grid //
         // Still not support combining with other handler //
         if ($request->get('restconfig')) {
-
+            
             $this->c = $this->handleHierarchialData($this->c);
         
         } else {
@@ -165,7 +165,8 @@ class Get extends Rest
         // Do row count
         if ($request->get('restconfig')) {
         
-            // Special: RESTCONFIG
+            // Special: RESTCONFIG, counting by
+            // Calculating result of statement query
             $stmt = $p->doSelectStmt($this->c);
             $outArr = $stmt->fetchAll(\PDO::FETCH_ASSOC);
             $this->setRowCount(sizeof($outArr));
@@ -182,6 +183,10 @@ class Get extends Rest
         
         // Coders can then stop here, and process the full (un-paged data) 
         // for other purposes such as exporting and filtering
+        // For "hierachial data support" on printing, please don't forget
+        // to NOT USING THE STANDARD PEER doSelect, because the number 
+        // of parameters to be hydrated will be different. Instead use the
+        // $stmt. For easy solution just read code below the comment "Process the Criteria" 
         $app['dispatcher']->dispatch('rest_get.count');
         
         // Set limit. Limit will be disabled when $limit = 0. Be careful though ;)
@@ -195,7 +200,10 @@ class Get extends Rest
         $connection = \Propel::getConnection(\Propel::getDefaultDB());
         $connection->useDebug(false);
         
+        // Debug
         // print_r("Last Query: ". $this->c->toString()); die();
+        
+        // Process the Criteria
         if ($request->get('restconfig')) {
             
             // Special: RESTCONFIG

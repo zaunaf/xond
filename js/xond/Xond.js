@@ -294,6 +294,7 @@ Ext.override( Ext.grid.Panel, {
     },
     changeHeader: function(colname,text){
         this.getColumnByName(colname).setText(text);
+        this.getColumnByName(colname).tipMarkup = text;
     },
     /* NEED to be called after changeVisibleColumns change the configuration of visibiltiy of the columns */
     changeHeaders: function(headerArr){

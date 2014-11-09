@@ -42,6 +42,9 @@ class Export extends Get {
      */ 
     public function onCount($e, $rest){
         
+        $request = $rest->getRequest();
+        
+        // This gate checks whether the user wants all records or follow the paging.
         if ($rest->getRequest()->get('page') == 'all') {
 
             // Since the data isn't ready (only count that is)
@@ -50,8 +53,18 @@ class Export extends Get {
 
             $connection = \Propel::getConnection(\Propel::getDefaultDB());
             
-            $tArr = $p->doSelect($this->c);
-            $outArr = $this->processRows($tArr);
+            if ($request->get('restconfig')) {
+            
+                // Special: RESTCONFIG
+                $stmt = $p->doSelectStmt($this->c);
+                $outArr = $stmt->fetchAll(\PDO::FETCH_ASSOC);
+            
+            } else {
+            
+                // Standard:
+                $tArr = $p->doSelect($this->c, $connection);
+                $outArr = $this->processRows($tArr);
+            }
 
             // Register the data to the response data
             $this->setResponseData($outArr);
@@ -65,10 +78,11 @@ class Export extends Get {
     /**
      * Overridden from Get. Use this if you want the paging.
      *
-     * @see \Xond\Rest\Get::onCount()
+     * @see \Xond\Rest\Get::onDataLoad()
      */
     public function onDataLoad($e, $rest){
         
+        // This gate checks whether the user want the paging
         if ($rest->getRequest()->get('page') != 'all') {
             //die('you choose '+ $rest->getRequest()->get('page'));
             $this->prepareExport();
@@ -256,6 +270,8 @@ class Export extends Get {
     public function prepareExport() {
         
         // Get Parameters from the request
+        
+        // This is standard parameters processing, each of the parameters directly stated in the request parameters
         $title = $this->getRequest()->get('title') ? $this->getRequest()->get('title') : $this->getTableInfoObj()->getPhpName();
         $subTitle = $this->getRequest()->get('subtitle') ? $this->getRequest()->get('subtitle') : "-";
         $fileName = $this->getRequest()->get('filename') ? $this->getRequest()->get('filename') : "-";
@@ -282,8 +298,24 @@ class Export extends Get {
         
         // Alternatives to show/display columns is via the restconfig parameters
         // Start
-        
-        
+        $rc = $this->getRequest()->get('restconfig');
+        if ($rc) {
+            $restconfig = json_decode($rc);
+            $title = $restconfig->title;
+            $subTitle = $restconfig->subtitle;
+            $fileName = $restconfig->filename;
+            $aggregate = $restconfig->aggregate;
+            $columns = $restconfig->columns;
+            
+            foreach ($columns as $col) {
+                $colNames[] = $col->name;
+                $colHeaders[] = $col->header;
+            }
+            $this->setDisplayColumns($colNames);
+            $this->setDisplayHeaders($colHeaders);
+            
+            //print_r($restconfig); die;
+        }
         // End
         
         $config = $this->getConfig();
