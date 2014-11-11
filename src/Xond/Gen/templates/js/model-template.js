@@ -22,6 +22,7 @@ Ext.define('{{appName}}.model.{{tableName}}', {
     proxy: {
         type: 'rest',
         url : 'rest/{{tableName}}',
+        timeout: 120000,
         reader: {
             type: 'json',
             rootProperty: 'rows',

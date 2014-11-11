@@ -819,6 +819,14 @@ class Get extends Rest
         // Clearing columns
         $c->clearSelectColumns();
         
+        // Define base of the hierarchy
+        $hbase = $agg->hierarchy[$lastIndex];
+        $baseModelName = phpNamize($hbase->table_name);
+        $baseTableInfo = Xond::createTableInfo($baseModelName, $this->appName);
+        $basePeer = Xond::createPeer($baseModelName, $this->appName);
+        $baseMap = Xond::createTableMap($baseModelName, $this->appName);
+        
+        
         for ($i = $lastIndex; $i > 0; $i--) {
             
             // When $i = 1 downwards
@@ -870,14 +878,22 @@ class Get extends Rest
             
         foreach ($cols as $col) {
             
-            if ($col->name == $agg->aggregate_column) {
+            if ($col->name == 'id') {
+                
+                // Add row number if there is
+                $columnStr = 'row_number() OVER (ORDER BY (SELECT 0)) ';
+                
+            } else if ($col->name == $agg->aggregate_column) {
                 $columnStr = $childPeer->alias($hc->alias, Rest::convertToColumnName($childTableInfo, $hc->display_column));
             } else if (@$col->summary == "sum") {
                 $columnStr = "sum(".Rest::convertToColumnName($tInfo, $col->name). ") ";
             } else if (@$col->summary == "count") {
-                $columnStr = " count(".Rest::convertToColumnName($tInfo, $col->name). ") ";    
-            } else {
+                $columnStr = "count(".Rest::convertToColumnName($tInfo, $col->name). ") ";    
+            } else if ($col->name == $hc->table_id) {
                 $columnStr = $childPeer->alias($hc->alias, Rest::convertToColumnName($childTableInfo, $col->name));
+            } else {
+                $columnStr = $basePeer->alias($hbase->alias, Rest::convertToColumnName($baseTableInfo, $col->name));
+                //$columnStr = $col->name;
             }
             
             $c->addAsColumn($col->name, $columnStr);
@@ -886,10 +902,15 @@ class Get extends Rest
         // Group columns
         foreach ($cols as $col) {
             if (!@$col->summary) {
-                if ($col->name == $agg->aggregate_column) {
+                if ($col->name == 'id') {
+                  // do nothin  
+                } else if ($col->name == $agg->aggregate_column) {
                     $c->addGroupByColumn($childPeer->alias($hc->alias, Rest::convertToColumnName($childTableInfo, $hc->display_column)));
-                } else {
+                } else if ($col->name == $hc->table_id) {
                     $c->addGroupByColumn($childPeer->alias($hc->alias, Rest::convertToColumnName($childTableInfo, $col->name)));
+                } else {
+                    $c->addGroupByColumn($basePeer->alias($hbase->alias, Rest::convertToColumnName($baseTableInfo, $col->name)));
+                    //$c->addGroupByColumn($col->name);
                 }
             }
         }
