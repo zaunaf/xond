@@ -159,6 +159,7 @@ class InfoGen extends BaseGen {
         }
 
         // Determine display field. First try with Xond 1 standard, "nama"
+        // This should be configurable. Put on a ticket.
         if ($tmap->hasColumn("nama")) {
             $t["display_field"] = "nama";
         // Else loop the table, first occurance of string will be it
@@ -170,7 +171,12 @@ class InfoGen extends BaseGen {
                     $t["display_field"] = $c->getName();
                     break;
                 }
-            }    
+            }
+            
+            if (!isset($t["display_field"])) {
+                $pks = $tmap->getPrimaryKeyColumns();
+                $t["display_field"] = $pks[0]->getName();
+            }
         }
         
         // Determine renderer string name. 
@@ -449,10 +455,14 @@ class InfoGen extends BaseGen {
      * @return string
      */
     public function getColumnDisplayField(\ColumnMap $column) {
-        if ($column->isForeignKey()) {
-            return $this->tables[$this->getName($column->getRelatedTable())]["display_field"];
-        } else {
-            return "";
+        try {
+            if ($column->isForeignKey()) {
+                return $this->tables[$this->getName($column->getRelatedTable())]["display_field"];
+            } else {
+                return "";
+            }
+        } catch (\Exception $e) {
+            die("The column ".$column->getName()." is foreign key, but doesn't have any display_field.");
         }
     }
     
@@ -777,7 +787,8 @@ class InfoGen extends BaseGen {
         foreach ($this->tables as $t){
             
             $written = isset($t['written']) ? " - written" : "";
-            $outStr .= "{$t['name']} $written<br>\r\n";
+            $tableType = $t['is_data'] ? " - data " : " - ref ";
+            $outStr .= "{$t['name']} $tableType $written<br>\r\n";
             foreach ($t['columns'] as $c) {
                 $outStr .= "- ".$c["column_name"]." (size: {$c['column_length']} xtype: {$c['xtype']})<br>\r\n";
             }

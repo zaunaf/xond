@@ -371,6 +371,13 @@ Ext.override( Ext.grid.Panel, {
                 };
                 break;
             default:
+                if (typeof renderer == 'function') {
+                    col.renderer = renderer;
+                } else if (renderer === '') {
+                    // do nothing
+                } else {
+                    // 
+                }
                 break;
         }
     },
