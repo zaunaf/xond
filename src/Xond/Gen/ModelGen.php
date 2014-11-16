@@ -141,7 +141,7 @@ class ModelGen extends BaseGen {
                 }
             }
         
-            if (is_array($tablesToRemove)) {
+            if (is_array($columnsToRemove)) {
                 foreach ($columnsToRemove as $c) {
                     unset ($c[0]);
                 }

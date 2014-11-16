@@ -339,7 +339,7 @@ class InfoGen extends BaseGen {
         foreach ($tmap->getColumns() as $c) {
             
             // For autocomplete purpose. NEED TO BE COMMENTED ON RUN
-            //$c = new \ColumnMap($name, $containingTable);
+            // $c = new \ColumnMap($name, $containingTable);
             
             $colName = $c->getName();
             $colPhpName = $c->getPhpName();
@@ -380,7 +380,16 @@ class InfoGen extends BaseGen {
             $cArr['field_width'] = $this->getColumnLength($c) * InfoGen::PIX_PER_CHAR_FIELD;
             $cArr['display_field'] = $this->getColumnDisplayField($c);
             
-            $cArr['xtype'] = $this->getColumnXtype($c);
+            list($cArr['xtype'], $static) = $this->getColumnXtype($c);
+            
+            if ($isFk) {
+                $cArr['combo_xtype'] = strtolower(phpNamize($c->getRelatedTable()->getPhpname()))."combo";
+                $cArr['radiogroup_xtype'] = strtolower(phpNamize($c->getRelatedTable()->getPhpname()))."radiogroup";
+            } else {
+                $cArr['combo_xtype'] = "";
+                $cArr['radiogroup_xtype'] = "";
+            }
+            
             $cArr['allow_empty'] = $c->isNotNull() ? 1 : 0;
             $cArr['validation'] = '';
             $cArr['description'] = '';
@@ -505,13 +514,15 @@ class InfoGen extends BaseGen {
                     break;
                     
                 case InfoGen::IS_MEDIUM_TABLE:
-                    $xtype = strtolower($column->getRelatedTable()->getPhpName())."combo";
+                    // $xtype = strtolower($column->getRelatedTable()->getPhpName())."combo";
+                    $xtype = InfoGen::FIELD_COMBO;
                     $static = 1;
                     $number = 10;
                     break;
                     
                 case InfoGen::IS_BIG_TABLE:
-                    $xtype = strtolower($column->getRelatedTable()->getPhpName())."combo";
+                    // $xtype = strtolower($column->getRelatedTable()->getPhpName())."combo";
+                    $xtype = InfoGen::FIELD_COMBO;
                     $static = 0;
                     $number = 10;
                     break;
@@ -535,7 +546,7 @@ class InfoGen extends BaseGen {
             $xtype = 'undefined';
         }
         
-        return $xtype;
+        return array($xtype, $static);
     }
     
     /**

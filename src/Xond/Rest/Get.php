@@ -368,6 +368,9 @@ class Get extends Rest
         
         foreach ($this->getParams() as $key => $val) {
             
+            // echo "\r\n".$key."|".$val;
+            
+            
             // Unset or skip empty params
             if ($val == "") {
                 continue;
@@ -428,12 +431,12 @@ class Get extends Rest
                     
                     // Detect JSON, it's an array !
                     if ($custom == "[") {
-
+                        // echo "| array";
                         $c->add($columnName, json_decode($val), \Criteria::IN);
                     
                     // Wildcard match
-                    } else if (strpos($val, "*") >= 0) {
-                        
+                    } else if (!(strpos($val, "*") === false)) {
+                        // echo "| wildcard";
                         $val = str_replace("*", "%", $val);
                         if (get_adapter() == 'pgsql') {
                             $c->add($columnName, $val, \Criteria::ILIKE);
@@ -444,11 +447,12 @@ class Get extends Rest
                         
                     // It's an id. If the ID is a stupid string, you might want to use no.1
                     } else if ($id == "_id") {
-                        
+                        // echo "| _id";
                         $c->add($columnName, $val, \Criteria::EQUAL);
 
                     // Switcher, if non standard value is given as params
                     } else if ($custom == "#") {
+                        // echo "| custrom";
                         switch ($val) {
                         	case "#ISNULL":
                         	    // echo "#ISNULL";
@@ -471,6 +475,7 @@ class Get extends Rest
                         "string",
                         "text"
                     ))) {
+                        // echo "| fuzzy";
                         $val = str_replace(" ", "%", $val);
                         $val = "%" . $val . "%";
                         
@@ -482,6 +487,7 @@ class Get extends Rest
                     
                     // Everything else
                     } else {
+                        // echo "| else";
                         $c->add($columnName, $val, \Criteria::EQUAL);
                     }
                     

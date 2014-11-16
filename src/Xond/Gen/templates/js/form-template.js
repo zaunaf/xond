@@ -54,14 +54,29 @@ Ext.define('{{appName}}.view._components.form.{{table.getPhpName}}', {
 {% endif %}
 {% endfor %}
             ]
-{#      END Column is ENUM VALUE #}
+{#      END Column is FK #}
 {% else %}
 {#      START Column is NOT ENUM VALUE #}
+{#          START Column is FK #}
+{% if col.getIsFk == 1 %}
+{% if col.getXtype == 'combobox' %}
+            xtype: '{{col.getComboXtype}}'
+{% elseif col.getXtype == 'radiogroup' %}
+            xtype: '{{col.getRadiogroupXtype}}'
+{% endif %}
+{#          END Column is FK #}
+{#          START END Column is not FK #}
+{% else %}
             xtype: '{{col.getXtype}}'
+{% endif %}
+{#          END Column is not FK #}
             ,fieldLabel: '{{col.getLabel}}'
             ,labelAlign: 'right'
 {% if col.getReadOnly %}
             ,readOnly: true
+{% endif %}
+{% if col.getXtype == 'checkbox' %}
+            ,inputValue: 1
 {% endif %}
 {% if col.getAllowEmpty == '1' %}
             ,labelSeparator: ':<span style="color: rgb(255, 0, 0); padding-left: 2px;">*</span>'
@@ -182,6 +197,9 @@ Ext.define('{{appName}}.view._components.form.{{table.getPhpName}}', {
 {% if col1.getLabelWidth %}
                     labelWidth: {{col1.getLabelWidth}},
 {% endif %}
+{% if col1.getXtype == 'checkbox' %}
+                    ,inputValue: 1
+{% endif %}
 {% if col1.getAllowEmpty == '1' %}
                     labelSeparator: ':<span style="color: rgb(255, 0, 0); padding-left: 2px;">*</span>',
 {% endif %}
@@ -225,9 +243,23 @@ Ext.define('{{appName}}.view._components.form.{{table.getPhpName}}', {
 {#              STOP Processing ENUM VALUES #}
 {#              ELSE Processing NON ENUM VALUES #}
 {% else %}
-                xtype: '{{col1.getXtype}}'
+{% if col.getIsFk == 1 %}
+{% if col.getXtype == 'combo' %}
+            xtype: '{{col1.getComboXtype}}'
+{% elseif col.getXtype == 'radiogroup' %}
+            xtype: '{{col1.getRadiogroupXtype}}'
+{% endif %}
+{#          END Column is FK #}
+{#          START END Column is not FK #}
+{% else %}
+            xtype: '{{col1.getXtype}}'
+{% endif %}
+{#          END Column is not FK #}
 {% if col1.getReadOnly %}
                 ,readOnly: true
+{% endif %}
+{% if col1.getXtype == 'checkbox' %}
+                ,inputValue: 1
 {% endif %}
 {% if col1.getAllowEmpty %}
                 ,allowBlank: false

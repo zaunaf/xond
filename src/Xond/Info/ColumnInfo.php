@@ -451,6 +451,14 @@ class ColumnInfo
     function getComboXtype() {
     	return $this->combo_xtype;
     }
+
+    function setRadiogroupXtype($xtype="") {
+        $this->radiogroup_xtype = $xtype;
+    }
+    
+    function getRadiogroupXtype() {
+        return $this->radiogroup_xtype;
+    }
     
     function setValidation($validation="") {
     	$this->validation = $validation;

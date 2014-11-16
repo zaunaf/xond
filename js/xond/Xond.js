@@ -11,13 +11,15 @@ function getColumnArrayFromRestResponse(request, column) {
 
 // If there is, lets say 6 digit of numbers, get the most significant numbers without 0s
 // For example: 102390 --> 10239. 128000 --> 128
-function getSignificantDigits(number) {
+function getSignificantDigits(number, minimum_digit) {
   
+  minimum_digit = 0;
+
   var str = (typeof number === 'number') ? number.toString() : number.trim();
   var res = "";
   var sig = false;
 
-  for (var i = (str.length-1); i >= 0; i--) {
+  for (var i = (str.length-1); i >= minimum_digit; i--) {
 
     if (str[i] === '0' && !sig) {
       //lanjut
@@ -86,8 +88,33 @@ Ext.override(Ext.form.field.Text, {
     }
 });
 
-// Update ComboBox Prototype so that big FK field could be rendered properly
 Ext.override(Ext.form.field.ComboBox, {
+
+  // Set initial value for big data FK
+  setInitialValue: function(field, value){
+      
+      var me = this;
+      var ds = this.store;
+      var idx = ds.findExact(field, value);
+
+      if(idx === -1 && !this.initialRecordFound) {
+          
+          var onLoad = function() {
+              me.setValue(value);
+              ds.un('load', onLoad);
+          };
+          ds.on('load', onLoad);
+          
+          var params = {};
+          params[field] = value;
+
+          ds.load({
+              params: params
+          });
+      }
+      
+  },
+  // Update ComboBox Prototype so that big FK field could be rendered properly
   findRecord: function(field, value) {
     var ds = this.store;
     var idx = ds.findExact(field, value);
