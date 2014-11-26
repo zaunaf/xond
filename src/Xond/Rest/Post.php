@@ -96,34 +96,60 @@ class Post extends Rest
         
         $app['dispatcher']->dispatch('rest_post.before_save');
 
-        if ($this->obj->save()) {
-        
+        try {
+            
+            //print_r($this->obj); die;
+            
+            $this->obj->save();
+            
             $success = true;
-            $modelName = $this->getModelName();
-            $this->setMessage("Berhasil menambahkan $modelName");
-        
-            // Register the data to the response data
-            $this->setResponseData($this->obj->toArray());
-            $this->setResponseCode('201');
-        
-            // Process the response string from the attached values
-            $this->createResponseStr();
-        
-            // Kick the after save event in case someone wants to mess with the return json. May be override it?
+            $this->setSuccess($success);
+
+            // Kick the after save event in case someone wants to do something afterwards.
+            // This can cancel successfullness.
             $app['dispatcher']->dispatch('rest_post.save');
+            
+            // Ask again success status from the REST Object.
+            if ($this->getSuccess()) {
+                
+                $modelName = $this->getModelName();
+                $this->setMessage("Berhasil menambahkan $modelName");
+            
+                // Register the data to the response data
+                $this->setResponseData($this->obj->toArray());
+                $this->setResponseCode('201');
+            
+                // Process the response string from the attached values
+                $this->createResponseStr();
+            
+                // Kick the after save event in case someone wants to mess with the return json. May be override it?
+            
+            } else {
+                
+                // Check whether error message is set. Otherwise kick an Exception
+                if ($this->getExceptionCode()) {
+                    // Do nothing, let the event report itself
+                } else {
+                    throw new \Exception();
+                }
+                
+            }
+            
         
-        } else {
+        } catch (\Exception $e) {
             
             $success = false;
+            $this->setSuccess($success);
+            
             $modelName = $this->getModelName();
             $this->setMessage("Gagal menambahkan $modelName");
             
             // Register the data to the response data
-            $this->setResponseData($this->obj->toArray());
+            $this->setException($e);
             $this->setResponseCode('400');
             
             // Process the response string from the attached values
-            $this->createResponseStr();
+            $this->createExceptionResponseStr();
             
             // Kick the after save event in case someone wants to mess with the return json. May be override it?
             $app['dispatcher']->dispatch('rest_put.save_failed');
@@ -176,10 +202,18 @@ class Post extends Rest
     public function onLoadUpdates(){
     
         $obj = $this->getObj();
-    
+                
+        if (method_exists($obj, 'setCreateDate')) {
+            // $obj->setLastUpdate(date('Y-m-d H:i:s'));
+            $obj->setCreateDate('1970-01-01 01:00:00');
+        }
         if (method_exists($obj, 'setLastUpdate')) {
             // $obj->setLastUpdate(date('Y-m-d H:i:s'));
             $obj->setLastUpdate('1970-01-01 01:00:00');
+        }
+        if (method_exists($obj, 'setExpiredDate')) {
+            // $obj->setLastUpdate(date('Y-m-d H:i:s'));
+            $obj->setExpiredDate('1970-01-01 01:00:00');
         }
         if (method_exists($obj, 'setSoftDelete')) {
             $obj->setSoftDelete(0);
@@ -194,11 +228,12 @@ class Post extends Rest
         // $obj->setUpdaterId('90915957-31F5-E011-819D-43B216F82ED4');
         if (method_exists($obj, 'setUpdaterId')) {
     
-            if ($this->getUserId()) {
-                $obj->setUpdaterId($this->getUserId());
-            } else {
-                $obj->setUpdaterId('90915957-31F5-E011-819D-43B216F82ED4');
-            }
+            // if ($this->getUserId()) {
+            //    $obj->setUpdaterId($this->getUserId());
+            // } else {
+            //    $obj->setUpdaterId('90915957-31F5-E011-819D-43B216F82ED4');
+            // }
+            $obj->setUpdaterId('10000000-1000-1000-1000-100000000000');
     
         }
     

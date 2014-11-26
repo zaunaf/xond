@@ -48,6 +48,7 @@ class InfoGen extends BaseGen {
     const TYPE_INT = "int";
     const TYPE_FLOAT = "float";
     const TYPE_DATE = "date";
+    const TYPE_TIMESTAMP = "timestamp";
     
     // Field Xtypes
     const FIELD_TEXT = 'textfield';
@@ -87,7 +88,7 @@ class InfoGen extends BaseGen {
 
         \PropelTypes::DATE => InfoGen::TYPE_DATE,
         \PropelTypes::TIME => InfoGen::TYPE_DATE,
-        \PropelTypes::TIMESTAMP => InfoGen::TYPE_DATE,
+        \PropelTypes::TIMESTAMP => InfoGen::TYPE_TIMESTAMP,
         \PropelTypes::BU_DATE => InfoGen::TYPE_DATE,
         \PropelTypes::BU_TIMESTAMP => InfoGen::TYPE_DATE,
 
@@ -344,7 +345,7 @@ class InfoGen extends BaseGen {
             $colName = $c->getName();
             $colPhpName = $c->getPhpName();
     
-            if (contains($colName, $config['front_end_skip_columns'])) {
+            if (contains($colName, explode(",", str_replace(" ", "", $config['front_end_skip_columns'])))) {
                 continue;
             }
             
@@ -542,6 +543,9 @@ class InfoGen extends BaseGen {
         else if (InfoGen::$extTypeMap[$column->getType()] == InfoGen::TYPE_DATE) {
             $xtype = InfoGen::FIELD_DATE;
         } 
+        else if (InfoGen::$extTypeMap[$column->getType()] == InfoGen::TYPE_TIMESTAMP) {
+            $xtype = InfoGen::FIELD_DATE;
+        }
         else {
             $xtype = 'undefined';
         }

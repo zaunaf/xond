@@ -57,7 +57,7 @@ class Xond
      */
     public static function createPeer($modelName="", $appName) {
          
-        $modelName = ($modelName != "") ? $modelName :  $this->getModelName();
+        $modelName = ($modelName != "") ? $modelName :  "";
         $peerName = Xond::createClassName("Model", $modelName, "Peer", $appName);
     
         if (class_exists($peerName)) {

@@ -364,14 +364,12 @@ class TableInfo
         $this->columns = $cols;
     }
 
-    /*
+    /**
      * Mengambil column utk dioverride menggunakan nama kolom sbg parameter
-    *
-    * <p>Mengambil column utk dioverride menggunakan nama kolom sbg parameter</p>
-    *
-    * @param string $name Nama kolom yang dicari
-    * @return Xond\Info\ColumnInfo Kolom yang dimaksud
-    */
+     * 
+     * @param string $name Nama kolom yang dicari
+     * @return \Xond\Info\ColumnInfo Kolom yang dimaksud
+     */
     function getColumnByName($name) {
         $cols = $this->getColumns();
         foreach($cols as $c) {
@@ -387,33 +385,34 @@ class TableInfo
             return false;
         }
     }
-
-    /*
+    
+    /**
+     * 
      * Menambahkan range of columns ke suatu group
-    *
-    * <p>Menambahkan range of columns ke suatu group
-    * entah itu checkboxgroup, fieldset, atau fieldgroup
-    * Add range juga otomatis meng-add group yang sudah ditambah
-    * ke dalam list of groups. Add range ditulis
-    * di object [TableName]TableInfo yang sudah digenerate.
-    * Contoh penggunaan: </p>
-    *
-    * <code>
-    *  $fieldgroup1 = new FieldgroupInfo();
-    *  $this->addRange('tempat_lahir', 'tanggal_lahir', $fieldgroup1);
-    *  $this->addGroup($fieldgroup1);
-    *
-    *  $fieldset1 = new FieldsetInfo();
-    *	$this->addRange('nama_ayah', 'kebutuhan_khusus_id_ayah', $fieldset1);
-    *	$this->addGroup($fieldset1);
-    * </code>
-    *
-    * @param string $startColumnName Nama kolom mulai masuk group
-    * @param string $endColumnName Nama kolom terakhir masuk group
-    * @param mixed $group FieldsetInfo, FieldgroupInfo, atau CheckboxGroup yang ditambahkan
-    *
-    * @return void
-    */
+     *
+     * <p>Menambahkan range of columns ke suatu group
+     * entah itu checkboxgroup, fieldset, atau fieldgroup
+     * Add range juga otomatis meng-add group yang sudah ditambah
+     * ke dalam list of groups. Add range ditulis
+     * di object [TableName]TableInfo yang sudah digenerate.
+     * Contoh penggunaan: </p>
+     *
+     * <code>
+     *  $fieldgroup1 = new FieldgroupInfo();
+     *  $this->addRange('tempat_lahir', 'tanggal_lahir', $fieldgroup1);
+     *  $this->addGroup($fieldgroup1);
+     *
+     *  $fieldset1 = new FieldsetInfo();
+     *	$this->addRange('nama_ayah', 'kebutuhan_khusus_id_ayah', $fieldset1);
+     *	$this->addGroup($fieldset1);
+     * </code>
+     *
+     * @param string $startColumnName Nama kolom mulai masuk group
+     * @param string $endColumnName Nama kolom terakhir masuk group
+     * @param mixed $group FieldsetInfo, FieldgroupInfo, atau CheckboxGroup yang ditambahkan
+     * @param string $title
+     * @return void
+     */
     public function addRange($startColumnName, $endColumnName, $group, $title='') {
         	
         $cols = $this->getColumns();
@@ -554,10 +553,25 @@ class TableInfo
     function moveColumnAbove($movedColumn, $correspondingColumn) {
 
         $columns = $this->getColumns();
-
+        //if ($this->getName() == 'kegiatan_guru') {
+        //    print_r($columns); die;
+        //}
         $i = 0;
+        
+        if (!is_object($movedColumn)) {
+            $movedColumn = $this->getColumnByName($movedColumn);
+            if (!is_object($movedColumn)) {
+                die ('Error di tabel '.$this->getName().', moved column class not found when moving column ');
+            }
+        }
+        if (!is_object($correspondingColumn)) {
+            $correspondingColumn = $this->getColumnByName($correspondingColumn);
+            if (!is_object($correspondingColumn)) {
+                die ('Error di tabel '.$this->getName().' column class not found when moving column');
+            }
+        }
         $outColumns = array();
-
+        
         foreach ($columns as $c) {
 
             if ($movedColumn->getColumnName() == $c->getColumnName()) {

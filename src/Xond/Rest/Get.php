@@ -80,6 +80,9 @@ class Get extends Rest
         // Get the peer object for query management
         $p = $this->getPeerObj();
         
+        // Kick the begin event
+        $app['dispatcher']->dispatch('rest_get.begin');
+        
         // Handle limiters
         $start = ($request->get('start')) ? $request->get('start') : 0;
         $this->setStart($start);
@@ -664,6 +667,7 @@ class Get extends Rest
      */
     public function addFkStrings(array $arr, $t)
     {
+                        
         $tInfo = $this->getTableInfoObj();
         
         
@@ -681,29 +685,53 @@ class Get extends Rest
                     
                     if ($fkTableInfo->getIsBigRef()) {
                         
+                        // Getting the FK column name
                         $fkColumnName = $col->getName();
+                        
+                        // Getting the FK Table name
                         $fkTableName = phpnamize($fkTableInfo->getName());
+                        
+                        // Getting the display field to be called as _str
                         $fkDisplayField = phpnamize($fkTableInfo->getDisplayField());
+                        
+                        // Creating column name string
                         $fkColumnNameStr = $fkColumnName . "_str";
+                        
+                        // Creating getter for FK Table Name.
                         $fkTableNameStr = "get" . $fkTableName;
+                        
+                        // Creating getter for the FK Display field
                         $fkDisplayFieldStr = "get" . $fkDisplayField;
-                        // echo "Colname = $fkColumnNameStr | FKTableName = $fkTableNameStr | FKDisplayField = $fkDisplayFieldStr <br>";
+                        
                         $fkTableObjRelatedBy = $fkTableNameStr . "RelatedBy" . $col->getPhpName();
                         
+                        // Check whether tablepeer have the caller for the fkTableName, call the object if it can
                         if (method_exists($t, $fkTableNameStr)) {
+                            
                             $fkTableObj = $t->$fkTableNameStr();
-                        } else 
-                            if (method_exists($t, $fkTableObjRelatedBy)) {
-                                // echo $fkTableObjRelatedBy;
-                                $fkTabelObj = $t->$fkTableObjRelatedBy();
-                                // print_r($fkTabelObj);
-                                // die;
-                            }
+                        
+                        // Check via related by
+                        } else if (method_exists($t, $fkTableObjRelatedBy)) {
+                        
+                            //echo $fkTableObjRelatedBy;
+                            $fkTabelObj = $t->$fkTableObjRelatedBy();
+                            // print_r($fkTabelObj);
+                            // die;
+                            
+                        // Ugly and database-killing FIX THIS
+                        } else {
+                            
+                            $fkColumnGetter = "get".phpNamize($fkColumnName);
+                            
+                            // This assumes that the FK related to the primary key. 
+                            // IT WON'T WORK IF THE RELATION LINKED TO OTHER COLUMN.
+                            // FIX THIS !! 
+                            $peer = $this->createPeer(phpNamize($fkTableInfo->getName()));
+                            $fkTableObj = $peer->retrieveByPk($t->$fkColumnGetter());
+                        }
                         if (method_exists($fkTableObj, $fkDisplayFieldStr)) {
                             $arr["$fkColumnNameStr"] = $fkTableObj->$fkDisplayFieldStr();
                         }
-                        // $c->addJoin($tInfo->getName().".".$col->getName(), $fkTableInfo->getName().".".$fkTableInfo->getPkName());
-                        // echo $tInfo->getName().".".$col->getName()." | ". $fkTableInfo->getName().".".$fkTableInfo->getPkName()."<br>";
                     }
                 }
             }
@@ -938,7 +966,11 @@ class Get extends Rest
     public function registerEvents(Application $app){
          
         $rest = $this;
-    
+
+        $app->on('rest_get.begin', function(Event $e) use ($rest) {
+            $rest->onBegin($e, $rest);
+        });
+        
         $app->on('rest_get.calc_offset', function(Event $e) use ($rest) {
             $rest->onCalcOffset($e, $rest);
         });
@@ -967,6 +999,10 @@ class Get extends Rest
     // public function onCount(){
     //     $this->log("Counted records, result: ".$this->getRowCount()." rows found<br>\r\n");
     // }
+    
+    public function onBegin($e, $rest){
+        
+    }
     
     public function onCalcOffset($e, $rest){
         

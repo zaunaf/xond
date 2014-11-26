@@ -40,6 +40,13 @@ class Printing extends Export {
         );
     }
     
+    /**
+     * Get the main baseTplDir
+     * @return string
+     */
+    public function getBaseTplDir() {
+        return __DIR__."/templates/";
+    }
     /** 
      * Override this if you need another filter etc.
      * 
@@ -56,7 +63,7 @@ class Printing extends Export {
         
         $loader = new \Twig_Loader_Filesystem($sourceTplDir);
         $twig = new \Twig_Environment($loader);
-                
+        
         return $twig;
     }
     

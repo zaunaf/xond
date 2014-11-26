@@ -158,6 +158,12 @@ class ModelGen extends BaseGen {
             $xmlObj = simplexml_load_string($schemaDesignStr);
             $schemaDesignStr = $xmlObj->asXml();
         
+            // Quick hack. Should be in somekind of config
+            $schemaDesignStr = str_replace("defaultValue=\"('now()')\"", "", $schemaDesignStr);
+            $schemaDesignStr = str_replace("defaultValue=\"('1901-01-01')\"", "", $schemaDesignStr);
+            $schemaDesignStr = str_replace("defaultValue=\"('2014-10-10')\"", "", $schemaDesignStr);
+            
+                            
             $target = $projectDir."/app/config/schema-design.xml";
         
             $fp = fopen($target, 'w');

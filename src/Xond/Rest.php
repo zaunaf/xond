@@ -33,6 +33,8 @@ class Rest
     public $obj;
 
     // For All Methods
+    public $success;
+    
     public $message = "";
     public $responseCode;
     public $responseStr;
@@ -84,7 +86,8 @@ class Rest
     	$app = $this->registerEvents($app);
     	$this->setRequest($request);
     	$this->setApp($app);
-    	$this->setMethod(strtoupper(getBaseClassName(get_class($this))));
+    	// $this->setMethod(strtoupper(getBaseClassName(get_class($this))));
+    	$this->setMethod(strtoupper($request->getMethod()));
     	$this->setConfig($app['xond.config']);
     	 
     	// Retrieve ModelName and which ID
@@ -282,6 +285,25 @@ class Rest
     	return $this->tableInfoObj;
     }
 
+
+    /**
+     * Set message about the successfullness of the process.
+     *
+     * @param string $success
+     */
+    public function setSuccess($success){
+        $this->success = $success;
+    }
+    
+    /**
+     * Get message about the successfullness of the process.
+     *
+     * @return string
+     */
+    public function getSuccess(){
+        return $this->success;
+    }
+    
     
     /**
      * Set message about the result of the process.
@@ -557,14 +579,14 @@ class Rest
     	
     }
     
-    public function buildJson($success=false, $message=false, $data=false, $rownum=false, $fieldnames=false, $start=false, $limit=false) {
+    public function buildJson($success=false, $message=false, $data=false, $rownum=false, $fieldnames=false, $start=false, $limit=false, $row_property="rows") {
         
         $message = ($message) ? ", 'message': '$message'" : "";
         $rownum = ($rownum) ? ", 'results': $rownum " : "";
         $fieldnames = ($fieldnames) ? ", 'id': '{$fieldnames[0]}' " : "";
         $start = ($start) ? ", 'start': $start" : "";
         $limit = ($limit) ? ", 'limit': $limit" : "";
-        $data = ($data) ? ", rows: ". json_encode($data) : "";
+        $data = ($data) ? ", $row_property: ". json_encode($data) : "";
         
         return sprintf("{ 'success': %s %s %s %s %s %s %s  }", ($success ? 'true':'false'), $message, $rownum, $fieldnames, $start, $limit, $data);
     }

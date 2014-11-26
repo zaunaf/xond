@@ -9,7 +9,8 @@ Ext.define('{{appName}}.view._components.grid.{{table.getPhpName}}', {
     },
     createEditing: function() {
         return Ext.create('Ext.grid.plugin.CellEditing', {
-            clicksToEdit: 2
+            clicksToEdit: 2,
+            pluginId: 'editing'
         });
     },
     createDockedItems: function() {
@@ -63,6 +64,9 @@ Ext.define('{{appName}}.view._components.grid.{{table.getPhpName}}', {
         
         this.store = this.createStore();
         
+        // Assume all the setting upfront in initialConfig is applied directly to the object
+        Ext.apply(this, this.initialConfig);
+
         // You can instaniate the component with basic parameters that affects filtering of the store
         // For example:
         // {
@@ -102,7 +106,7 @@ Ext.define('{{appName}}.view._components.grid.{{table.getPhpName}}', {
 {% for col in columns %}
 {% if col.getIsFk == 1 %}
 {% if col.getFkTableInfo.getIsBigRef != 1 %}
-        this.lookupStore{{col.getFkTableName}} = new {{appName}}.store.{{col.getFkTableName}}({
+        this.lookupStore{{col.getFkTablePhpName}} = new {{appName}}.store.{{col.getFkTablePhpName}}({
             autoLoad: true
         });
 {% endif %}
@@ -169,7 +173,7 @@ Ext.define('{{appName}}.view._components.grid.{{table.getPhpName}}', {
 {% if col.getIsFk == 1 %}
 {% if col.getFkTableInfo.getIsBigRef != 1 %}
             renderer: function(v,p,r) {
-                var record = this.lookupStore{{col.getFkTableName}}.getById(v);
+                var record = this.lookupStore{{col.getFkTablePhpName}}.getById(v);
                 if(record) {
                     return record.get('{{col.getFkTableInfo.getDisplayField}}');
                 } else {
@@ -184,6 +188,9 @@ Ext.define('{{appName}}.view._components.grid.{{table.getPhpName}}', {
 {% endif %}
             field: {
 {% if col.getIsFk == 1 %}
+{% if col.getDisplayField != '' %}
+                displayField: '{{col.getDisplayField}}',
+{% endif %}
                 xtype: '{{col.getComboXtype}}'{% if col.getFkTableInfo.getIsBigRef == 1 %},
                 listeners: {
                     change: function(combo, newValue, oldValue, eOpts ) {
