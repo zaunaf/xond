@@ -19,7 +19,7 @@ Ext.define('Xond.window.Print', {
 
         var me = this;
         
-        var iFrameId = "printerFrame";
+        var iFrameId = "printerFrame" + Math.floor((Math.random() * 100) + 1);;
 
         me.items = {
             xtype : "component",

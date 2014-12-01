@@ -194,6 +194,7 @@ Xond.shortBogusMarkup = '<p>Lorem ipsum dolor sit amet, consectetuer adipiscing 
     'tincidunt quam turpis vel lacus. In pellentesque nisl non sem. Suspendisse nunc sem, pretium eget, cursus a, fringilla.</p>'; 
     
 // Update Model, Store and Grid Prototypes so that it's flexible and capable of adding records simultaneously
+/* It's only for Extjs 3. So it is now disabled 
 Ext.override(Ext.data.Store,{
     addField: function(field){
         field = new Ext.data.Field(field);
@@ -263,6 +264,7 @@ Ext.override(Ext.grid.GridPanel,{
         }
     }
 });
+*/
 
 Ext.override(Ext.form.field.Checkbox,{
 // Ext.define('Ext.form.field.Checkbox', {
@@ -297,16 +299,41 @@ Ext.override( Ext.grid.Panel, {
         //return this.down('[dataIndex='+ colname +']');
         var retVal={};
         for (var i=0; i < this.columns.length; i++) {
-            //console.log( this.columns[i].dataIndex + '|' + colname);
             if (this.columns[i].dataIndex==colname){
                 retVal = this.columns[i];
             }
         }
         return retVal;
     },
+    addColumn: function(index, column) {
+        this.headerCt.insert(index, column);
+        this.columns.splice(index, 0, column);
+        this.getView().refresh();
+        // var columns = this.columns;
+        // //console.log(columns);
+        // var store = this.store;
+        // //console.log(store);
+        // var newCols = [];
+        // for (var i=0; i<columns.length; i++){
+        //     newCols.push(columns[i].config);
+        // }
+        // newCols.push(column);
+        // //columns.push(column);
+        // this.reconfigure(store, columns);
+    },
+    removeColumn: function(columnId) {
+        var grid = this;
+        var col = grid.headerCt.getComponent(columnId);
+        grid.headerCt.remove(col);
+        grid.getView().refresh();
+    },
     /* Set this column visible */
-    changeVisibleColumn: function(colname) {
-        this.getColumnByName(colname).setVisible(true);
+    changeVisibleColumn: function(colname, visible) {
+        if (typeof this.getColumnByName(colname) === 'undefined') {
+            Xond.msg('Error', 'No such column: ' + colname);
+            return;
+        }
+        this.getColumnByName(colname).setVisible(visible);
     },
     /* Show multiple columns visible by array */
     changeVisibleColumns: function(arr){
@@ -316,7 +343,7 @@ Ext.override( Ext.grid.Panel, {
         }
         // Check using column name one by one 
         for (var j = 0; j < arr.length; j++) {
-            this.changeVisibleColumn(arr[j]);
+            this.changeVisibleColumn(arr[j], true);
         }
     },
     changeHeader: function(colname,text){
@@ -392,10 +419,33 @@ Ext.override( Ext.grid.Panel, {
                 };
                 break;
             case 'check':
-                console.log('updating renderer check');
+                //console.log('updating renderer check');
                 col.renderer = function (v, meta, record) {
-                    return (v > 0) ? "<img width=16 height=16 src='resources/icons2/tick.png'>": "<img width=16 height=16 src='resources/icons2/cross.png'>";
+                    return (v > 0) ? "<img width=12 height=12 src='resources/icons2/tick.png'>": "<img width=12 height=12 src='resources/icons2/cross.png'>";
                 };
+                break;
+            case 'new_check_cross':
+                //console.log('updating renderer check');
+                col.renderer = function (v, meta, record) {
+                    var img = "";
+                    if (v === 0) {
+                        img = 'asterisk_orange';
+                    } else if (v == 1) {
+                        img = 'tick';
+                    } else if (v == 2) {
+                        img = 'cross';
+                    }
+                    return "<img width=12 height=12 src='resources/icons2/"+ img +".png'>";
+                };
+                break;
+            case 'wrap':
+                col.renderer = function (v, meta, record) {
+                    meta.style = "white-space: normal; font-size: smaller;";
+                    return v;
+                };
+                break;
+            case 'decimal3':
+                col.renderer = Ext.util.Format.numberRenderer('0.000');
                 break;
             default:
                 if (typeof renderer == 'function') {
@@ -423,4 +473,4 @@ Ext.override( Ext.grid.Panel, {
             this.changeRenderer(visibleCols[j].dataIndex, rendererArr[j]);
         }
     }
-});
+  });

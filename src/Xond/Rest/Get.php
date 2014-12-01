@@ -74,6 +74,12 @@ class Get extends Rest
         $app = $this->getApp();
         $config = $this->getConfig();
         
+        // This one tries to resolve issue #77
+        // Separate concerns between request generated via http protocol
+        // And the one generated from other part of the application
+        
+        // Still blank... Don't know what to do :(
+        
         // Create criteria for matching
         $this->c = new \Criteria();
         
@@ -718,7 +724,7 @@ class Get extends Rest
                             // print_r($fkTabelObj);
                             // die;
                             
-                        // Ugly and database-killing FIX THIS
+                        // Ugly and database-killing FIX THIS USING CRITERIA::IN or somekind
                         } else {
                             
                             $fkColumnGetter = "get".phpNamize($fkColumnName);

@@ -48,7 +48,7 @@ class Rest
      * this main "init" procedure and do necessary pre-processing 
      * and post processing. Don't forget the "inject filter" feature.
      * 
-     * @param  Request     $request The request sent from brower
+     * @param  Request     $request The request sent from browser.. OORR.. from local code
      * @param  Application $app     The silex application
      * @return string               No desc
      */
@@ -80,7 +80,7 @@ class Rest
      * @param Request $request
      * @param Application $app
      */
-    public function prepare(Request $request, Application $app) {
+    public function prepare($request, Application $app) {
     	
     	// Register events first, then attach it to the object 
     	$app = $this->registerEvents($app);
@@ -117,7 +117,7 @@ class Rest
      * Setting the request object for this generator
      * @param Request $request
      */
-    public function setRequest(Request $request){
+    public function setRequest($request){
     	$this->request = $request;
     }
     

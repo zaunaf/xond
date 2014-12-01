@@ -35,10 +35,12 @@ class TableInfo
     public $is_big_ref;         // Paging combonya
     public $is_small_ref;       // Radio nya
     public $composite_pk;		// Table ini pake composite PK ndak
-
+    
+    
     public $display_field;
     public $renderer_string;
-
+    public $is_wrap;            // Wrapping if too long.
+    
     public $create_combobox;    // Buat combobox nya
     public $create_radiogroup;  // Buat radiogroup nya
     public $create_list;        // Buat list nya
@@ -169,6 +171,14 @@ class TableInfo
         $this->is_big_ref = $is_big_ref;
     }
 
+    function getIsWrap() {
+        return $this->is_wrap;
+    }
+    
+    function setIsWrap($is_wrap) {
+        $this->is_wrap = $is_wrap;
+    }
+    
     function getIsSmallRef() {
         return $this->is_small_ref;
     }
