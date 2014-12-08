@@ -19,7 +19,6 @@ function shutdown_handler() {
 
 register_shutdown_function('shutdown_handler');
 */
-
 function isFloat($val) {
     $pattern = '/^[+-]?(\d*\.\d+([eE]?[+-]?\d+)?|\d+[eE][+-]?\d+)$/';
     return preg_match($pattern, trim($val));
@@ -939,7 +938,7 @@ function getDataBySql($sql="", $remove_keys=FALSE, $dbName=DBNAME) {
  * @param int $number
  * @return string
  */
-function getbulan(int $number) {
+function getbulan($number) {
     $bulan = array (
             '1' => 'Januari',
             '2' => 'Februari',

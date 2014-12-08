@@ -294,6 +294,27 @@ Ext.override('Ext.field.Number', {
 
 });
 
+Ext.override('Ext.data.TreeStore', {
+
+  getNodeAt: function (index) {
+      var current = 0;
+      return (function find(nodes) {
+        var i, len = nodes.length;
+        for (i = 0; i < len; i++) {
+          if (current === index) {
+            return nodes[i];
+          }
+          current++;
+          var found = find(nodes[i].childNodes);
+          if (found) {
+            return found;
+          }
+        }
+      }(this.tree.root.childNodes));
+  }
+
+});
+
 Ext.override( Ext.grid.Panel, {
     getColumnByName: function(colname){
         //return this.down('[dataIndex='+ colname +']');
@@ -333,6 +354,7 @@ Ext.override( Ext.grid.Panel, {
             Xond.msg('Error', 'No such column: ' + colname);
             return;
         }
+        console.log(colname);
         this.getColumnByName(colname).setVisible(visible);
     },
     /* Show multiple columns visible by array */

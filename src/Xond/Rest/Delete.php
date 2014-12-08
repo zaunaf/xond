@@ -17,84 +17,108 @@ use Symfony\Component\EventDispatcher\Event;
 use Xond\Rest;
 use Xond\Info\TableInfo;
 use Xond\Info\ColumnInfo;
+use Simpak\Model\KegiatanGuru;
+use Simpak\Model\KegiatanGuruPeer;
 
 class Delete extends Rest
 {
 
-    public function process(Request $request, Application $app)
+    public function process()
     {
         
-        // Reposess Vars
-        $request = $this->getRequest();
-        $app = $this->getApp();
-        $config = $this->getConfig();
-        
-        // Get the tableInfo object
-        $tInfo = $this->getTableInfoObj();
-        $pkColInfo = $tInfo->getPkColumnInfo();
-        
-        // Get model name an then the object
-        $modelClass = $this->getModelClass();
-        
-        // Get TableInfo, check if isCompositeKey
-        $tInfo = $this->getTableInfoObj();
-        $pkColInfo = $tInfo->getPkColumnInfo();
-        
-        $p = $this->getPeerObj();
-        
-        // If composite FK, split the ID first
-        if ($tInfo->getIsCompositePk()) {
+        try {
             
-            $ids = explode(":", $this->getWhich());
+            // Reposess Vars
+            $request = $this->getRequest();
+            $app = $this->getApp();
+            $config = $this->getConfig();
             
-            switch (sizeof($ids)) {
-                case 2:
-                    $this->obj = $p->retrieveByPK($ids[0], $ids[1]);
-                    break;
-                case 3:
-                    $this->obj = $p->retrieveByPK($ids[0], $ids[1], $ids[2]);
-                    break;
-                case 4:
-                    $this->obj = $p->retrieveByPK($ids[0], $ids[1], $ids[2], $ids[3]);
-                    break;
-                case 5:
-                    $this->obj = $p->retrieveByPK($ids[0], $ids[1], $ids[2], $ids[3], $ids[4]);
-                    break;
+            // Get the tableInfo object
+            $tInfo = $this->getTableInfoObj();
+            $pkColInfo = $tInfo->getPkColumnInfo();
+            
+            // Get model name an then the object
+            $modelClass = $this->getModelName();
+            
+            // Get TableInfo, check if isCompositeKey
+            $tInfo = $this->getTableInfoObj();
+            $pkColInfo = $tInfo->getPkColumnInfo();
+            
+            $p = $this->getPeerObj();
+            
+            // If composite FK, split the ID first
+            if ($tInfo->getIsCompositePk()) {
+                
+                $ids = explode(":", $this->getWhich());
+                
+                switch (sizeof($ids)) {
+                    case 2:
+                        $this->obj = $p->retrieveByPK($ids[0], $ids[1]);
+                        break;
+                    case 3:
+                        $this->obj = $p->retrieveByPK($ids[0], $ids[1], $ids[2]);
+                        break;
+                    case 4:
+                        $this->obj = $p->retrieveByPK($ids[0], $ids[1], $ids[2], $ids[3]);
+                        break;
+                    case 5:
+                        $this->obj = $p->retrieveByPK($ids[0], $ids[1], $ids[2], $ids[3], $ids[4]);
+                        break;
+                }
+                
+            } else {
+                
+                // Get id directly from http parameters
+                $id = $this->getWhich();
+                
+                // Find the object
+                $this->obj = $p->retrieveByPK($id);
+                // print_r($this->obj);
             }
             
-        } else {
+            $app['dispatcher']->dispatch('rest_delete.retrieved_object');
             
-            // Get id directly from http parameters
-            $id = $this->getWhich();
+            $childColObj = $tInfo->getRelatingColumns();
+            $arrTInfo = (array) $tInfo;
             
-            // Find the object
-            $this->obj = $p->retrieveByPK($id);
-            // print_r($this->obj);
+            $value = $this->obj->getPrimaryKey();
+            
+            //if (sizeof($childColObj) > 0) {
+            //     $relatingColumns = $arrTInfo["relating_columns"];
+            //    $child = $this->deltree($relatingColumns, $value);
+            //}
+            $this->obj->delete();
+            
+            $this->setMessage('Berhasil menghapus $modelName');
+            
+            // Register the data to the response data
+            $this->setResponseCode(200);
+            
+            // Process the response string from the attached values
+            $this->createResponseStr();
+            
+            // Kick the response_str_load event in case someone wants to mess with the string. May be override it?
+            $app['dispatcher']->dispatch('rest_delete.response_str_load');
+        
+        } catch (\Exception $e) {
+        
+            $success = false;
+            $this->setSuccess($success);
+        
+            $modelName = $this->getModelName();
+            $this->setMessage("Gagal menambahkan $modelName");
+        
+            // Register the data to the response data
+            $this->setException($e);
+            $this->setResponseCode('400');
+        
+            // Process the response string from the attached values
+            $this->createExceptionResponseStr();
+        
+            // Kick the after save event in case someone wants to mess with the return json. May be override it?
+            $app['dispatcher']->dispatch('rest_delete.delete_failed');
+        
         }
-        
-        $app['dispatcher']->dispatch('rest_delete.retrieved_object');
-        
-        $childColObj = $tInfo->getRelatingColumns();
-        $arrTInfo = (array) $tInfo;
-        
-        
-        $value = $this->obj->getPrimaryKey();
-        
-        if (sizeof($childColObj) > 0) {
-            $relatingColumns = $arrTInfo["relating_columns"];
-            $child = $this->deltree($relatingColumns, $value);
-        }
-        
-        $this->setMessage('Berhasil menghapus $modelName');
-        
-        // Register the data to the response data
-        $this->setResponseCode(200);
-        
-        // Process the response string from the attached values
-        $this->createResponseStr();
-        
-        // Kick the response_str_load event in case someone wants to mess with the string. May be override it?
-        $app['dispatcher']->dispatch('rest_delete.response_str_load');
         
     }
     
@@ -119,13 +143,20 @@ class Delete extends Rest
 //         $app->on('rest_delete.retrieved_object', function(Event $e) use ($rest) {
 //             $rest->onRetrievedObject();
 //         });
+
+        $app->on('rest_delete.delete_failed', function(Event $e) use ($rest) {
+            $rest->onDeleteFailed();
+        });
+
+        return $app;
             
     }
     
     public function onRetrievedObject(){
     
+        
         // Revive deleted record in softDelete configuration
-        if (method_exists($obj, 'setSoftDelete')) {
+        if (method_exists($this->obj, 'setSoftDelete')) {
             $this->obj->setSoftDelete(0);
         }
     
@@ -135,4 +166,7 @@ class Delete extends Rest
         
     }
     
+    public function onDeleteFailed(){
+        
+    }
 }

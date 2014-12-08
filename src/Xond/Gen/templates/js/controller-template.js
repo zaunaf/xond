@@ -133,14 +133,21 @@ Ext.define('{{appName}}.controller.base.{{table.getPhpName}}', {
         var grid = btn.up('gridpanel');
         grid.rowEditing.cancelEdit();
         
-        var selections = grid.getSelectionModel().getSelection();
+        //var selections = grid.getSelectionModel().getSelection();
+        var selections = grid.getSelection();
         var r = selections[0];
         if (!r) {
             Xond.msg('Error', 'Mohon pilih salah satu baris');
             return;
         }
-        grid.rowEditing.startEdit(r, 0);
-        
+        var startEditingColumnNumber = 0;
+        for (var i=0; i<grid.columns.length; i++) {
+            if (columns[i].isVisible()) {
+                var startEditingColumnNumber = i;
+                break;
+            }
+        }
+        grid.rowEditing.startEdit(r, startEditingColumnNumber);
     },
     saveRecord: function(btn) {
         var grid = btn.up('gridpanel');
@@ -151,7 +158,8 @@ Ext.define('{{appName}}.controller.base.{{table.getPhpName}}', {
         var grid = btn.up('gridpanel');
         grid.rowEditing.cancelEdit();
         
-        var selections = grid.getSelectionModel().getSelection();
+        // var selections = grid.getSelectionModel().getSelection();
+        var selections = grid.getSelection();
         var r = selections[0];
         if (!r) {
             Xond.msg('Error', 'Mohon pilih salah satu baris');
@@ -168,7 +176,7 @@ Ext.define('{{appName}}.controller.base.{{table.getPhpName}}', {
 			buttonText: {yes: "Ya", no: "Tidak"},
 			fn: function(btn){
 				if (btn == "yes") {
-					r.destroy();
+					r.erase();
 					grid.store.sync();
 				}
 				// console.debug('you clicked: ',btn); //you clicked:  yes

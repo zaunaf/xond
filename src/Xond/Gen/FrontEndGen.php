@@ -356,6 +356,7 @@ class FrontEndGen extends BaseGen
         }
         
         $count = $infoObj->getRecordCount();
+        $rowsArr[] = array();
         
         if ($count > InfoGen::SMALLREF_UPPER_LIMIT) {
         
