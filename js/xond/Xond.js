@@ -354,7 +354,7 @@ Ext.override( Ext.grid.Panel, {
             Xond.msg('Error', 'No such column: ' + colname);
             return;
         }
-        console.log(colname);
+        // console.log(colname);
         this.getColumnByName(colname).setVisible(visible);
     },
     /* Show multiple columns visible by array */
