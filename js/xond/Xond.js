@@ -185,6 +185,25 @@ Xond = function(){
     };
 }();
 
+Ext.define('Xond.YesNoCombo', {
+    extend: 'Ext.form.field.ComboBox',
+    queryMode: 'local',
+    alias: 'widget.yesnocombo',
+    selectOnTab: true,
+    valueField: 'id',
+    hiddenName: 'id',
+    displayField: 'data',
+    store: {
+        fields: [{ name : 'id'},{ name : 'data'}],
+        data: [
+            {'id': '1', 'data': 'Ya '},
+            {'id': '0', 'data': 'Tidak'}
+        ]
+    },
+    lazyRender: true
+});
+
+
 Ext.override(Ext.Window, {
     constrainHeader: true
 });
