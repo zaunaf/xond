@@ -2627,3 +2627,11 @@ function execute($cmd, $stdin=null, &$stdout, &$stderr, $timeout=false)
 
     return 1;
 }
+
+function is_uuid($uuid) {
+    if (preg_match('/^\{?[A-Z0-9]{8}-[A-Z0-9]{4}-[A-Z0-9]{4}-[A-Z0-9]{4}-[A-Z0-9]{12}\}?$/', $uuid)) {
+      return true;
+    } else {
+      return false;
+    }
+}

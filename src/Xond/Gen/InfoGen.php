@@ -260,6 +260,11 @@ class InfoGen extends BaseGen {
             $t["is_ref"] = 0;
             $t["create_grid"] = 1;
             $t["create_form"] = 1;
+
+            //reset refs
+            $t["is_static_ref"] = 0;
+            $t["is_small_ref"] = 0;
+            
         } else {
             $t["is_data"] = 0;
             $t["is_ref"] = 1;

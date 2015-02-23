@@ -326,7 +326,14 @@ class Get extends Rest
                 // unset($id[$key]);
         
                 // Add pkname to the top using merge
-                array_unshift($id, $pkName);
+                // print_r($pkName); die;
+                
+                // Tadinya begini:
+                // array_unshift($id, $pkName);
+                
+                // Jadi begini: (mudah2an bener)
+                array_unshift($fieldNames, $pkName);
+                $this->setFieldNames($fieldNames);
                 // print_r($id);
             }
             
