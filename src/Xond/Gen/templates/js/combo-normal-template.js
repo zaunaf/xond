@@ -1,6 +1,6 @@
 Ext.define('{{appName}}.view._components.combo.{{table.getPhpName}}', {
     extend: 'Ext.form.field.ComboBox',
-    queryMode: 'local',
+    // queryMode: 'local',
     alias: 'widget.{{table.getPhpName|lower}}combo',
     valueField: '{{table.getPkName}}',
     displayField: '{{table.getDisplayField}}',

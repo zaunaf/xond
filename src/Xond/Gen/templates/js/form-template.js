@@ -63,6 +63,8 @@ Ext.define('{{appName}}.view._components.form.{{table.getPhpName}}', {
             xtype: '{{col.getComboXtype}}'
 {% elseif col.getXtype == 'radiogroup' %}
             xtype: '{{col.getRadiogroupXtype}}'
+{% else %}
+            xtype: '{{col.getXtype}}'
 {% endif %}
 {#          END Column is FK #}
 {#          START END Column is not FK #}
