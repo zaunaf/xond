@@ -269,7 +269,6 @@ class Get extends Rest
             /*
             * $cols = $tInfo->getColumns(); foreach ($cols as $col) { $col = new ColumnInfo(); if ($col->getIsFk()) { $colPhpName = $col->getColumnPhpName(); } } $tInfo = new PtkTableInfo(); $tInfo->get $table = new Ptk(); $table->getSekolah()->getNama();
             */
-        
             $arr = $t->toArray(\BasePeer::TYPE_FIELDNAME);
         
             // Cleans odd decimal / float values for FK //
@@ -288,6 +287,7 @@ class Get extends Rest
             $arr = $this->addFkStrings($arr, $t);
 
             // Handling for composite PKs //
+            // Basically, it creates Virtual PK Column
             if ($tInfo->getIsCompositePk()) {
 
                 $cols = $tInfo->getColumns();
@@ -334,6 +334,9 @@ class Get extends Rest
                 // Jadi begini: (mudah2an bener)
                 array_unshift($fieldNames, $pkName);
                 $this->setFieldNames($fieldNames);
+
+                // Add pkname to the top using merge (commented, i guess it would no longer needed)
+                // array_unshift($id, $pkName);
                 // print_r($id);
             }
             
