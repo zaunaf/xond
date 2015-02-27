@@ -166,6 +166,10 @@ class Get extends Rest
             $this->c = $this->handleBigRightJoinFk($this->c);
             
         }
+
+        // Add custom critera setup
+        $app['dispatcher']->dispatch('rest_get.custom_criteria');
+        
         // Get total number of row exists
         // print_r($c); die;
         // echo $this->c->toString(); die();
@@ -995,6 +999,10 @@ class Get extends Rest
             $rest->onCalcLimit($e, $rest);
         });
 
+        $app->on('rest_get.custom_criteria', function(Event $e) use ($rest) {
+            $rest->onCustomCriteria($e, $rest);
+        });
+                
         $app->on('rest_get.count', function(Event $e) use ($rest) {
             $rest->onCount($e, $rest);
         });
@@ -1025,6 +1033,10 @@ class Get extends Rest
     }
     
     public function onCalcLimit($e, $rest){
+    
+    }
+    
+    public function onCustomCriteria($e, $rest){
     
     }
     
