@@ -71,3 +71,23 @@
     line-height: 10px;
     font-weight: normal;
 }
+
+/* Tree icon set. Override it in app.css */
+
+.x-tree-icon-parent {
+    /*background-image: url(images/tree/folder.png);*/
+    background-image: url(icons2/folder_stand.png);
+    background-size: 16px 16px;
+    
+}
+.x-grid-tree-node-expanded .x-tree-icon-parent {
+    /*background-image: url(images/tree/folder-open.png);*/
+    background-image: url(icons2/folder.png);
+    background-size: 16px 16px;
+}
+
+.x-tree-icon-leaf {
+    /*background-image: url(images/tree/leaf.png);*/
+    background-image: url(icons2/page_white.png);
+    background-size: 16px 16px;
+}
