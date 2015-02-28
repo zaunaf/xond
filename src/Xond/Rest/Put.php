@@ -188,9 +188,22 @@ class Put extends Rest
         */
         // $this->obj->setUpdaterId('90915957-31F5-E011-819D-43B216F82ED4');
         if (method_exists($this->obj, 'setUpdaterId')) {
+
+            // $app = $this->getApp();
+            // $token = $app['security']->getToken();
+            // $user = $token->getUser();
+            // print_r($user); die;
+            //$user = $app['security']->getToken()->getUser();
+            //print_r($app['security']); die;
+            //print_r($app);
+            //print_r($user);
+            //die;
             
-            if ($this->getUserId()) {
-                $this->obj->setUpdaterId($this->getUserId());
+            $app = $this->getApp();
+            $user = $app['xond_user'];
+
+            if ($user->getPrimaryKey()) {
+                $this->obj->setUpdaterId($user->getPrimaryKey());
             } else {
                 $this->obj->setUpdaterId('90915957-31F5-E011-819D-43B216F82ED4');
             }

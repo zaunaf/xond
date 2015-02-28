@@ -414,26 +414,26 @@ class FrontEndGen extends BaseGen
 
         //print_r($rowsArr);
              
-        //Prepare data for static combos
-        $count = $peerObj::doCount(new \Criteria());
+        // //Prepare data for static combos
+        // $count = $peerObj::doCount(new \Criteria());
     
-        if ($count > InfoGen::BIGREF_LOWER_LIMIT) {
+        // if ($count > InfoGen::BIGREF_LOWER_LIMIT) {
              
-            $rowsArr = NULL;
+        //     $rowsArr = NULL;
              
-        } else {
+        // } else {
             
-            $rows = $peerObj::doSelect(new \Criteria());
+        //     $rows = $peerObj::doSelect(new \Criteria());
              
-            foreach ($rows as $r)  {
-                $arr = $r->toArray(\BasePeer::TYPE_FIELDNAME);
-                $data = array();
-                foreach($arr as $key=>$val) {
-                    $data[] = $val;
-                }
-                $rowsArr[] = $data;
-            }
-        }
+        //     foreach ($rows as $r)  {
+        //         $arr = $r->toArray(\BasePeer::TYPE_FIELDNAME);
+        //         $data = array();
+        //         foreach($arr as $key=>$val) {
+        //             $data[] = $val;
+        //         }
+        //         $rowsArr[] = $data;
+        //     }
+        // }
          
         // Prepare combo file
         $filePath = $this->combodir."/".$infoObj->getPhpName().".js";
@@ -662,13 +662,41 @@ class FrontEndGen extends BaseGen
         }
         
         // Create Stores
+
+        //Prepare data for static data
+        $rowsArr = array();
+        
+        $count = $peerObj::doCount(new \Criteria());
+    
+        if ($count > InfoGen::BIGREF_LOWER_LIMIT) {
+             
+            $rowsArr = NULL;
+             
+        } else {
+            
+            $rows = $peerObj::doSelect(new \Criteria());
+             
+            foreach ($rows as $r)  {
+                $arr = $r->toArray(\BasePeer::TYPE_FIELDNAME);
+                // $data = array();
+                // foreach($arr as $key=>$val) {
+                //     $data[] = $val;
+                // }
+                // $rowsArr[] = $data;
+                $array_final = preg_replace('/"([a-zA-Z_]+[a-zA-Z0-9_]*)":/','$1:',json_encode($arr));
+                $rowsArr[] = $array_final;
+            }
+        }
+         
+         // 
         $filePath = $this->storedir."/".$infoObj->getPhpName().".js";
         $templateFileName = 'store-template.js';
         $array = array(
                 'appName' => $this->appname,
                 'tableName' => $infoObj->getPhpName(),
                 'table' => $infoObj,
-                'columns' => $infoObj->getColumns()
+                'columns' => $infoObj->getColumns(),
+                'data' => $rowsArr
         );
         if ($this->render($infoObj->getName(), $filePath, $templateFileName, $array)) {
             $this->written++;

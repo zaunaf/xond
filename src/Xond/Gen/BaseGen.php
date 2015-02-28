@@ -185,13 +185,16 @@ class BaseGen {
 		    $arrSplitClassName = explode("\\", $key);
 		    
 		    if (sizeof($arrSplitClassName) == 3) {
-                list ($appName, $modelStr, $className) = $arrSplitClassName;
+                        list ($appName, $modelStr, $className) = $arrSplitClassName;
 		    } else {
 		        list ($appName, $modelStr, $type, $className) = $arrSplitClassName;
 		    }
 		       
 		    
 		    // Finds strings first
+                    if (!is_array($skipTables)) {
+                        $skipTables = explode(",", str_replace(" ", "", $skipTables));
+                    }
 		    if (!contains($key, array_merge(array("TableMap", "Peer", "Query", "Base"), $skipTables))) {
 		        
 		        // Table string with namespace

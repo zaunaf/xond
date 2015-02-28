@@ -126,6 +126,7 @@ class Post extends Rest
             
             } else {
                 
+                PDO::errorInfo(); die;
                 // Check whether error message is set. Otherwise kick an Exception
                 if ($this->getExceptionCode()) {
                     // Do nothing, let the event report itself
@@ -137,7 +138,7 @@ class Post extends Rest
             
         
         } catch (\Exception $e) {
-            
+            //print_r($this->obj); die;
             $success = false;
             $this->setSuccess($success);
             

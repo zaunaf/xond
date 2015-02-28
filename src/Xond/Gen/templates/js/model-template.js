@@ -18,26 +18,5 @@ Ext.define('{{appName}}.model.{{tableName}}', {
 {% else %}
         { name: '{{cvars.column_name}}', type: '{{cvars.type}}'  }{{ loop.last ? '' : ',' }}
 {% endif %}{% endif %}{% endfor %}
-    ],
-    proxy: {
-        type: 'rest',
-        url : 'rest/{{tableName}}',
-        timeout: 120000,
-        reader: {
-            type: 'json',
-            rootProperty: 'rows',
-            totalProperty: 'results'
-        },
-        listeners: {
-            exception: function(proxy, response, operation, eOpts) {
-                // console.log(response);
-                if (response.status == '400') {
-                    var json = Ext.decode(response.responseText);
-                    //Xond.msg('Error', json.message);
-                    //Ext.Msg.alert('Error', 'Gagal menyimpan data {{tableName}} ('+ errorMsg +')');
-                    Ext.Msg.alert('Error', json.message);
-                }
-            }
-        }
-    }
+    ]
 });
