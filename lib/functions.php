@@ -7,6 +7,25 @@ use Symfony\Component\Security\Acl\Exception\Exception;
 ini_set('display_errors', 'On');
 error_reporting(-1);
 
+
+function getSignificantDigits($number) {
+    
+    $str = is_numeric($number) ? strval($number) : trim($number);
+    $res = "";
+    $sig = false;
+    $str = str_split($str);
+    
+    for ($i = sizeof($str)-1; $i >= 0; $i--) {
+        if (($str[$i] === '0') && (!$sig)) {
+            //lanjut
+        } else {
+            //non zero value found! It's all significant now
+            $sig = true;
+            $res = $str[$i] . $res;
+        }
+    }
+    return $res;
+}
 /*
 function shutdown_handler() {
     if(@is_array($error = @error_get_last())) {   
