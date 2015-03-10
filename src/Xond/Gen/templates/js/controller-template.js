@@ -2,10 +2,19 @@ Ext.require([
     'Ext.window.MessageBox',
     'Ext.tip.*',
     'Ext.Component',
+
+{% if options.combo_count > 0 %}
     '{{appName}}.view._components.combo.*',
+{% endif %}
+{% if options.radiogroup_count > 0 %}
     '{{appName}}.view._components.radio.*',
+{% endif %}
+{% if table.getCreateForm > 0 %}
     '{{appName}}.view._components.form.{{table.getPhpName}}',
+{% endif %}
+{% if table.getCreateGrid > 0 %}
     '{{appName}}.view._components.grid.{{table.getPhpName}}'
+{% endif %}
 ]);
 
 Ext.define('{{appName}}.controller.base.{{table.getPhpName}}', {

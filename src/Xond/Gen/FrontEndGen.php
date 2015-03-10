@@ -607,14 +607,35 @@ class FrontEndGen extends BaseGen
         if (!($infoObj->getCreateGrid() || $infoObj->getCreateForm())) {
             return;
         }
+
+        // Check components
+        $tables = $this->getTables(BaseGen::TABLES_INFO);
+        
+        $formCount = $gridCount = $comboCount = $radioGroupCount = 0;
+        
+        foreach($tables as $t) {
+            $formCount += ($t->getCreateForm()) ? 1 : 0;
+            $gridCount += ($t->getCreateGrid()) ? 1 : 0;
+            $comboCount += ($t->getCreateCombobox()) ? 1 : 0;
+            $radioGroupCount += ($t->getCreateRadiogroup()) ? 1 : 0;
+        }
+        
+        $options = array(
+            'form_count' => $formCount,
+            'grid_count' => $gridCount,
+            'combo_count' => $comboCount,
+            'radiogroup_count' => $radioGroupCount
+        );
+        
         // Prepare basecontrollerdir file
         $filePath = $this->basecontrollerdir."/".$infoObj->getPhpName().".js";
         $templateFileName = 'controller-template.js';
         $array = array(
-                'appName' => $this->appname,
-                'table' => $infoObj,
-                'columns' => $infoObj->getColumns(),
-                'vals' => $this->getInitialValue($infoObj, $peerObj)
+            'appName' => $this->appname,
+            'table' => $infoObj,
+            'columns' => $infoObj->getColumns(),
+            'vals' => $this->getInitialValue($infoObj, $peerObj),
+            'options' => $options
         );
     
         if ($this->render($infoObj->getName(), $filePath, $templateFileName, $array)) {
