@@ -161,7 +161,10 @@ class FrontEndGen extends BaseGen
         $loader = new \Twig_Loader_Filesystem($templateRoot);
         
         // The twig object
-        $twig = new \Twig_Environment($loader);
+        // $twig = new \Twig_Environment($loader);
+        $twig = new \Twig_Environment($loader, array(
+            'debug' => true
+        ));
         
         // Add custom filter "sizeof"
         $filter = new \Twig_SimpleFilter('sizeof', function($array){
