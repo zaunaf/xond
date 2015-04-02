@@ -44,18 +44,22 @@ class ModelGen extends BaseGen {
             if ($os == "Windows") {
         
                 chdir($projectDir."/app/config");
-                // $out = shell_exec('set_path.bat && reverse_structure.bat');
+                
                 $cmd = 'set_path.bat && reverse_structure.bat';
+                
+                $out = shell_exec('set_path.bat && reverse_structure.bat');
+                
         
             } else {
         
                 chdir($projectDir."/app/config");
                 //$out = shell_exec('source set_path.sh && echo $PATH && source reverse_structure.sh');
                 $cmd ='source set_path.sh && echo $PATH && source reverse_structure.sh';
-        
+
+                execute($cmd, null, $out, $out, $config["execution_timeout"]);
             }
         
-            execute($cmd, null, $out, $out, $config["execution_timeout"]);
+            
         
             $app['monolog']->addInfo($out);
         
