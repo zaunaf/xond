@@ -215,7 +215,8 @@ class ModelGen extends BaseGen {
                 chdir($projectDir."/app/config");
                 //$out = shell_exec('set_path.bat && build_model.bat');
                 $cmd = 'set_path.bat && build_model.bat';
-                execute($cmd, null, $out, $out, $config["execution_timeout"]);
+                $out = shell_exec('set_path.bat && build_model.bat');
+                // execute($cmd, null, $out, $out, $config["execution_timeout"]);
         
             } else {
                 chdir($projectDir."/app/config");
