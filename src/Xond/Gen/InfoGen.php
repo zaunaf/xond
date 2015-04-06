@@ -350,7 +350,17 @@ class InfoGen extends BaseGen {
             $colName = $c->getName();
             $colPhpName = $c->getPhpName();
     
-            if (contains($colName, explode(",", str_replace(" ", "", $config['front_end_skip_columns'])))) {
+            if (is_string($config['front_end_skip_columns'])) {
+                $skipColumnsStr = str_replace(" ", "", $config['front_end_skip_columns']);
+                $arr = explode(",", $skipColumnsStr);
+            } else if (is_array($config['front_end_skip_columns'])) {
+                $arr = $config['front_end_skip_columns'];
+            } else {
+                $skipColumnsStr = "";
+                $arr = explode(",", $skipColumnsStr);
+            }
+            
+            if (contains($colName, $arr)) {
                 continue;
             }
             

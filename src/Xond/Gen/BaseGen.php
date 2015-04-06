@@ -211,7 +211,9 @@ class BaseGen {
 
                         // Table Info Objects
                         $infoKey = str_replace('\\Model\\', '\\Info\\', $key).'TableInfo';
-		        $tablesInfo[] = new $infoKey();
+		        if (class_exists($infoKey)){
+                            $tablesInfo[] = new $infoKey();
+                        }
 
 		    }
 		    
