@@ -1954,7 +1954,7 @@ function gen_uuid() {
     	    return getValueBySql("select newid()");
     	    break;
     	case 'pgsql':
-    	    executeSql("CREATE EXTENSION IF NOT EXISTS 'uuid-ossp'", $dbname);
+    	    executeSql("CREATE EXTENSION IF NOT EXISTS \"uuid-ossp\"", $dbname);
     	    return getValueBySql("select uuid_generate_v4()");
     	    break;
     	default:

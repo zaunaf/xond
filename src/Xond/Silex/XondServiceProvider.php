@@ -93,6 +93,8 @@ class XondServiceProvider implements ServiceProviderInterface
         $app->get('/print/{model}', 'Xond\Rest\Printing::init');
         $app->get('/excel/{model}', 'Xond\Rest\Excel::init');
         
+        // Passgen
+        $app->get('/passgen/{password}', 'Xond\Gen\PassGen::generate');
     }
 
     public function boot(Application $app)
