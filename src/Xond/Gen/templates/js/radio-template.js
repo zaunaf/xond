@@ -5,9 +5,10 @@ Ext.define('{{appName}}.view._components.radio.{{table.getPhpName}}', {
     alias: 'widget.{{table.getPhpName|lower}}radiogroup',    
     initComponent: function() {
         this.items = [
-{% for row in data %}
-			{boxLabel: '{{row.displayField}}', name: '{{table.getPkName}}', inputValue: '{{row.valueField}}'} {{ loop.last ? '' : ', ' }}
-{% endfor %}
+
+        {% for row in data %}
+        {boxLabel: '{{row.displayField}}', name: '{{table.getPkName}}', inputValue: '{{row.valueField}}'} {{ loop.last ? '' : ', ' }}
+        {% endfor %}
         ];
         this.callParent(arguments); 
     }
