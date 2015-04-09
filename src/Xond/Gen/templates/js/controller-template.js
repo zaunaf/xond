@@ -151,7 +151,7 @@ Ext.define('{{appName}}.controller.base.{{table.getPhpName}}', {
         }
         var startEditingColumnNumber = 0;
         for (var i=0; i<grid.columns.length; i++) {
-            if (columns[i].isVisible()) {
+            if (grid.columns[i].isVisible()) { 
                 var startEditingColumnNumber = i;
                 break;
             }
