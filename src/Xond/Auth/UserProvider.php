@@ -67,6 +67,10 @@ class UserProvider implements UserProviderInterface
         $c->add(constant($modelPeerName."::".$colName), $username);
         $user = $modelPeerName::doSelectOne($c);
         
+        if (!is_object($user)) {
+            throw new UsernameNotFoundException(sprintf('Username "%s" does not exist.', $username));
+        }
+        
         return new User($user->getUsername(), $user->getPassword(), array('ROLE_USER'), true, true, true, true);
     }
 
