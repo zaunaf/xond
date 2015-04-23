@@ -499,7 +499,8 @@ class InfoGen extends BaseGen {
             switch($sizeType) {
                 
                 case InfoGen::IS_SMALL_TABLE:
-                    $xtype = InfoGen::FIELD_RADIO;
+                    // $xtype = InfoGen::FIELD_RADIO;
+                    $xtype = InfoGen::FIELD_COMBO;
                     $static = 1;
                     if ($recordCount <= 4) {
                         $number = 0;        // auto, no columns

@@ -311,7 +311,18 @@ Ext.override('Ext.data.TreeStore', {
           }
         }
       }(this.tree.root.childNodes));
+  },
+
+  getRecBy: function(columnName, value) {
+    for(var i=0; i<this.getTotalCount();i++){
+       var rec = this.getAt(i);
+       if (rec.get(columnName) == value) {
+          return rec;
+       }
+    }
+    return false;
   }
+
 
 });
 
@@ -354,7 +365,7 @@ Ext.override( Ext.grid.Panel, {
             Xond.msg('Error', 'No such column: ' + colname);
             return;
         }
-        console.log(colname);
+        // console.log(colname);
         this.getColumnByName(colname).setVisible(visible);
     },
     /* Show multiple columns visible by array */
