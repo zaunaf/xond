@@ -330,7 +330,18 @@ Ext.override('Ext.data.TreeStore', {
           }
         }
       }(this.tree.root.childNodes));
+  },
+
+  getRecBy: function(columnName, value) {
+    for(var i=0; i<this.getTotalCount();i++){
+       var rec = this.getAt(i);
+       if (rec.get(columnName) == value) {
+          return rec;
+       }
+    }
+    return false;
   }
+
 
 });
 
