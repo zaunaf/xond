@@ -42,7 +42,10 @@ class BaseGen {
     
     /** Switcher, outputs Propel's table plain objects **/
     const TABLES_OBJECT = 6;
-    
+
+    /** Switcher, outputs Propel's table info objects **/
+    const TABLES_INFO = 6;
+
     protected $request;
     
     
@@ -185,13 +188,16 @@ class BaseGen {
 		    $arrSplitClassName = explode("\\", $key);
 		    
 		    if (sizeof($arrSplitClassName) == 3) {
-                list ($appName, $modelStr, $className) = $arrSplitClassName;
+                        list ($appName, $modelStr, $className) = $arrSplitClassName;
 		    } else {
 		        list ($appName, $modelStr, $type, $className) = $arrSplitClassName;
 		    }
 		       
 		    
 		    // Finds strings first
+                    if (!is_array($skipTables)) {
+                        $skipTables = explode(",", str_replace(" ", "", $skipTables));
+                    }
 		    if (!contains($key, array_merge(array("TableMap", "Peer", "Query", "Base"), $skipTables))) {
 		        
 		        // Table string with namespace
@@ -202,7 +208,13 @@ class BaseGen {
 		        
 		        // Table Objects
 		        $tablesObject[] = new $key();
-		        
+
+                        // Table Info Objects
+                        $infoKey = str_replace('\\Model\\', '\\Info\\', $key).'TableInfo';
+		        if (class_exists($infoKey)){
+                            $tablesInfo[] = new $infoKey();
+                        }
+
 		    }
 		    
 		    // Finds objects
@@ -253,7 +265,7 @@ class BaseGen {
 	            break;
 	        
 	        case BaseGen::TABLES_OBJECT:
-	            return $tablesObject;
+	            return $tablesInfo;
 	            break;
 		    
 		}

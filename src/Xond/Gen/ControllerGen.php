@@ -64,7 +64,10 @@ class ControllerGen extends BaseGen
         $loader = new \Twig_Loader_Filesystem($templateRoot);
         
         // The twig object
-        $twig = new \Twig_Environment($loader);
+        // $twig = new \Twig_Environment($loader);
+        $twig = new \Twig_Environment($loader, array(
+            'debug' => true
+        ));
         
         $templateFileName = 'controller-simple-template.js';
         $array = array(

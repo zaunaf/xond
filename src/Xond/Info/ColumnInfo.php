@@ -331,7 +331,7 @@ class ColumnInfo
      *
      * @return void
      */    
-    function setInputLength($input_length) {
+    function setInputLength($input_length = 0) {
     	$this->input_length = $input_length;
     }
     

@@ -166,6 +166,10 @@ class Get extends Rest
             $this->c = $this->handleBigRightJoinFk($this->c);
             
         }
+
+        // Add custom critera setup
+        $app['dispatcher']->dispatch('rest_get.custom_criteria');
+        
         // Get total number of row exists
         // print_r($c); die;
         // echo $this->c->toString(); die();
@@ -269,7 +273,6 @@ class Get extends Rest
             /*
             * $cols = $tInfo->getColumns(); foreach ($cols as $col) { $col = new ColumnInfo(); if ($col->getIsFk()) { $colPhpName = $col->getColumnPhpName(); } } $tInfo = new PtkTableInfo(); $tInfo->get $table = new Ptk(); $table->getSekolah()->getNama();
             */
-        
             $arr = $t->toArray(\BasePeer::TYPE_FIELDNAME);
         
             // Cleans odd decimal / float values for FK //
@@ -288,6 +291,7 @@ class Get extends Rest
             $arr = $this->addFkStrings($arr, $t);
 
             // Handling for composite PKs //
+            // Basically, it creates Virtual PK Column
             if ($tInfo->getIsCompositePk()) {
 
                 $cols = $tInfo->getColumns();
@@ -326,7 +330,17 @@ class Get extends Rest
                 // unset($id[$key]);
         
                 // Add pkname to the top using merge
-                array_unshift($id, $pkName);
+                // print_r($pkName); die;
+                
+                // Tadinya begini:
+                // array_unshift($id, $pkName);
+                
+                // Jadi begini: (mudah2an bener)
+                array_unshift($fieldNames, $pkName);
+                $this->setFieldNames($fieldNames);
+
+                // Add pkname to the top using merge (commented, i guess it would no longer needed)
+                // array_unshift($id, $pkName);
                 // print_r($id);
             }
             
@@ -985,6 +999,10 @@ class Get extends Rest
             $rest->onCalcLimit($e, $rest);
         });
 
+        $app->on('rest_get.custom_criteria', function(Event $e) use ($rest) {
+            $rest->onCustomCriteria($e, $rest);
+        });
+                
         $app->on('rest_get.count', function(Event $e) use ($rest) {
             $rest->onCount($e, $rest);
         });
@@ -1015,6 +1033,10 @@ class Get extends Rest
     }
     
     public function onCalcLimit($e, $rest){
+    
+    }
+    
+    public function onCustomCriteria($e, $rest){
     
     }
     

@@ -260,6 +260,11 @@ class InfoGen extends BaseGen {
             $t["is_ref"] = 0;
             $t["create_grid"] = 1;
             $t["create_form"] = 1;
+
+            //reset refs
+            $t["is_static_ref"] = 0;
+            $t["is_small_ref"] = 0;
+            
         } else {
             $t["is_data"] = 0;
             $t["is_ref"] = 1;
@@ -345,7 +350,17 @@ class InfoGen extends BaseGen {
             $colName = $c->getName();
             $colPhpName = $c->getPhpName();
     
-            if (contains($colName, explode(",", str_replace(" ", "", $config['front_end_skip_columns'])))) {
+            if (is_string($config['front_end_skip_columns'])) {
+                $skipColumnsStr = str_replace(" ", "", $config['front_end_skip_columns']);
+                $arr = explode(",", $skipColumnsStr);
+            } else if (is_array($config['front_end_skip_columns'])) {
+                $arr = $config['front_end_skip_columns'];
+            } else {
+                $skipColumnsStr = "";
+                $arr = explode(",", $skipColumnsStr);
+            }
+            
+            if (contains($colName, $arr)) {
                 continue;
             }
             
@@ -725,8 +740,11 @@ class InfoGen extends BaseGen {
         $loader = new \Twig_Loader_Filesystem($templateRoot);
         
         // The twig object
-        $twig = new \Twig_Environment($loader);
-        
+        // $twig = new \Twig_Environment($loader);
+        $twig = new \Twig_Environment($loader, array(
+            'debug' => true
+        ));
+
         // Add custom filter "sizeof"
         $filter = new \Twig_SimpleFilter('sizeof', function($array){
             return sizeof($array);

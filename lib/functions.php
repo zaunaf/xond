@@ -7,6 +7,25 @@ use Symfony\Component\Security\Acl\Exception\Exception;
 ini_set('display_errors', 'On');
 error_reporting(-1);
 
+
+function getSignificantDigits($number) {
+    
+    $str = is_numeric($number) ? strval($number) : trim($number);
+    $res = "";
+    $sig = false;
+    $str = str_split($str);
+    
+    for ($i = sizeof($str)-1; $i >= 0; $i--) {
+        if (($str[$i] === '0') && (!$sig)) {
+            //lanjut
+        } else {
+            //non zero value found! It's all significant now
+            $sig = true;
+            $res = $str[$i] . $res;
+        }
+    }
+    return $res;
+}
 /*
 function shutdown_handler() {
     if(@is_array($error = @error_get_last())) {   
@@ -1935,7 +1954,7 @@ function gen_uuid() {
     	    return getValueBySql("select newid()");
     	    break;
     	case 'pgsql':
-    	    executeSql("CREATE EXTENSION IF NOT EXISTS 'uuid-ossp'", $dbname);
+    	    executeSql("CREATE EXTENSION IF NOT EXISTS \"uuid-ossp\"", $dbname);
     	    return getValueBySql("select uuid_generate_v4()");
     	    break;
     	default:
@@ -2626,4 +2645,12 @@ function execute($cmd, $stdin=null, &$stdout, &$stderr, $timeout=false)
     }
 
     return 1;
+}
+
+function is_uuid($uuid) {
+    if (preg_match('/^\{?[A-Z0-9]{8}-[A-Z0-9]{4}-[A-Z0-9]{4}-[A-Z0-9]{4}-[A-Z0-9]{12}\}?$/', $uuid)) {
+      return true;
+    } else {
+      return false;
+    }
 }

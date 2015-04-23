@@ -2,10 +2,19 @@ Ext.require([
     'Ext.window.MessageBox',
     'Ext.tip.*',
     'Ext.Component',
+
+{% if options.combo_count > 0 %}
     '{{appName}}.view._components.combo.*',
+{% endif %}
+{% if options.radiogroup_count > 0 %}
     '{{appName}}.view._components.radio.*',
+{% endif %}
+{% if table.getCreateForm > 0 %}
     '{{appName}}.view._components.form.{{table.getPhpName}}',
+{% endif %}
+{% if table.getCreateGrid > 0 %}
     '{{appName}}.view._components.grid.{{table.getPhpName}}'
+{% endif %}
 ]);
 
 Ext.define('{{appName}}.controller.base.{{table.getPhpName}}', {
@@ -142,7 +151,7 @@ Ext.define('{{appName}}.controller.base.{{table.getPhpName}}', {
         }
         var startEditingColumnNumber = 0;
         for (var i=0; i<grid.columns.length; i++) {
-            if (columns[i].isVisible()) {
+            if (grid.columns[i].isVisible()) {
                 var startEditingColumnNumber = i;
                 break;
             }
