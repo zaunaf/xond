@@ -21,6 +21,7 @@ Ext.define('{{appName}}.view._components.grid.{{table.getPhpName}}', {
                 text: 'Tambah',
                 // iconCls: 'fa fa-plus fa-lg glyph-dark-green glyph-shadow',
                 iconCls: 'ic-add',
+                itemId: 'add',
                 scope: this,
                 action: 'add'
             }, {
@@ -59,11 +60,11 @@ Ext.define('{{appName}}.view._components.grid.{{table.getPhpName}}', {
         });
     },
     initComponent: function() {
-        
+
         var grid = this;
-        
+
         this.store = this.createStore();
-        
+
         // Assume all the setting upfront in initialConfig is applied directly to the object
         Ext.apply(this, this.initialConfig);
 
@@ -75,18 +76,18 @@ Ext.define('{{appName}}.view._components.grid.{{table.getPhpName}}', {
         //         area_id: 120,
         //         status_id: 1
         //     }
-        // }      
+        // }
         if (this.initialConfig.baseParams) {
-            
+
             var baseParams = this.initialConfig.baseParams;
             this.store.on('beforeload', function(store, options) {
                 Ext.apply(store.proxy.extraParams, baseParams);
             });
-            
+
         }
-        
+
         this.getSelectionModel().setSelectionMode('SINGLE');
-        
+
         var rowEditing = Ext.create('Ext.grid.plugin.RowEditing', {
             listeners: {
                 cancelEdit: function(rowEditing, context) {
@@ -97,7 +98,7 @@ Ext.define('{{appName}}.view._components.grid.{{table.getPhpName}}', {
                 }
             }
         });
-        
+
         var editing = this.createEditing();
 
         this.rowEditing = editing;
@@ -112,10 +113,10 @@ Ext.define('{{appName}}.view._components.grid.{{table.getPhpName}}', {
 {% endif %}
 {% endif %}
 {% endfor %}
-        
+
         this.columns = [{
 {% for col in columns %}
-{% if col.getEnumValues %}			
+{% if col.getEnumValues %}
             header: '{{col.getHeader}}',
             tooltip: '{{col.getHeader}}',
             width: {{col.getColumnWidth}},
@@ -143,7 +144,7 @@ Ext.define('{{appName}}.view._components.grid.{{table.getPhpName}}', {
 {% endfor %}
                     ]
                 },
-				lazyRender: true            
+				lazyRender: true
             },
 			renderer: function(v,p,r) {
 				switch (v) {
@@ -151,7 +152,7 @@ Ext.define('{{appName}}.view._components.grid.{{table.getPhpName}}', {
 {% if col.getType == 'string' %}
 					case '{{key}}' : return '{{value}}'; break;
 {% else %}
-					case {{key}} : return '{{value}}'; break;					
+					case {{key}} : return '{{value}}'; break;
 {% endif %}
 {% endfor %}
 					default : return '-'; break;
@@ -178,7 +179,7 @@ Ext.define('{{appName}}.view._components.grid.{{table.getPhpName}}', {
                     return record.get('{{col.getFkTableInfo.getDisplayField}}');
                 } else {
                     return v;
-                }                        
+                }
             },
 {% else %}
             renderer: function(v,p,r) {
@@ -230,11 +231,11 @@ Ext.define('{{appName}}.view._components.grid.{{table.getPhpName}}', {
         {{ loop.last ? '' : '},{' }}
 {% endfor %}
         }];
-        
+
         this.dockedItems = this.createDockedItems();
 
         this.bbar = this.createBbar();
-        
+
         this.callParent(arguments);
     }
 });
