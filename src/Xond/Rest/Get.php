@@ -489,7 +489,23 @@ class Get extends Rest
                         	    // echo "#ISEMPTY";
                         	    $c->add($columnName, "", \Criteria::EQUAL);
                         	    break;
-                        	default:
+                        	case "#ISGREATERTHAN":
+                        	    // echo "#ISEMPTY";
+                        	    $c->add($columnName, "", \Criteria::GREATER_THAN);
+                        	    break;
+                        	case "#ISGREATEREQUAL":
+                        	    // echo "#ISEMPTY";
+                        	    $c->add($columnName, "", \Criteria::GREATER_EQUAL);
+                        	    break;
+                        	case "#ISLESSTHEN":
+                        	    // echo "#ISEMPTY";
+                        	    $c->add($columnName, "", \Criteria::LESS_THAN);
+                        	    break;
+                        	case "#ISLESSEQUAL":
+                        	    // echo "#ISEMPTY";
+                        	    $c->add($columnName, "", \Criteria::LESS_EQUAL);
+                        	    break;
+                                default:
                         	    break;
                         }
                     
