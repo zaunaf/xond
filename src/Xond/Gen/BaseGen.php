@@ -46,8 +46,8 @@ class BaseGen {
     /** Switcher, outputs Propel's table info objects **/
     const TABLES_INFO = 6;
 
-    protected $request;
-    
+    protected $request;    
+    public $outStr;
     
     public function initialize(\Symfony\Component\HttpFoundation\Request $request, \Silex\Application $app) {
         

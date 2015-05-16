@@ -8,7 +8,7 @@
  * @license    MIT License
  */
 
-namespace Xond\gen;
+namespace Xond\Gen;
 
 use \Symfony\Component\HttpFoundation\Request;
 use \Silex\Application;
