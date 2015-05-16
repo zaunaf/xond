@@ -427,6 +427,40 @@ class Get extends Rest
                     continue;
                 }
                 
+
+                 // If the detected #, process greater/less than/equal                
+                if (strpos($key, "#")) {
+
+                    $command = substr($key, strpos($key, "#"), (strlen($key) - strpos($key, "#")));
+                    $key = substr($key, 0, strpos($key, "#"));
+
+                    $cInfo = $tInfo->getColumnByName($key);
+                    
+                    $columnName = Rest::convertToColumnName($tInfo, $cInfo->getName());
+                    $typeColumn = $cInfo->getType();
+
+                    //echo $command."<br>".$key;
+                    //die;
+                    
+                    if ($command == "#isgreaterthan") {
+                        $c->add($columnName, $val, \Criteria::GREATER_THAN);
+                    }
+
+                    if ($command == "#isgreaterequal") {
+                        $c->add($columnName, $val, \Criteria::GREATER_EQUAL);
+                    }
+
+                    if ($command == "#islessthen") {
+                        $c->add($columnName, $val, \Criteria::LESS_THAN);
+                    }
+
+                    if ($command == "#islessequal") {
+                        $c->add($columnName, $val, \Criteria::LESS_EQUAL);
+                    }
+                    
+                    continue;
+                }
+                        
                 // If the key MATCH any of the column name of the module
                 // Then process them one by one 
                 // Translating them to each corresponding behaviour
@@ -451,7 +485,8 @@ class Get extends Rest
                     // 4) Switcher only, no need of val ISNULL, ISNOTNULL and ISEMPTY
                     // 5) Regular string. Fuzzy searching then applied
                     // 6) Any else type. Just match it.
-                    
+                                
+                        
                     // Detect JSON, it's an array !
                     if ($custom == "[") {
                         // echo "| array";
@@ -489,22 +524,6 @@ class Get extends Rest
                         	    // echo "#ISEMPTY";
                         	    $c->add($columnName, "", \Criteria::EQUAL);
                         	    break;
-                        	case "#ISGREATERTHAN":
-                        	    // echo "#ISEMPTY";
-                        	    $c->add($columnName, "", \Criteria::GREATER_THAN);
-                        	    break;
-                        	case "#ISGREATEREQUAL":
-                        	    // echo "#ISEMPTY";
-                        	    $c->add($columnName, "", \Criteria::GREATER_EQUAL);
-                        	    break;
-                        	case "#ISLESSTHEN":
-                        	    // echo "#ISEMPTY";
-                        	    $c->add($columnName, "", \Criteria::LESS_THAN);
-                        	    break;
-                        	case "#ISLESSEQUAL":
-                        	    // echo "#ISEMPTY";
-                        	    $c->add($columnName, "", \Criteria::LESS_EQUAL);
-                        	    break;
                                 default:
                         	    break;
                         }
@@ -523,7 +542,9 @@ class Get extends Rest
                         } else {
                             $c->add($columnName, $val, \Criteria::LIKE);
                         }
-                    
+
+                   
+
                     // Everything else
                     } else {
                         // echo "| else";
