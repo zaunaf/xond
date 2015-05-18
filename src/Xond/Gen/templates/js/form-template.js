@@ -7,7 +7,7 @@ Ext.define('{{appName}}.view._components.form.{{table.getPhpName}}', {
         anchor: '{{table.getFormDefaultAnchor}}'
     },
     initComponent: function() {
-        
+
         var record = this.initialConfig.record ? this.initialConfig.record : false;
         if (record){
             this.listeners = {
@@ -21,7 +21,7 @@ Ext.define('{{appName}}.view._components.form.{{table.getPhpName}}', {
             if (!field.allowBlank)
               field.labelSeparator += '<span style="color: rgb(255, 0, 0); padding-left: 2px;">*</span>';
         });*/
-        
+
         this.items = [{
 {# Start LOOP ALL COLUMNS #}
 {% for col in columns %}
@@ -242,6 +242,7 @@ Ext.define('{{appName}}.view._components.form.{{table.getPhpName}}', {
                     { boxLabel: '{{value}}', name: '{{col1.getName}}', inputValue: {{key}} } {{ loop.last ? '' : ',' }}
 {% endif %}
 {% endfor %}
+                ]
 {#              STOP Processing ENUM VALUES #}
 {#              ELSE Processing NON ENUM VALUES #}
 {% else %}
@@ -343,7 +344,7 @@ Ext.define('{{appName}}.view._components.form.{{table.getPhpName}}', {
 {#          END Loop each column #}
             }]
 {% endif %}
-{#      END Processing NON CONTAINER #}            
+{#      END Processing NON CONTAINER #}
 {% endif %}
 {#  END Processing NON ColumnInfo #}
         {{ loop.last ? '' : '},{' }}
