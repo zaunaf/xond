@@ -62,7 +62,6 @@ class BaseGen {
         
         // Mark the start of gen process. Now using monolog
         $app['monolog']->addInfo("FrontEndGen start at ". date ( 'Y-m-d H:i' ));
-                
     }
     
     /**
