@@ -30,6 +30,7 @@ use Symfony\Component\Security\Acl\Exception\Exception;
 class InfoGen extends BaseGen {
     
     // Constants
+    public $genType = "Info";
     
     // This one should go to config
     const BIGREF_LOWER_LIMIT = 20;
@@ -57,6 +58,11 @@ class InfoGen extends BaseGen {
     const FIELD_DATE = 'datefield';
     const FIELD_COMBO = 'combobox';
     const FIELD_RADIO = 'radiogroup';
+    
+    // Nature
+    const NATURE_PEOPLE_NAME = 'peoplename';
+    const NATURE_EMAIL_ADDRESS = 'email';
+    const NATURE_INTEGER = 'int';
     
     /**
      * Map Propel types to Ext
@@ -848,9 +854,9 @@ class InfoGen extends BaseGen {
         
         // Initialize
         $this->initialize($request, $app);
-                
+               
         // Get the tables complete with their namespace (true), false otherwise.
-        $maps = $this->getTables(BaseGen::TABLES_MAP);
+        $maps = $this->getTables(BaseGen::TABLES_MAP);        
         //echo sizeof($maps);
         
         // Init shit

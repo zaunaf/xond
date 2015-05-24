@@ -48,7 +48,8 @@ class BaseGen {
 
     protected $request;    
     public $outStr;
-    
+    public $genType;    // To be overidden
+        
     public function initialize(\Symfony\Component\HttpFoundation\Request $request, \Silex\Application $app) {
         
         // So that Silex's Request and Application accessible in any methods
@@ -61,7 +62,7 @@ class BaseGen {
         $this->setAppName($config['project_php_name']);
         
         // Mark the start of gen process. Now using monolog
-        $app['monolog']->addInfo("FrontEndGen start at ". date ( 'Y-m-d H:i' ));
+        $app['monolog']->addInfo($this->genType."Gen start at ". date ( 'Y-m-d H:i' ));
                 
     }
     
@@ -167,110 +168,114 @@ class BaseGen {
 	public function getTables($format) {
 
 	    // Get app
-		$app = $this->getApp();
-        
-		// Prepare vars
-		$configFile = require $app['propel.config_file'];
-		$skipTables = $app['xond.config']['front_end_skip_tables'];
-		$classmap = $configFile['classmap'];
-		
-		$oldStr = "";
-		$written = 0;
-	 	$tables = array();
+            $app = $this->getApp();
+
+            // Prepare vars
+            $configFile = require $app['propel.config_file'];
+            $skipTables = $app['xond.config']['front_end_skip_tables'];
+            $classmap = $configFile['classmap'];
+
+            $oldStr = "";
+            $written = 0;
+            $tables = array();
 
  	    // Loop each entry in classmap, but filter only the plain objects.
  	    // Also skip unwanted tables to be shown in front end
-		foreach ( $classmap as $key => $value ) {
-            
-		    //echo $key."<br>\r\n";
-		    //continue;
-		    
-		    $arrSplitClassName = explode("\\", $key);
-		    
-		    if (sizeof($arrSplitClassName) == 3) {
-                        list ($appName, $modelStr, $className) = $arrSplitClassName;
-		    } else {
-		        list ($appName, $modelStr, $type, $className) = $arrSplitClassName;
-		    }
-		       
-		    
-		    // Finds strings first
-                    if (!is_array($skipTables)) {
-                        $skipTables = explode(",", str_replace(" ", "", $skipTables));
+            foreach ( $classmap as $key => $value ) {
+
+                //echo $key."<br>\r\n";
+                //continue;
+
+                $arrSplitClassName = explode("\\", $key);
+
+                if (sizeof($arrSplitClassName) == 3) {
+                    list ($appName, $modelStr, $className) = $arrSplitClassName;
+                } else {
+                    list ($appName, $modelStr, $type, $className) = $arrSplitClassName;
+                }
+
+
+                // Finds strings first
+                if (!is_array($skipTables)) {
+                    $skipTables = explode(",", str_replace(" ", "", $skipTables));
+                }
+                if (!contains($key, array_merge(array("TableMap", "Peer", "Query", "Base"), $skipTables))) {
+
+                    // Table string with namespace
+                    $tablesNsString[] = $key;
+
+                    // Table string with no namespace
+                    $tablesString[] = $className;
+
+                    // Table Objects
+                    $tablesObject[] = new $key();
+
+                    // Table Info Objects
+                    $infoKey = str_replace('\\Model\\', '\\Info\\', $key).'TableInfo';
+                    if (class_exists($infoKey)){
+                        $tablesInfo[] = new $infoKey();
                     }
-		    if (!contains($key, array_merge(array("TableMap", "Peer", "Query", "Base"), $skipTables))) {
-		        
-		        // Table string with namespace
-		        $tablesNsString[] = $key;
-		        
-		        // Table string with no namespace
-		        $tablesString[] = $className;
-		        
-		        // Table Objects
-		        $tablesObject[] = new $key();
 
-                        // Table Info Objects
-                        $infoKey = str_replace('\\Model\\', '\\Info\\', $key).'TableInfo';
-		        if (class_exists($infoKey)){
-                            $tablesInfo[] = new $infoKey();
-                        }
+                }
 
-		    }
-		    
-		    // Finds objects
-		    if (!contains($key, $skipTables)) {
+                // Finds objects
+                if (!contains($key, $skipTables)) {
+
+                    // echo $key."<br>\r\n";
+
+                    // Table map format
+                    // if ( endsWith($key, "TableMap") && !startsWith($className, "Base") ) {
+                            //    $tablesMap[] = new $key();
+                    // }
+
+                    // Table peer format
+                    if ( endsWith($key, "Peer") && !startsWith($className, "Base") ) {                        
+                        $tablePeer = new $key();
+                        $tablesPeer[] = $tablePeer;
+                        
+                        $tableMap = $tablePeer->getTableMap();
+                        $tablesMap[] = $tableMap;
+                    }                    
+                    
+                    // Table query format
+                    if ( endsWith($key, "Query") && !startsWith($className, "Base") ) {
+                        $tablesQuery[] = new $key();
+                    }
+
+                }
                 
-		        //echo $key."<br>\r\n";
-		        
-		        // Table map format
-		        //if ( endsWith($key, "TableMap") && !startsWith($className, "Base") ) {
-				//    $tablesMap[] = new $key();
-		        //}
-		        
-		        // Table peer format
-		        if ( endsWith($key, "Peer") && !startsWith($className, "Base") ) {
-		            $tablePeer = new $key();
-		            $tablesPeer[] = $tablePeer;
-		            $tablesMap[] = $tablePeer->getTableMap(); 
-		        }
-		        // Table query format
-		        if ( endsWith($key, "Query") && !startsWith($className, "Base") ) {
-		            $tablesQuery[] = new $key();
-		        }
-		        
-			}
-			 
-		}
-		
-		switch ($format) {
+            }            
+            
+            
+            switch ($format) {
 
-		    case BaseGen::TABLES_STRING:
-		        return $tablesString;
-		        break;
+                case BaseGen::TABLES_STRING:
+                    return $tablesString;
+                    break;
 
-	        case BaseGen::TABLES_NS_STRING:
-	            return $tablesNsString;
-	            break;
-	        
-	        case BaseGen::TABLES_MAP:
-	            return $tablesMap;
-	            break;
-	        
-	        case BaseGen::TABLES_PEER:
-	            return $tablesPeer;
-	            break;
-	        
-	        case BaseGen::TABLES_QUERY:
-	            return $tablesQuery;
-	            break;
-	        
-	        case BaseGen::TABLES_OBJECT:
-	            return $tablesInfo;
-	            break;
-		    
-		}
+                case BaseGen::TABLES_NS_STRING:
+                    return $tablesNsString;
+                    break;
+
+                case BaseGen::TABLES_MAP:
+                    return $tablesMap;
+                    break;
+
+                case BaseGen::TABLES_PEER:
+                    return $tablesPeer;
+                    break;
+
+                case BaseGen::TABLES_QUERY:
+                    return $tablesQuery;
+                    break;
+
+                case BaseGen::TABLES_OBJECT:
+                    return $tablesInfo;
+                    break;
+
+                }
 		
-		//return ($withNamespace) ? $tables : $tablesNoNamespace;
+            //return ($withNamespace) ? $tables : $tablesNoNamespace;
 		
 	}
 	

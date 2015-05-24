@@ -25,6 +25,8 @@ use \Silex\Application;
 
 class ModelGen extends BaseGen {
 
+    public $genType = "Model";
+    
     public function reverse(Request $request, Application $app) {    
 
         // Initialize

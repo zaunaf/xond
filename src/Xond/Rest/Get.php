@@ -426,7 +426,6 @@ class Get extends Rest
                         ->getName() . "." . $val);
                     continue;
                 }
-                
 
                  // If the detected #, process greater/less than/equal                
                 if (strpos($key, "#")) {

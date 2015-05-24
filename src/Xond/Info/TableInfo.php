@@ -35,7 +35,7 @@ class TableInfo
     public $is_big_ref;         // Paging combonya
     public $is_small_ref;       // Radio nya
     public $composite_pk;		// Table ini pake composite PK ndak
-    
+    public $nature;              // Nama orang, nomor sk, email, integer, dll
     
     public $display_field;
     public $renderer_string;
