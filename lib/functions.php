@@ -78,7 +78,8 @@ function boolToNum($bool) {
 function containsStarts($str, array $arr) {
     
     foreach($arr as $a) {
-        if (startsWith($str, $a) !== false) return true;
+        //echo "mencari $str di dalam $a<br>";
+        if (startsWith($a, $str) !== false) return true;
     }
     return false;
     
@@ -126,7 +127,7 @@ function endsWith($haystack, $needle)
 }
 
 /**
- * Check whether any of the items in the array contains any string $str
+ * Check whether string $str contains any of the items in the array
  * 
  * @param string $str
  * @param array $arr
@@ -134,8 +135,8 @@ function endsWith($haystack, $needle)
  */
 function contains($str, array $arr)
 {
-    foreach($arr as $a) {
-        if (stripos($str,$a) !== false) return true;
+    foreach($arr as $a) {        
+        if (stripos($str, $a) !== false) return true;
     }
     return false;
 }
