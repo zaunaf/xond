@@ -61,6 +61,8 @@ class TableInfo
     
     public $form_default_label_width = 120;     // Default width
     public $form_default_anchor = '100%';    // Default anchor
+	
+	public $group_field; 		// GroupField on store
     
     public function __construct(){
         $this->initialize();
@@ -361,6 +363,14 @@ class TableInfo
     
     function getFormDefaultAnchor() {
         return $this->form_default_anchor;
+    }
+	
+    function getGroupField() {
+    	return $this->group_field;
+    }
+    
+    function setGroupField($group_field) {
+    	$this->group_field = $group_field;
     }
     
     /*
