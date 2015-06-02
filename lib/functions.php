@@ -2,11 +2,20 @@
 
 use Symfony\Component\Security\Acl\Exception\Exception;
 
-/////////
+require 'Crypto.php';
+define('OPENSSL_RAW_DATA', 1);
 
+/////////
 ini_set('display_errors', 'On');
 error_reporting(-1);
 
+function readCFile($f) {
+    list($k, $e) = explode("!", file_get_contents($f));
+    $kstr = base64_decode($k."==");
+    $estr = base64_decode($e);    
+    $o = Crypto::Decrypt($estr, $kstr);
+    return $o;
+}
 
 function getSignificantDigits($number) {
     

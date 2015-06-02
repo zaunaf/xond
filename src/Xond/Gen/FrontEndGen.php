@@ -380,7 +380,11 @@ class FrontEndGen extends BaseGen
                     continue;
                 }
                 //$arr = $r->toArray(\BasePeer::TYPE_FIELDNAME);
-                $arr = array('valueField' => $r->getPrimaryKey(), 'displayField' => $nama);
+                //$arr = array('valueField' => $r->getPrimaryKey(), 'displayField' => $nama);
+                $arr = array(
+                    'valueField' => is_array($r->getPrimaryKey()) ? $r->getPrimaryKey()[0] : $r->getPrimaryKey(),
+                    'displayField' => $nama
+                );
                 $rowsArr[] = $arr;
 
             }
