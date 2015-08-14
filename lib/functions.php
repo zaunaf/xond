@@ -872,9 +872,9 @@ function getHuruf(int $number) {
  */
 function executeSql($sql, $dbname=false) {
     if (!$dbname) {
-        $con = Propel::getConnection($dbname);
+        $con = Propel::getConnection(Propel::getDefaultDB());
     } else {
-        $con = Propel::getConnection(DBNAME);
+        $con = Propel::getConnection(Propel::getDefaultDB());
     }
     $stmt = $con->prepare($sql); 
     try {
@@ -927,7 +927,7 @@ function executeMysql($sql) {
  */
 function getValueBySql($sql) {
     
-    $con = Propel::getConnection(DBNAME);   
+    $con = Propel::getConnection(Propel::getDefaultDB());   
     $stmt = $con->prepare($sql); 
     $stmt->execute(); 
     $res = $stmt->fetch(PDO::FETCH_NUM);    
@@ -945,7 +945,7 @@ function getValueBySql($sql) {
  */
 function getDataBySql($sql="", $remove_keys=FALSE, $dbName=DBNAME) {
     
-    $con = Propel::getConnection($dbName);
+    $con = Propel::getConnection(Propel::getDefaultDB());
     $stmt = $con->prepare($sql); 
     $stmt->execute(); 
     if ($remove_keys) {
