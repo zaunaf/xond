@@ -157,14 +157,16 @@ class Get extends Rest
             
             // For loading big reference renderer (CHECK AGAIN) 
             $this->c = $this->handleId($this->c);
+
+            // Enable left and right filtering (CHECK AGAIN)
+            // $this->c = $this->handleBigLeftJoinFk($this->c);
+            // $this->c = $this->handleBigRightJoinFk($this->c);
             
             // This is the MAIN parameter handling for the class
             $this->c = $this->handleParams($this->c);
             
-            // Enable left and right filtering (CHECK AGAIN)
-            $this->c = $this->handleBigLeftJoinFk($this->c);
-            $this->c = $this->handleBigRightJoinFk($this->c);
-            
+            // Debug
+            // print_r($this->c);
         }
 
         // Add custom critera setup
@@ -551,6 +553,116 @@ class Get extends Rest
                     }
                     
                 
+                } else {
+                    
+                    // It's a join thing
+                    // Lets look for each available joins
+                    // then do the filter if the key match
+                    // one of the join's columns
+                    
+                    // Left
+                    // print_r($tInfo->getBelongsTo());
+                    $leftJoinTables = $tInfo->getBelongsTo();
+                    
+                    foreach ($leftJoinTables as $tableName) {                            
+                        
+                        $tableCamelName = phpNamize($tableName);
+                        $tInfoJoin = Rest::createTableInfo($tableCamelName);
+                        
+                        if ($tInfoJoin->getColumnByName($key)){
+
+                            // Prepare this side
+                            $columnInfo = $tInfo->getColumnInfoRelatedTo($tInfoJoin->getName());            // Get column info of the FK
+                            $columnName = Rest::convertToColumnName($tInfo, $columnInfo->getName());        // Get official column name of the FK
+                            
+                            // Prepare join side
+                            $joinColumnInfo = $tInfoJoin->getColumnByName($tInfoJoin->getPkName());              // Get ColumnInfo of PK of the FK Table
+                            $joinColumnName = Rest::convertToColumnName($tInfoJoin, $joinColumnInfo->getName()); // Get official column name of the PK
+                            
+                            $criteriaColumnInfo = $tInfoJoin->getColumnByName($key);
+                            $criteriaColumnName = Rest::convertToColumnName($tInfoJoin, $criteriaColumnInfo->getName());
+                            
+                            // Debug
+                            // echo $columnName."\r\n";
+                            // echo $joinColumnName."\r\n";
+                            // echo $criteriaColumnName."\r\n";
+                            
+                            // Join First
+                            $c->addJoin($columnName, $joinColumnName, \Criteria::LEFT_JOIN);
+                            
+                            // Then filter
+                            $c->add($criteriaColumnName, $val, \Criteria::EQUAL);                            
+                        }
+                    }
+                    
+                    
+                    // Right
+                    // Don't forget to correct them if HasMany bugs have been corrected
+                    // print_r($tInfo->getHasMany());
+                    
+                    $rightJoinTableArr = $tInfo->getHasMany();
+                    $rightJoinTableComma = $rightJoinTableArr[0];
+                    $rightJoinTables = explode(",", $rightJoinTableComma);
+                    
+                    foreach ($rightJoinTables as $tableName) {
+                        
+                        $tableCamelName = phpNamize($tableName);
+                        $tInfoJoin = Rest::createTableInfo($tableCamelName);
+                        
+                        if ($tInfoJoin->getColumnByName($key)){
+                            
+                            // Debug
+                            // echo "$key found in $tableCamelName\r\n";  // Filtering by $joinColumnName<br>";
+                            
+                            // Prepare this side 
+                            $columnName = Rest::convertToColumnName($tInfo, $tInfo->getPkName());
+                            
+                            // Prepare join side
+                            $joinColumn = $tInfoJoin->getColumnInfoRelatedTo($tInfo->getName());
+                            $joinColumnName = Rest::convertToColumnName($tInfoJoin, $joinColumn->getName());                            
+                            $criteriaColumnName = Rest::convertToColumnName($tInfoJoin, $key);
+                            
+                            // Debug
+                            // echo $columnName."\r\n";
+                            // echo $joinColumnName."\r\n";
+                            
+                            // Join First
+                            $c->addJoin($columnName, $joinColumnName, \Criteria::RIGHT_JOIN);
+                            
+                            // Then filter
+                            $c->add($criteriaColumnName, $val, \Criteria::EQUAL);
+                            
+                        }
+                    }
+                    
+                    /*
+                    $joins = $c->getJoins();
+                    
+                    foreach ($joins as $j) {
+                        
+                        $tableName = $j->getRightTableName();
+                        $dotPos = strpos($tableName, ".");
+                        if ($dotPos != false) {
+                            $tableName = substr($tableName, $dotPos+1, strlen($tableName)-$dotPos);
+                        }
+                        $tableCamelName = phpNamize($tableName);
+                        //echo "$tableCamelName<br>";
+                        
+                        $tInfoJoin = Rest::createTableInfo($tableCamelName);
+                        if ($tInfoJoin->getColumnByName($key)){
+                            
+                            $cInfoJoin = $tInfoJoin->getColumnByName($key);
+                            $joinColumnName = Rest::convertToColumnName($tInfoJoin, $cInfoJoin->getName());
+                            //echo "$key found in $tableCamelName. Filtering by $joinColumnName<br>";
+                            $c->add($joinColumnName, $val, \Criteria::EQUAL);
+                            
+                        } else {
+                            //echo "$key NOT found in $tableCamelName<br>";
+                        }
+                    }
+                    //
+                     * 
+                     */
                 }
             }
         }
@@ -558,6 +670,14 @@ class Get extends Rest
         return $c;
     }
 
+    /**
+     * Detect if any LEFT JOIN FK (reference) exists
+     * and add them to the join criteria.
+     * Still a bit ugly since it joins to tables even it's not needed.
+     * Later on, detect first then only add join if needed.
+     * @param \Criteria $c
+     * @return \Criteria
+     */
     public function handleBigLeftJoinFk(\Criteria $c)
     {
         $tInfo = $this->getTableInfoObj();
@@ -596,12 +716,12 @@ class Get extends Rest
                         // echo $tInfo->getName().".".$col->getName()." | ". $fkTableInfo->getName().".".$fkTableInfo->getPkName()."<br>";
                     }
                 }
-            }
+            }            
         }
         
         return $c;
     }
-
+ 
     public function handleBigRightJoinFk($c)
     {
         
@@ -620,7 +740,7 @@ class Get extends Rest
         if ($tInfo->getIsData()) {
             
             // $tInfo = new PtkTableInfo();
-            $relatingColumns = $tInfo->getRelatingColumns();
+            $relatingColumns = $tInfo->getRelatingColumns();            
             
             if (sizeof($relatingColumns) > 1) {
                 
@@ -713,8 +833,8 @@ class Get extends Rest
         }
         
         return $c;
-    }
-
+    }    
+    
     /**
      * Add _str to $arr
      *
