@@ -12,9 +12,9 @@ use SpmDikdas\Model\BentukPendidikanPeer;
 
 class Rest
 {   
-	public $app;
-	public $request;
-	public $config;
+    public $app;
+    public $request;
+    public $config;
 	
     public $appName;
     public $modelName;
@@ -56,17 +56,17 @@ class Rest
         
         //print_r($app['xond.config']); die;
         
-		// Processes the request. Run by the current method class
-		try {
-        	
-		    $this->prepare($request, $app);
-        	$this->process();
-        	
+        // Processes the request. Run by the current method class
+        try {
+
+            $this->prepare($request, $app);
+            $this->process();
+            
     	} catch (Exception $e) {
 	        
-	        // Handle exceptions.
-	        $this->handleException($e);
-	        $this->createExceptionResponseStr();
+            // Handle exceptions.
+            $this->handleException($e);
+            $this->createExceptionResponseStr();
 	        
     	}
     	

@@ -341,6 +341,18 @@ class TableInfo
         $this->relating_columns = $relating_columns;
     }
 
+    function getColumnInfoRelatedTo($modelName) {
+        $columns = $this->getColumns();
+        $foundColumn = null;
+        foreach ($columns as $c) {
+            if ($c->getFkTableName() == strtolower(underscoreCapitalize($modelName))){
+                $foundColumn = $c;
+                break;
+            }            
+        }
+        return $foundColumn;
+    }
+    
     function getInfoBeforeDelete() {
         return $this->info_before_delete;
     }

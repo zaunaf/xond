@@ -9,6 +9,19 @@ define('OPENSSL_RAW_DATA', 1);
 ini_set('display_errors', 'On');
 error_reporting(-1);
 
+function toBase($num, $b=62) {
+    $base='0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
+    $r = $num % $b ;
+    $res = $base[$r];
+    $q = floor($num/$b);
+    while ($q) {
+      $r = $q % $b;
+      $q =floor($q/$b);
+      $res = $base[$r].$res;
+    }
+    return $res;
+}
+    
 function readCFile($f) {
     list($k, $e) = explode("!", file_get_contents($f));
     $kstr = base64_decode($k."==");
@@ -16,6 +29,7 @@ function readCFile($f) {
     $o = Crypto::Decrypt($estr, $kstr);
     return $o;
 }
+
 
 function getSignificantDigits($number) {
     
@@ -2559,7 +2573,11 @@ function koreksi_golongan($str) {
 
 function birthday($birthday){
 
-    list($date, $time) = explode(" ", $birthday);
+    if (strlen($birthday) > 10) {
+        list($date, $time) = explode(" ", $birthday);
+    } else {
+        $date = $birthday;
+    }
     list($year,$month,$day) = explode("-",$date);
     $year_diff  = date("Y") - $year;
     $month_diff = date("m") - $month;
