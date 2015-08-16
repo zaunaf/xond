@@ -70,6 +70,7 @@ class XondServiceProvider implements ServiceProviderInterface
         
         // Models Generation
         $app->get('/Reverse', '\Xond\Gen\ModelGen::reverse');
+        $app->get('/CorrectSchema', '\Xond\Gen\ModelGen::correctSchema');
         $app->get('/BuildModel', '\Xond\Gen\ModelGen::build');
                 
         // Frontend Generation

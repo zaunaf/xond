@@ -12,6 +12,7 @@ Menu hari ini di antaranya:
 <li><a href="/BuildModel">Build Model</a></li>
 <li><a href="/InfoGen">InfoGen (base only)</a></li>
 <li><a href="/FrontEndGen">FrontEndGen (base only)</a></li>
+<li><a href="/CorrectSchema">CorrectSchema (If reverse manual only)</a></li>
 <li><a href="/ControllerGen">ControllerGen (for starting creating controller)</a></li>
 <li><a href="/ControllerList">ControllerList (for listing controllers in application.js)</a></li>
 <li><a href="/IconFonts">Icon Fonts</a></li>
