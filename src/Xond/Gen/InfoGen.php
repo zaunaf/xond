@@ -114,11 +114,23 @@ class InfoGen extends BaseGen {
         
         // Load config
         $config = $this->getConfig();
+        $refSchemaArr = explode(",", $config["reference_schemas"]);
         
         // Identify
         $t["name"] = $this->getName($tmap);
         $t["php_name"] = $tmap->getPhpName();
         $t["app_name"] = $config['project_php_name'];
+        $t["schema_name"] = $this->getSchemaName($tmap);
+        
+        // Check if schema is reference
+        if (sizeof($refSchemaArr) > 0) {
+            
+            if (in_array($t["schema_name"], $refSchemaArr)) {
+                $isReference = true;
+            } else {
+                $isReference = false;
+            }
+        }
         
         // Determine primary keys, and add virtual column to acommodate composite keys
         if (sizeof($tmap->getPrimaryKeyColumns()) > 1) {
@@ -231,25 +243,25 @@ class InfoGen extends BaseGen {
             
         }
         
-//         if ($t['name'] == 'anggota_rombel') {
-//             print_r($rManyToMany);
-//             print_r($rHasMany);
-//             print_r($rBelongsTo);
-//             print_r($rOneToOne);
-//             die;
-//         }
+        //if ($t['name'] == 'sekolah') {
+        //    print_r($rManyToMany);
+        //    print_r($rHasMany);
+        //    print_r($rBelongsTo);
+        //    print_r($rOneToOne);
+        //    //die;
+        //}
         
         
         // Determine data or ref
         $pkColumns = $tmap->getPrimaryKeyColumns();
         $pkColumn = $pkColumns[0];
         
-//         if ($t['name'] == 'sumber_dana') {
-//             echo $pkColumn->getType()."<br>";
-//             echo InfoGen::$extTypeMap[$pkColumn->getType()]."<br>";
-//             echo $count;
-//             die;
-//         }
+        //if ($t['name'] == 'sumber_dana') {
+        //    echo $pkColumn->getType()."<br>";
+        //    echo InfoGen::$extTypeMap[$pkColumn->getType()]."<br>";
+        //    echo $count;
+        //    die;
+        //}
         
         if ($t['composite_pk']) {
             $isData = 1;            
@@ -261,7 +273,13 @@ class InfoGen extends BaseGen {
             $isData = 1;
         }
         
+        if (isset($isReference)) {
+            $isData = $isReference ? 0 : 1;
+        }
+        
         if ($isData) {
+
+            // If clearly stated (or by detection)
             $t["is_data"] = 1;
             $t["is_ref"] = 0;
             $t["create_grid"] = 1;
@@ -272,11 +290,14 @@ class InfoGen extends BaseGen {
             $t["is_small_ref"] = 0;
             
         } else {
+
+            // Assume it's ref
             $t["is_data"] = 0;
             $t["is_ref"] = 1;
             $t["create_grid"] = 0;
             $t["create_form"] = 0;
         }
+        
         
         // Do we need this ? YES
         $t["has_many"] = implode(',', $rHasMany);
@@ -286,6 +307,12 @@ class InfoGen extends BaseGen {
         $t["split_entity_name"] = '';
         $t["relating_columns"] = implode(',', $rHasMany);
         $t["info_before_delete"] = '';
+        
+        if ($t['name'] == 'sekolah') {
+            //echo "\r\nhas_many: ".$t["has_many"];
+            //echo "\r\nbelongs to: ".$t["belongs_to"];
+            //die;
+        }
         
         // Register
         $this->registerTable($t);
@@ -664,9 +691,17 @@ class InfoGen extends BaseGen {
         
     }
 
-
+    /**
+     * This function corrects "BelongsTo" list so that only tables
+     * listed is amongst data table and then change their format
+     * to php_name format
+     * 
+     * @param \TableMap $tmap
+     * @return type
+     */
     public function addManyToOneRelationInformation(\TableMap $tmap) {
         
+        /*
         // Reset everything first
         $belongsTo = array();
         	
@@ -702,11 +737,60 @@ class InfoGen extends BaseGen {
             return;
             
         }
-        	
-        $this->tables[$this->getName($tmap)]["belongs_to"] = $belongsTo;
+        */
+        $belongsTo = explode(",", $this->tables[$this->getName($tmap)]["belongs_to"]);
+        $newBelongsTo = array();
+
+        foreach ($belongsTo as $b) {
+
+            if (strpos($b, ".") > 0) {
+                list($ref,$tableName) = explode(".", $b);                
+            } else {
+                $tableName = $b;
+            }
+            //echo $tableName."\r\n";
+
+            foreach ($this->tables as $t) {
+                
+                if ($t["name"] == $tableName) {                        
+                    if ($t["is_data"] == 1) {
+                        $newBelongsTo[] = $t["php_name"];
+                    }
+                }                    
+                
+            }                
+        }
+
+        $this->tables[$this->getName($tmap)]["belongs_to"] = $newBelongsTo;
         
     }
 
+    public function addOnetoManyRelationInformation(\TableMap $tmap) {
+
+        $hasMany = explode(",", $this->tables[$this->getName($tmap)]["has_many"]);
+        $newHasMany = array();
+       
+        foreach ($hasMany as $h) {
+            
+            if (strpos($h, ".") > 0) {
+                list($ref,$tableName) = explode(".", $h);                
+            } else {
+                $tableName = $h;
+            }
+            
+            foreach ($this->tables as $t) {
+                if ($t["name"] == $tableName) {                        
+                    if ($t["is_data"] == 1) {
+                        $newHasMany[] = $t["php_name"];
+                    }
+                }                    
+            }                
+        }
+
+        $this->tables[$this->getName($tmap)]["has_many"] = $newHasMany;
+
+    }
+    
     /**
      * Set the table's default label width for forms
      * @param \TableMap $tmap
@@ -873,9 +957,10 @@ class InfoGen extends BaseGen {
             $this->addColumns($tmap);
         }
         
-        // Add columns so the app can utilize the data
+        // Add correct relation iformation
         foreach ($maps as $tmap) {
             $this->addManyToOneRelationInformation($tmap);
+            $this->addOnetoManyRelationInformation($tmap);
         }
         
         // Complete the tmap with necessary infos

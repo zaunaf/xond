@@ -486,8 +486,8 @@ class Get extends Rest
                     // 4) Switcher only, no need of val ISNULL, ISNOTNULL and ISEMPTY
                     // 5) Regular string. Fuzzy searching then applied
                     // 6) Any else type. Just match it.
-                                
-                        
+                    
+
                     // Detect JSON, it's an array !
                     if ($custom == "[") {
                         // echo "| array";
@@ -544,8 +544,6 @@ class Get extends Rest
                             $c->add($columnName, $val, \Criteria::LIKE);
                         }
 
-                   
-
                     // Everything else
                     } else {
                         // echo "| else";
@@ -564,75 +562,83 @@ class Get extends Rest
                     // print_r($tInfo->getBelongsTo());
                     $leftJoinTables = $tInfo->getBelongsTo();
                     
-                    foreach ($leftJoinTables as $tableName) {                            
-                        
-                        $tableCamelName = phpNamize($tableName);
-                        $tInfoJoin = Rest::createTableInfo($tableCamelName);
-                        
-                        if ($tInfoJoin->getColumnByName($key)){
+                    if (is_array($leftJoinTables)) {
 
-                            // Prepare this side
-                            $columnInfo = $tInfo->getColumnInfoRelatedTo($tInfoJoin->getName());            // Get column info of the FK
-                            $columnName = Rest::convertToColumnName($tInfo, $columnInfo->getName());        // Get official column name of the FK
+                        foreach ($leftJoinTables as $tableName) {                            
                             
-                            // Prepare join side
-                            $joinColumnInfo = $tInfoJoin->getColumnByName($tInfoJoin->getPkName());              // Get ColumnInfo of PK of the FK Table
-                            $joinColumnName = Rest::convertToColumnName($tInfoJoin, $joinColumnInfo->getName()); // Get official column name of the PK
+                            $tableCamelName = phpNamize($tableName);
+                            $tInfoJoin = Rest::createTableInfo($tableCamelName);
                             
-                            $criteriaColumnInfo = $tInfoJoin->getColumnByName($key);
-                            $criteriaColumnName = Rest::convertToColumnName($tInfoJoin, $criteriaColumnInfo->getName());
-                            
-                            // Debug
-                            // echo $columnName."\r\n";
-                            // echo $joinColumnName."\r\n";
-                            // echo $criteriaColumnName."\r\n";
-                            
-                            // Join First
-                            $c->addJoin($columnName, $joinColumnName, \Criteria::LEFT_JOIN);
-                            
-                            // Then filter
-                            $c->add($criteriaColumnName, $val, \Criteria::EQUAL);                            
+                            if ($tInfoJoin->getColumnByName($key)){
+
+                                // Prepare this side
+                                $columnInfo = $tInfo->getColumnInfoRelatedTo($tInfoJoin->getName());            // Get column info of the FK
+                                $columnName = Rest::convertToColumnName($tInfo, $columnInfo->getName());        // Get official column name of the FK
+                                
+                                // Prepare join side
+                                $joinColumnInfo = $tInfoJoin->getColumnByName($tInfoJoin->getPkName());              // Get ColumnInfo of PK of the FK Table
+                                $joinColumnName = Rest::convertToColumnName($tInfoJoin, $joinColumnInfo->getName()); // Get official column name of the PK
+                                
+                                $criteriaColumnInfo = $tInfoJoin->getColumnByName($key);
+                                $criteriaColumnName = Rest::convertToColumnName($tInfoJoin, $criteriaColumnInfo->getName());
+                                
+                                // Debug
+                                // echo $columnName."\r\n";
+                                // echo $joinColumnName."\r\n";
+                                // echo $criteriaColumnName."\r\n";
+                                
+                                // Join First
+                                $c->addJoin($columnName, $joinColumnName, \Criteria::LEFT_JOIN);
+                                
+                                // Then filter
+                                $c->add($criteriaColumnName, $val, \Criteria::EQUAL);                            
+                            }
                         }
+                        
                     }
-                    
-                    
+
                     // Right
                     // Don't forget to correct them if HasMany bugs have been corrected
                     // print_r($tInfo->getHasMany());
                     
-                    $rightJoinTableArr = $tInfo->getHasMany();
-                    $rightJoinTableComma = $rightJoinTableArr[0];
-                    $rightJoinTables = explode(",", $rightJoinTableComma);
+                    $rightJoinTables = $tInfo->getHasMany();
+                    // print_r($tInfo->getName()); print_r($rightJoinTableArr);                    
+                    // $rightJoinTableComma = $rightJoinTableArr[0];
+                    // $rightJoinTables = explode(",", $rightJoinTableComma);
+
+                    if (is_array($rightJoinTables)) {
                     
-                    foreach ($rightJoinTables as $tableName) {
-                        
-                        $tableCamelName = phpNamize($tableName);
-                        $tInfoJoin = Rest::createTableInfo($tableCamelName);
-                        
-                        if ($tInfoJoin->getColumnByName($key)){
+                        foreach ($rightJoinTables as $tableName) {
                             
-                            // Debug
-                            // echo "$key found in $tableCamelName\r\n";  // Filtering by $joinColumnName<br>";
+                            $tableCamelName = phpNamize($tableName);
+                            $tInfoJoin = Rest::createTableInfo($tableCamelName);
                             
-                            // Prepare this side 
-                            $columnName = Rest::convertToColumnName($tInfo, $tInfo->getPkName());
-                            
-                            // Prepare join side
-                            $joinColumn = $tInfoJoin->getColumnInfoRelatedTo($tInfo->getName());
-                            $joinColumnName = Rest::convertToColumnName($tInfoJoin, $joinColumn->getName());                            
-                            $criteriaColumnName = Rest::convertToColumnName($tInfoJoin, $key);
-                            
-                            // Debug
-                            // echo $columnName."\r\n";
-                            // echo $joinColumnName."\r\n";
-                            
-                            // Join First
-                            $c->addJoin($columnName, $joinColumnName, \Criteria::RIGHT_JOIN);
-                            
-                            // Then filter
-                            $c->add($criteriaColumnName, $val, \Criteria::EQUAL);
-                            
+                            if ($tInfoJoin->getColumnByName($key)){
+                                
+                                // Debug
+                                // echo "$key found in $tableCamelName\r\n";  // Filtering by $joinColumnName<br>";
+                                
+                                // Prepare this side 
+                                $columnName = Rest::convertToColumnName($tInfo, $tInfo->getPkName());
+                                
+                                // Prepare join side
+                                $joinColumn = $tInfoJoin->getColumnInfoRelatedTo($tInfo->getName());
+                                $joinColumnName = Rest::convertToColumnName($tInfoJoin, $joinColumn->getName());                            
+                                $criteriaColumnName = Rest::convertToColumnName($tInfoJoin, $key);
+                                
+                                // Debug
+                                // echo $columnName."\r\n";
+                                // echo $joinColumnName."\r\n";
+                                
+                                // Join First
+                                $c->addJoin($columnName, $joinColumnName, \Criteria::RIGHT_JOIN);
+                                
+                                // Then filter
+                                $c->add($criteriaColumnName, $val, \Criteria::EQUAL);
+                                
+                            }
                         }
+                    
                     }
                     
                     /*
