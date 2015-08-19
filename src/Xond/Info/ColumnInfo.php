@@ -21,44 +21,45 @@ namespace Xond\Info;
 
 class ColumnInfo 
 {
-    public $column_name;		// jelas. contoh: status_kepegawaian_id
-    public $column_php_name;	// jelas. contoh: StatusKepegawaianId
-    public $display_field;		// display field lah pokona
-    public $type;				// Type, postprocessed earlier from propel types
-    public $is_fk;				// Is it an FK ?
-    public $fk_table_name;		// Is it an FK ?
-    public $min;				// Nilai minimal
-    public $max;				// Nilai maximal (kalau tidak ada, ambil dari nilai terbesar foreign key)
-    public $label;				// Label (form)
-    public $header;				// Header (grid)
-    public $label_width;		// Label (form)
-    public $input_length;		// Default filled by column size
-    public $column_width; 		// If not anchored 100%, how big normally is
-    public $hide_column; 		// Whether to hide the column    
-    public $flex;				// Flex (form)
-    public $xtype;				// Default filled by foreign key table's combo, atau tipe datanya (numeric ya numberfield, date ya datefield)
-    public $combo_xtype;		// Kalau referensi, combo xtype untuk di grid nya apa
-    public $validation; 		// (belum kebayang)
-    public $allow_empty;		// Protect NOT NULL
-    public $description;		// Info nya gimana
-    public $linked_with;		// If it's a combo, who linked it from
-    public $linked_to;			// If it's a combo, who linked it to
-    public $enum_values;		// If it's a combo, who linked it to
-    public $anchor;				// anchor to length field on form  
-    public $editable;			// jelas
-    public $disabled;			// jelas
-    public $columns_radio;		// for column radio button
-    public $decimal_precision;	// jelas
+    public $column_name;        // jelas. contoh: status_kepegawaian_id
+    public $column_php_name;    // jelas. contoh: StatusKepegawaianId
+    public $display_field;      // display field lah pokona
+    public $type;               // Type, postprocessed earlier from propel types
+    public $is_pk;              // Is it an FK ?    
+    public $is_fk;              // Is it an FK ?
+    public $fk_table_name;      // Is it an FK ?
+    public $min;                // Nilai minimal
+    public $max;                // Nilai maximal (kalau tidak ada, ambil dari nilai terbesar foreign key)
+    public $label;              // Label (form)
+    public $header;             // Header (grid)
+    public $label_width;        // Label (form)
+    public $input_length;       // Default filled by column size
+    public $column_width;       // If not anchored 100%, how big normally is
+    public $hide_column;        // Whether to hide the column    
+    public $flex;               // Flex (form)
+    public $xtype;              // Default filled by foreign key table's combo, atau tipe datanya (numeric ya numberfield, date ya datefield)
+    public $combo_xtype;        // Kalau referensi, combo xtype untuk di grid nya apa
+    public $validation;         // (belum kebayang)
+    public $allow_empty;        // Protect NOT NULL
+    public $description;        // Info nya gimana
+    public $linked_with;        // If it's a combo, who linked it from
+    public $linked_to;          // If it's a combo, who linked it to
+    public $enum_values;        // If it's a combo, who linked it to
+    public $anchor;             // anchor to length field on form  
+    public $editable;           // jelas
+    public $disabled;           // jelas
+    public $columns_radio;      // for column radio button
+    public $decimal_precision;  // jelas
     public $form_text_align_right; // utk form, agar value rata kanan, sample: lintang dan bujur
-	public $use_min_value;		// use minValue (BOOLEAN)
-    public $min_length;			// minLength
-    public $validation_type;	// validation type, ex: email
+    public $use_min_value;      // use minValue (BOOLEAN)
+    public $min_length;         // minLength
+    public $validation_type;    // validation type, ex: email
     public $force_selection;    // Force selection on combos
-    public $force_election;		// true to restrict the selected value to one of the values in the list, false to allow the user to set arbitrary text into the field
-    public $read_only;			// readonly
-	
+    public $force_election;     // true to restrict the selected value to one of the values in the list, false to allow the user to set arbitrary text into the field
+    public $read_only;          // readonly
+    
     function getName() {
-    	return $this->column_name;
+        return $this->column_name;
     }    
 
     /*
@@ -72,7 +73,7 @@ class ColumnInfo
     */
     
     function setName($column_name) {
-    	$this->column_name = $column_name;
+        $this->column_name = $column_name;
     }
     
 
@@ -87,11 +88,11 @@ class ColumnInfo
     */
     
     function setPhpName($column_php_name) {
-    	$this->column_php_name = $column_php_name;
+        $this->column_php_name = $column_php_name;
     }    
     
     function getPhpName() {
-    	return $this->column_php_name;
+        return $this->column_php_name;
     }
 
     
@@ -105,11 +106,11 @@ class ColumnInfo
      * @return void
      */    
     function setColumnName($column_name) {
-    	$this->column_name = $column_name;
+        $this->column_name = $column_name;
     }
     
     function getColumnName() {
-    	return $this->column_name;
+        return $this->column_name;
     }
     
 
@@ -123,11 +124,11 @@ class ColumnInfo
      * @return void
      */    
     function setColumnPhpName($column_php_name) {
-    	$this->column_php_name = $column_php_name;
+        $this->column_php_name = $column_php_name;
     }    
     
     function getColumnPhpName() {
-    	return $this->column_php_name;
+        return $this->column_php_name;
     }
     
     /*
@@ -140,11 +141,11 @@ class ColumnInfo
      * @return void
      */
     function setType($type) {
-    	$this->type = $type;
+        $this->type = $type;
     }
     
     function getType() {
-    	return $this->type;
+        return $this->type;
     }
     
     /*
@@ -158,11 +159,11 @@ class ColumnInfo
      */
     
     function setIsPkUuid($is_pk_uuid) {
-    	$this->is_pk_uuid = $is_pk_uuid;
+        $this->is_pk_uuid = $is_pk_uuid;
     }    
     
     function getIsPkUuid() {
-    	return $this->is_pk_uuid;
+        return $this->is_pk_uuid;
     }
     
 
@@ -177,13 +178,31 @@ class ColumnInfo
     */
     
     function setIsPk($is_pk) {
-    	$this->is_pk = $is_pk;
+        $this->is_pk = $is_pk;
     }    
     
     function getIsPk() {
-    	return $this->is_pk;
+        return $this->is_pk;
     }
     
+    /*
+     * Set whether this col is a Virtual Column
+    *
+    * <p>Set whether this col is a Virtual Column</p>
+    *
+    * @param string $is_virtual Is this Virtual Column 
+    *
+    * @return void
+    */
+    
+    function setIsVirtual($is_virtual) {
+        $this->is_virtual = $is_virtual;
+    }    
+    
+    function getIsVirtual() {
+        return $this->is_virtual;
+    }
+
     /**
      * Set whether this col is a FK
      *
@@ -194,19 +213,19 @@ class ColumnInfo
      * @return void
      */    
     function setIsFk($is_fk) {
-    	$this->is_fk = $is_fk;
+        $this->is_fk = $is_fk;
     }
     
     function getIsFk() {
-    	return $this->is_fk;
+        return $this->is_fk;
     }
 
     function setIsTimestamp($is_timestamp) {
-    	$this->is_timestamp = $is_timestamp;
+        $this->is_timestamp = $is_timestamp;
     }
     
     function getIsTimestamp() {
-    	return $this->is_timestamp;
+        return $this->is_timestamp;
     }
     
     
@@ -221,11 +240,11 @@ class ColumnInfo
      */
     
     function setFkTableName($fk_table_name) {
-    	$this->fk_table_name = $fk_table_name;
+        $this->fk_table_name = $fk_table_name;
     }
          
     function getFkTableName() {
-    	return $this->fk_table_name;
+        return $this->fk_table_name;
     }
 
     /**
@@ -247,11 +266,11 @@ class ColumnInfo
      * @return void
      */    
     function setDisplayField($display_field) {
-    	$this->display_field = $display_field;
+        $this->display_field = $display_field;
     }
     
     function getDisplayField() {
-    	return $this->display_field;
+        return $this->display_field;
     }
     
     /**
@@ -264,11 +283,11 @@ class ColumnInfo
      *  @return void
      */    
     function setMin($min) {
-    	$this->min = $min;
+        $this->min = $min;
     }
     
     function getMin() {
-    	return $this->min;
+        return $this->min;
     }
     
     /**
@@ -281,11 +300,11 @@ class ColumnInfo
      * @return void
      */    
     function setMax($max) {
-    	$this->max = $max;
+        $this->max = $max;
     }
     
     function getMax() {
-    	return $this->max;
+        return $this->max;
     }
     
     /*
@@ -298,11 +317,11 @@ class ColumnInfo
     * @return void
     */    
     function setLabel($label) {
-    	$this->label = $label;
+        $this->label = $label;
     }
     
     function getLabel() {
-    	return $this->label;
+        return $this->label;
     }
     
     /*
@@ -315,11 +334,11 @@ class ColumnInfo
     * @return void
     */    
     function setHeader($header) {
-    	$this->header = $header;
+        $this->header = $header;
     }
     
     function getHeader() {
-    	return $this->header;
+        return $this->header;
     }
     
     /*
@@ -332,11 +351,11 @@ class ColumnInfo
      * @return void
      */    
     function setInputLength($input_length = 0) {
-    	$this->input_length = $input_length;
+        $this->input_length = $input_length;
     }
     
     function getInputLength() {
-    	return $this->input_length;
+        return $this->input_length;
     }
     
     /*
@@ -349,11 +368,11 @@ class ColumnInfo
     * @return void
     */    
     function setLabelWidth($label_width) {
-    	$this->label_width = $label_width;
+        $this->label_width = $label_width;
     }
     
     function getLabelWidth() {
-    	return isset($this->label_width) ? $this->label_width : false;
+        return isset($this->label_width) ? $this->label_width : false;
     }
     
     /*
@@ -368,11 +387,11 @@ class ColumnInfo
     * @return void
     */    
     function setFlex($flex) {
-    	$this->flex = $flex;
+        $this->flex = $flex;
     }
 
     function getFlex() {
-    	return isset($this->flex) ? $this->flex : false;
+        return isset($this->flex) ? $this->flex : false;
     }
     
     /*
@@ -385,11 +404,11 @@ class ColumnInfo
     * @return void
     */    
     function setFieldWidth($field_width) {
-    	$this->field_width = $field_width;
+        $this->field_width = $field_width;
     }
     
     function getFieldWidth() {
-    	return $this->field_width;
+        return $this->field_width;
     }
     
     /*
@@ -403,11 +422,11 @@ class ColumnInfo
     * @return void
     */    
     function setColumnWidth($column_width) {
-    	$this->column_width = $column_width;
+        $this->column_width = $column_width;
     }
     
     function getColumnWidth() {
-    	return $this->column_width;
+        return $this->column_width;
     }
 
     /*
@@ -420,11 +439,11 @@ class ColumnInfo
     * @return void
     */
     function setHideColumn($hide_column) {
-    	$this->hide_column = $hide_column;
+        $this->hide_column = $hide_column;
     }
     
     function getHideColumn() {
-    	return $this->hide_column;
+        return $this->hide_column;
     }
     
     /*
@@ -437,19 +456,19 @@ class ColumnInfo
     * @return void
     */    
     function setXtype($xtype="") {
-    	$this->xtype = $xtype;
+        $this->xtype = $xtype;
     }
     
     function getXtype() {
-    	return $this->xtype;
+        return $this->xtype;
     }
     
     function setComboXtype($xtype="") {
-    	$this->combo_xtype = $xtype;
+        $this->combo_xtype = $xtype;
     }
     
     function getComboXtype() {
-    	return $this->combo_xtype;
+        return $this->combo_xtype;
     }
 
     function setRadiogroupXtype($xtype="") {
@@ -461,11 +480,11 @@ class ColumnInfo
     }
     
     function setValidation($validation="") {
-    	$this->validation = $validation;
+        $this->validation = $validation;
     }
     
     function getValidation() {
-    	return $this->validation;
+        return $this->validation;
     }
     
     /*
@@ -478,11 +497,11 @@ class ColumnInfo
     * @return void
     */    
     function setAllowEmpty($allow_empty=true) {
-    	$this->allow_empty = $allow_empty;
+        $this->allow_empty = $allow_empty;
     }
     
     function getAllowEmpty() {
-    	return $this->allow_empty;
+        return $this->allow_empty;
     }
     
     
@@ -497,27 +516,27 @@ class ColumnInfo
      * @return void
      */    
     function setDescription($description="") {
-    	$this->description = $description;
+        $this->description = $description;
     }
     
     function getDescription() {
-    	return $this->description;
+        return $this->description;
     }
     
     function setLinkedWith($linked_with) {
-    	$this->linked_with = $linked_with;
+        $this->linked_with = $linked_with;
     }
     
     function getLinkedWith() {
-    	return $this->linked_with;
+        return $this->linked_with;
     }
     
     function setLinkedTo($linked_to) {
-    	$this->linked_to = $linked_to;
+        $this->linked_to = $linked_to;
     }
     
     function getLinkedTo() {
-    	return $this->linked_to;
+        return $this->linked_to;
     }
     
     /*
@@ -535,7 +554,7 @@ class ColumnInfo
      * @return void
      */
     function setEnumValues($array) {
-    	$this->enum_values = $array;    	
+        $this->enum_values = $array;        
     }
     
     /*
@@ -546,95 +565,95 @@ class ColumnInfo
      * @return array
      */
     function getEnumValues() {
-    	return ($this->enum_values) ? $this->enum_values : false;
+        return ($this->enum_values) ? $this->enum_values : false;
     }
     
     function setAnchor($anchor) {
-    	$this->anchor = $anchor;
+        $this->anchor = $anchor;
     }
     
     function getAnchor() {
-    	return $this->anchor;
+        return $this->anchor;
     }
     
     function setEditable($editable) {
-    	$this->editable = $editable;
+        $this->editable = $editable;
     }
     
     function getEditable() {
-    	return $this->editable;
+        return $this->editable;
     }
     
     function setDisabled($disabled) {
-    	$this->disabled = $disabled;
+        $this->disabled = $disabled;
     }
     
     function getDisabled() {
-    	return $this->disabled;
+        return $this->disabled;
     }
     
     function setColumnsRadio($columns_radio) {
-    	$this->columns_radio = $columns_radio;
+        $this->columns_radio = $columns_radio;
     }
     
     function getColumnsRadio() {
-    	return $this->columns_radio;
+        return $this->columns_radio;
     }
 
     function setDecimalPrecision($decimal_precision) {
-    	$this->decimal_precision = $decimal_precision;
+        $this->decimal_precision = $decimal_precision;
     }
     
     function getDecimalPrecision() {
-    	return $this->decimal_precision;
+        return $this->decimal_precision;
     }
     
     function setFormTextAlignRight($form_text_align_right) {
-    	$this->form_text_align_right = $form_text_align_right;
+        $this->form_text_align_right = $form_text_align_right;
     }    
     
     function getFormTextAlignRight() {
-    	return $this->form_text_align_right;
+        return $this->form_text_align_right;
     }
     
     function setMinLength($min_length) {
-    	$this->min_length = $min_length;
+        $this->min_length = $min_length;
     }
     
     function getMinLength() {
-    	return $this->min_length;
+        return $this->min_length;
     }
     
     function setValidationType($validation_type) {
-    	$this->validation_type = $validation_type;
+        $this->validation_type = $validation_type;
     }
     
     function getValidationType() {
-    	return $this->validation_type;
+        return $this->validation_type;
     }
     
     function setForceSelection($force_selection) {
-    	$this->force_selection = $force_selection;
+        $this->force_selection = $force_selection;
     }
     
     function getForceSelection() {
-    	return $this->force_selection;
+        return $this->force_selection;
     }
     
-	function setUseMinValue($use_min_value) {
-    	$this->use_min_value = $use_min_value;
+    function setUseMinValue($use_min_value) {
+        $this->use_min_value = $use_min_value;
     }
     
     function getUseMinValue() {
-    	return $this->use_min_value;
+        return $this->use_min_value;
     }
     
     function setReadOnly($read_only) {
-    	$this->read_only = $read_only;
+        $this->read_only = $read_only;
     }
     
     function getReadOnly() {
-    	return $this->read_only;
+        return $this->read_only;
     }
     
     /*
@@ -647,7 +666,7 @@ class ColumnInfo
      * @return void
      */
     function setInitialValue($value) {
-    	$this->initial_value = $value;    	
+        $this->initial_value = $value;        
     }
     
     /*
@@ -658,16 +677,16 @@ class ColumnInfo
      * @return mixed
      */
     function getInitialValue() {
-    	if (isset($this->initial_value)) {
-    		return $this->initial_value;
-    	} else {
-    		return NULL;
-    	}
+        if (isset($this->initial_value)) {
+            return $this->initial_value;
+        } else {
+            return NULL;
+        }
     }
     
-    function getFkTableInfo() {    	 
-    	$key = APPNAME."\\Info\\".phpnamize($this->getFkTableName())."TableInfo";
-    	return new ${'key'};
+    function getFkTableInfo() {         
+        $key = APPNAME."\\Info\\".phpnamize($this->getFkTableName())."TableInfo";
+        return new ${'key'};
     }
     
 }

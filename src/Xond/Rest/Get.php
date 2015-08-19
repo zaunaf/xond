@@ -166,7 +166,9 @@ class Get extends Rest
             $this->c = $this->handleParams($this->c);
             
             // Debug
-            // print_r($this->c);
+            if ($this->getModelName() == "Sekolah") {
+                //print_r($this->c); die;
+            }
         }
 
         // Add custom critera setup
@@ -290,11 +292,16 @@ class Get extends Rest
                 $counter ++;
             }
             
-            $arr = $this->addFkStrings($arr, $t);
+            // Check to the params, is there any instruction to skip adding FK strings?
+            $params = $this->getParams();
+
+            if(!isset($params["skipfkstr"])) {
+                $arr = $this->addFkStrings($arr, $t);
+            }
 
             // Handling for composite PKs //
             // Basically, it creates Virtual PK Column
-            if ($tInfo->getIsCompositePk()) {
+            if ($tInfo->getIsCompositePk() && (!isset($params["skipvirtualpk"]))) {
 
                 $cols = $tInfo->getColumns();
     
@@ -412,6 +419,8 @@ class Get extends Rest
                 "sort",
                 "filter",
                 "id",
+                "skipfkstr",
+                "skipvirtualpk",
                 "restconfig"
             ))) {
                 

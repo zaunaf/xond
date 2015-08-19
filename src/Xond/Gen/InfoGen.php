@@ -666,6 +666,7 @@ class InfoGen extends BaseGen {
         $cArr["is_pk"] = 1;
         $cArr["is_fk"] = 0;
         $cArr["fk_table_name"] = '';
+        $cArr["is_virtual"] = 1;
         
         $cArr['min'] = 0;
         $cArr['max'] = 0;

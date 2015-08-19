@@ -62,8 +62,11 @@ class ModelGen extends BaseGen {
                 throw new \Exception("File $schemaPath gagal dimuat dalam XML Object");
         
             }
-            $schemaDesignObj->addAttribute("namespace", $config["nama_singkat"]."\\Model" );
-        
+            try {
+                $schemaDesignObj->addAttribute("namespace", $config["nama_singkat"]."\\Model" );
+            } catch (\Exception $e) {
+                // It's all right
+            }
             // echo "Jumlah tabel sebelumnya : ".sizeof($schemaDesignObj->table)."<br>\r\n";
         
             $tablesToRemove = "";
@@ -134,10 +137,19 @@ class ModelGen extends BaseGen {
             $schemaDesignStr = $xmlObj->asXml();
         
             // Quick hack. Should be in somekind of config
-            $schemaDesignStr = str_replace("defaultValue=\"('now()')\"", "", $schemaDesignStr);
-            $schemaDesignStr = str_replace("defaultValue=\"('1901-01-01')\"", "", $schemaDesignStr);
-            $schemaDesignStr = str_replace("defaultValue=\"('2014-10-10')\"", "", $schemaDesignStr);
+            // $schemaDesignStr = str_replace("defaultValue=\"('now()')\"", "", $schemaDesignStr);
+            // $schemaDesignStr = str_replace("defaultValue=\"('1901-01-01')\"", "", $schemaDesignStr);
+            // $schemaDesignStr = str_replace("defaultValue=\"('2014-10-10')\"", "", $schemaDesignStr);
             
+            if (!is_array($config["clean_schema_str"])) {
+                $strToBeCleanArr = explode(",", $config["clean_schema_str"]);
+            } else {
+                $strToBeCleanArr = $config["clean_schema_str"];
+            }
+
+            foreach ($strToBeCleanArr as $strToBeClean) {
+                $schemaDesignStr = str_replace($strToBeClean, "", $schemaDesignStr);
+            }
                             
             $target = $projectDir."/app/config/schema-design.xml";
         
@@ -305,9 +317,19 @@ class ModelGen extends BaseGen {
             $schemaDesignStr = $xmlObj->asXml();
         
             // Quick hack. Should be in somekind of config
-            $schemaDesignStr = str_replace("defaultValue=\"('now()')\"", "", $schemaDesignStr);
-            $schemaDesignStr = str_replace("defaultValue=\"('1901-01-01')\"", "", $schemaDesignStr);
-            $schemaDesignStr = str_replace("defaultValue=\"('2014-10-10')\"", "", $schemaDesignStr);
+            // $schemaDesignStr = str_replace("defaultValue=\"('now()')\"", "", $schemaDesignStr);
+            // $schemaDesignStr = str_replace("defaultValue=\"('1901-01-01')\"", "", $schemaDesignStr);
+            // $schemaDesignStr = str_replace("defaultValue=\"('2014-10-10')\"", "", $schemaDesignStr);
+            
+            if (!is_array($config["clean_schema_str"])) {
+                $strToBeCleanArr = explode(",", $config["clean_schema_str"]);
+            } else {
+                $strToBeCleanArr = $config["clean_schema_str"];
+            }
+            
+            foreach ($strToBeCleanArr as $strToBeClean) {
+                $schemaDesignStr = str_replace($strToBeClean, "", $schemaDesignStr);
+            }
             
                             
             $target = $projectDir."/app/config/schema-design.xml";

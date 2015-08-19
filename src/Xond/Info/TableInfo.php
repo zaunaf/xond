@@ -697,4 +697,19 @@ class TableInfo
 
     }
 
+    function getCompositePkColumns() {
+        
+        $columns = $this->getColumns();
+        $pkCols = array();
+
+        foreach ($columns as $column) {
+            if ($column->getIsPk() && (!$column->getIsVirtual())) {
+                $pkCols[] = $column;
+            }
+        }
+
+        return $pkCols;
+
+    }
+
 }
