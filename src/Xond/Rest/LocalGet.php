@@ -61,9 +61,15 @@ class LocalGet extends Get {
     public function getData(){
         
         // Returning the response data
-        return $this->getResponseData();
-        
+        return $this->getResponseData();        
     }
+
+    public function getTotalCount(){
+        
+        // Returning the count data
+        return $this->getRowCount();        
+    }
+
 }
 
 ?>

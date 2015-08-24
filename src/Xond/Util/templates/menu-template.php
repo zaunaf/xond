@@ -17,5 +17,9 @@ Menu hari ini di antaranya:
 <li><a href="/ControllerList">ControllerList (for listing controllers in application.js)</a></li>
 <li><a href="/IconFonts">Icon Fonts</a></li>
 </ul>
+Html Gen (experiment):
+<ul>
+<li><a href="/HtmlFrontEndGen">HtmlFrontEndGen</a></li>
+</ul>
 </body>
 </html>

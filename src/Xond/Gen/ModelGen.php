@@ -141,15 +141,17 @@ class ModelGen extends BaseGen {
             // $schemaDesignStr = str_replace("defaultValue=\"('1901-01-01')\"", "", $schemaDesignStr);
             // $schemaDesignStr = str_replace("defaultValue=\"('2014-10-10')\"", "", $schemaDesignStr);
             
-            if (!is_array($config["clean_schema_str"])) {
-                $strToBeCleanArr = explode(",", $config["clean_schema_str"]);
-            } else {
-                $strToBeCleanArr = $config["clean_schema_str"];
+            if (isset($config["clean_schema_str"])) {
+                if (!is_array($config["clean_schema_str"])) {
+                    $strToBeCleanArr = explode(",", $config["clean_schema_str"]);
+                } else {
+                    $strToBeCleanArr = $config["clean_schema_str"];
+                }
+                foreach ($strToBeCleanArr as $strToBeClean) {
+                    $schemaDesignStr = str_replace($strToBeClean, "", $schemaDesignStr);
+                }
             }
 
-            foreach ($strToBeCleanArr as $strToBeClean) {
-                $schemaDesignStr = str_replace($strToBeClean, "", $schemaDesignStr);
-            }
                             
             $target = $projectDir."/app/config/schema-design.xml";
         
@@ -320,16 +322,18 @@ class ModelGen extends BaseGen {
             // $schemaDesignStr = str_replace("defaultValue=\"('now()')\"", "", $schemaDesignStr);
             // $schemaDesignStr = str_replace("defaultValue=\"('1901-01-01')\"", "", $schemaDesignStr);
             // $schemaDesignStr = str_replace("defaultValue=\"('2014-10-10')\"", "", $schemaDesignStr);
-            
-            if (!is_array($config["clean_schema_str"])) {
-                $strToBeCleanArr = explode(",", $config["clean_schema_str"]);
-            } else {
-                $strToBeCleanArr = $config["clean_schema_str"];
+            if (isset($config["clean_schema_str"])) {            
+                if (!is_array($config["clean_schema_str"])) {
+                    $strToBeCleanArr = explode(",", $config["clean_schema_str"]);
+                } else {
+                    $strToBeCleanArr = $config["clean_schema_str"];
+                }
+
+                foreach ($strToBeCleanArr as $strToBeClean) {
+                    $schemaDesignStr = str_replace($strToBeClean, "", $schemaDesignStr);
+                }
             }
-            
-            foreach ($strToBeCleanArr as $strToBeClean) {
-                $schemaDesignStr = str_replace($strToBeClean, "", $schemaDesignStr);
-            }
+
             
                             
             $target = $projectDir."/app/config/schema-design.xml";
