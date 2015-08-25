@@ -77,13 +77,15 @@ class Put extends Rest
         $app['dispatcher']->dispatch('rest_put.retrieve');
         
         // Retreive the array from object typed params
-        $arr = get_object_vars($this->getParams());
-        
+        $arr = get_object_vars($this->getParams());        
+
         // Trim all space
         $arrData = array();
         foreach ($arr as $key => $value) {
             // print_r($key);
-            $value = trim($value);
+            if (is_string($value)) {
+                $value = trim($value);
+            }
             $arr[$key] = ($value === "") ? null : $value;
         }
         
@@ -200,13 +202,18 @@ class Put extends Rest
             //die;
             
             $app = $this->getApp();
-            $user = $app['xond_user'];
-
-            if ($user->getPrimaryKey()) {
-                $this->obj->setUpdaterId($user->getPrimaryKey());
+            
+            if (isset($app['xond_user'])) {                
+                $user = $app['xond_user'];
+                if ($user->getPrimaryKey()) {
+                    $this->obj->setUpdaterId($user->getPrimaryKey());
+                } else {
+                    $this->obj->setUpdaterId('00000001-0001-0001-0001-000000000001');
+                }
             } else {
-                $this->obj->setUpdaterId('90915957-31F5-E011-819D-43B216F82ED4');
+                $this->obj->setUpdaterId('00000001-0001-0001-0001-000000000001');
             }
+
             
         }
         
