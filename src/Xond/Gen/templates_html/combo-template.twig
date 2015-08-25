@@ -1,0 +1,3 @@
+{% for row in data %}
+<option value="{{row.valueField}}">{{row.displayField ? row.displayField : "Pilih.."}}</option>{{ loop.last ? '' : ', ' }}
+{% endfor %}

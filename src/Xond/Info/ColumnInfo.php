@@ -58,7 +58,8 @@ class ColumnInfo
     public $force_selection;    // Force selection on combos
     public $force_election;     // true to restrict the selected value to one of the values in the list, false to allow the user to set arbitrary text into the field
     public $read_only;          // readonly
-    
+    public $is_fk_str_enabled;  // force enabling FK str (_str tea)
+
     function getName() {
         return $this->column_name;
     }    
@@ -690,4 +691,12 @@ class ColumnInfo
         return new ${'key'};
     }
     
+
+    function setIsFkStrEnabled($value) {
+        $this->is_fk_str_enabled = $value;        
+    }
+
+    function getIsFkStrEnabled() {
+        return $this->is_fk_str_enabled;
+    }
 }

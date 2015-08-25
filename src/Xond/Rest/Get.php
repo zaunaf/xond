@@ -874,7 +874,7 @@ class Get extends Rest
                     // $fkTableInfo = new SekolahTableInfo();
                     $fkTableObj = "";
                     
-                    if ($fkTableInfo->getIsBigRef()) {
+                    if ($fkTableInfo->getIsBigRef() || $col->getIsFkStrEnabled()) {
                         
                         // Getting the FK column name
                         $fkColumnName = $col->getName();

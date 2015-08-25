@@ -76,6 +76,9 @@ class XondServiceProvider implements ServiceProviderInterface
         // Frontend Generation
         $app->get('/FrontEndGen', '\Xond\Gen\FrontEndGen::generate');
 
+        // HTML Frontend Generation
+        $app->get('/HtmlFrontEndGen', '\Xond\Gen\HtmlFrontEndGen::generate');
+
         // Controller Generation
         $app->get('/ControllerGen', '\Xond\Gen\ControllerGen::menu');
         $app->get('/ControllerGen/{model}', '\Xond\Gen\ControllerGen::generate');
