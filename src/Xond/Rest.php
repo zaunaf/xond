@@ -59,7 +59,7 @@ class Rest
         // Processes the request. Run by the current method class
         try {
 
-            $this->prepare($request, $app);
+            $this->prepare($request, $app);            
             $this->process();
             
     	} catch (Exception $e) {
@@ -98,10 +98,20 @@ class Rest
     	// Get params only from post & put
     	$params = null;
     	if ($this->getMethod() == 'POST' || $this->getMethod() == 'PUT') {
-    		$params = json_decode(stripslashes($request->getContent()));
+    		$params = json_decode(stripslashes($request->getContent()),true);
+
+            // Detect if params empty that means the POST request is generated
+            // from an ordinary html form.
+            if (!sizeof($params)) {
+                $params = $request->request->all();
+            }
+
     	}
+
+
+        // Attach the params to the REST object
     	$this->setParams($params);
-    	
+
     	// Prepare variables
     	$app['dispatcher']->dispatch('rest.prepared');
     	

@@ -49,6 +49,7 @@ class BaseGen {
     protected $request;    
     public $outStr;
     public $genType;    // To be overidden
+    public $adapterName;
         
     public function initialize(\Symfony\Component\HttpFoundation\Request $request, \Silex\Application $app) {
         
@@ -61,6 +62,13 @@ class BaseGen {
         $this->setConfig($config);
         $this->setAppName($config['project_php_name']);
         
+        // Detect adapter
+        $propelDbname = \Propel::getDefaultDB();
+        $propelConfig = \Propel::getConfiguration();
+
+        $adapterName = $propelConfig['datasources'][$propelDbname]['adapter'];
+        $this->setAdapterName($adapterName);
+
         // Mark the start of gen process. Now using monolog
         $app['monolog']->addInfo($this->genType."Gen start at ". date ( 'Y-m-d H:i' ));
                 
@@ -114,6 +122,22 @@ class BaseGen {
 	    return $this->appName;
 	}
 	
+    /**
+     * Setting the Adapter name for this generator
+     * @param string $app
+     */
+    public function setAdapterName($adapterName){
+        $this->adapterName = $adapterName;
+    }
+    
+    /**
+     * Returning the Adapter name so whatever child need is available
+     * @return string
+     */
+    public function getAdapterName(){
+        return $this->adapterName;
+    }
+
 	/**
 	 * Set config to be accessible troughout the class
 	 *

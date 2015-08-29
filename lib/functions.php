@@ -1974,16 +1974,16 @@ function gen_uuid() {
     $config = \Propel::getConfiguration();
     $adapterName = $config['datasources'][$dbname]['adapter'];
     switch ($adapterName) {
-    	case 'mssql':
-    	    return getValueBySql("select newid()");
-    	    break;
-    	case 'pgsql':
-    	    executeSql("CREATE EXTENSION IF NOT EXISTS \"uuid-ossp\"", $dbname);
-    	    return getValueBySql("select uuid_generate_v4()");
-    	    break;
-    	default:
-    	    return strtoupper(\UUID::mint(4)->__toString());
-    	    break;
+        case 'mssql':
+            return getValueBySql("select newid()");
+            break;
+        case 'pgsql':
+            executeSql("CREATE EXTENSION IF NOT EXISTS \"uuid-ossp\"", $dbname);
+            return getValueBySql("select uuid_generate_v4()");
+            break;
+        default:
+            return strtoupper(\UUID::mint(4)->__toString());
+            break;
     }
 
 }

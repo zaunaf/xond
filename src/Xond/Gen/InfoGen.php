@@ -622,8 +622,12 @@ class InfoGen extends BaseGen {
      * @return number
      */
     public function getUuidLength() {
-        $db = \Propel::getDB();
-        return 16;
+        //$db = \Propel::getDB();
+        if ($this->getAdapterName() == "mssql") {
+            return 16;
+        } else if ($this->getAdapterName() == "pgsql") {
+            return "";
+        }
     }
     
     /**
@@ -633,9 +637,17 @@ class InfoGen extends BaseGen {
      * @return boolean
      */
     public function isUuid(\ColumnMap $column) {
+
+        if ($column->getName() == "anggota_id") {
+            //echo "anggota_id size = ".$column->getSize()." | ".$this->getUuidLength()." berarti ".($column->getSize() == $this->getUuidLength()) ? "sama" : "beda". "<br>\r\n";
+            // echo "<br>Mengecek anggota_id | ".$column->getName()." | size = ".$column->getSize()." | getUuidLength = ".$this->getUuidLength(). (($column->getSize() == $this->getUuidLength()) ? "sama" : "beda") . "|". (( $column->getType() == \PropelTypes::VARCHAR ) ? "Ini varchar" : "bukan varchar"). "<br>";
+        }
         
-        return ($column->getSize() == $this->getUuidLength()) && ($column->getType() == \PropelTypes::CHAR);
-        
+        if ($this->getAdapterName() == "mssql") {
+            return ($column->getSize() == $this->getUuidLength()) && ($column->getType() == \PropelTypes::CHAR);
+        } else if ($this->getAdapterName() == "pgsql") {
+            return ($column->getSize() == $this->getUuidLength()) && ($column->getType() == \PropelTypes::VARCHAR);
+        }
     }
     
     /**
