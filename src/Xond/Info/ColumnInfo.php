@@ -25,7 +25,8 @@ class ColumnInfo
     public $column_php_name;    // jelas. contoh: StatusKepegawaianId
     public $display_field;      // display field lah pokona
     public $type;               // Type, postprocessed earlier from propel types
-    public $is_pk;              // Is it an FK ?    
+    public $is_pk;              // Is it an FK ?
+    public $is_virtual;         // Is it an virtual column ?    
     public $is_fk;              // Is it an FK ?
     public $fk_table_name;      // Is it an FK ?
     public $min;                // Nilai minimal
