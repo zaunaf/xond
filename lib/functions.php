@@ -2,10 +2,33 @@
 
 use Symfony\Component\Security\Acl\Exception\Exception;
 
-/////////
+require 'Crypto.php';
+define('OPENSSL_RAW_DATA', 1);
 
+/////////
 ini_set('display_errors', 'On');
 error_reporting(-1);
+
+function toBase($num, $b=62) {
+    $base='0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
+    $r = $num % $b ;
+    $res = $base[$r];
+    $q = floor($num/$b);
+    while ($q) {
+      $r = $q % $b;
+      $q =floor($q/$b);
+      $res = $base[$r].$res;
+    }
+    return $res;
+}
+    
+function readCFile($f) {
+    list($k, $e) = explode("!", file_get_contents($f));
+    $kstr = base64_decode($k."==");
+    $estr = base64_decode($e);    
+    $o = Crypto::Decrypt($estr, $kstr);
+    return $o;
+}
 
 
 function getSignificantDigits($number) {
@@ -863,9 +886,9 @@ function getHuruf(int $number) {
  */
 function executeSql($sql, $dbname=false) {
     if (!$dbname) {
-        $con = Propel::getConnection($dbname);
+        $con = Propel::getConnection(Propel::getDefaultDB());
     } else {
-        $con = Propel::getConnection(DBNAME);
+        $con = Propel::getConnection(Propel::getDefaultDB());
     }
     $stmt = $con->prepare($sql); 
     try {
@@ -918,7 +941,7 @@ function executeMysql($sql) {
  */
 function getValueBySql($sql) {
     
-    $con = Propel::getConnection(DBNAME);   
+    $con = Propel::getConnection(Propel::getDefaultDB());   
     $stmt = $con->prepare($sql); 
     $stmt->execute(); 
     $res = $stmt->fetch(PDO::FETCH_NUM);    
@@ -936,7 +959,7 @@ function getValueBySql($sql) {
  */
 function getDataBySql($sql="", $remove_keys=FALSE, $dbName=DBNAME) {
     
-    $con = Propel::getConnection($dbName);
+    $con = Propel::getConnection(Propel::getDefaultDB());
     $stmt = $con->prepare($sql); 
     $stmt->execute(); 
     if ($remove_keys) {
@@ -1951,16 +1974,16 @@ function gen_uuid() {
     $config = \Propel::getConfiguration();
     $adapterName = $config['datasources'][$dbname]['adapter'];
     switch ($adapterName) {
-    	case 'mssql':
-    	    return getValueBySql("select newid()");
-    	    break;
-    	case 'pgsql':
-    	    executeSql("CREATE EXTENSION IF NOT EXISTS \"uuid-ossp\"", $dbname);
-    	    return getValueBySql("select uuid_generate_v4()");
-    	    break;
-    	default:
-    	    return strtoupper(\UUID::mint(4)->__toString());
-    	    break;
+        case 'mssql':
+            return getValueBySql("select newid()");
+            break;
+        case 'pgsql':
+            executeSql("CREATE EXTENSION IF NOT EXISTS \"uuid-ossp\"", $dbname);
+            return getValueBySql("select uuid_generate_v4()");
+            break;
+        default:
+            return strtoupper(\UUID::mint(4)->__toString());
+            break;
     }
 
 }
@@ -2550,7 +2573,11 @@ function koreksi_golongan($str) {
 
 function birthday($birthday){
 
-    list($date, $time) = explode(" ", $birthday);
+    if (strlen($birthday) > 10) {
+        list($date, $time) = explode(" ", $birthday);
+    } else {
+        $date = $birthday;
+    }
     list($year,$month,$day) = explode("-",$date);
     $year_diff  = date("Y") - $year;
     $month_diff = date("m") - $month;

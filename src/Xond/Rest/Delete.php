@@ -89,7 +89,7 @@ class Delete extends Rest
             //}
             $this->obj->delete();
             
-            $this->setMessage('Berhasil menghapus $modelName');
+            $this->setMessage("Berhasil menghapus ".$this->getModelName());
             
             // Register the data to the response data
             $this->setResponseCode(200);
@@ -120,6 +120,14 @@ class Delete extends Rest
         
         }
         
+    }
+    
+    public function createResponseStr(){
+        $this->setResponseStr($this->buildJson(true, $this->getMessage()));
+    }
+    
+    public function createExceptionResponseStr(){
+        $this->setResponseStr($this->buildJson(false, $this->getExceptionMsg()));
     }
     
     /**

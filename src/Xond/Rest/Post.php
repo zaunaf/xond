@@ -41,9 +41,9 @@ class Post extends Rest
         $modelClass = $this->getClassName();
         $this->obj = new $modelClass();
         $app['dispatcher']->dispatch('rest_post.create');
-    
+
         // Retreive the array from object typed params
-        $arr = get_object_vars($this->getParams());
+        $arr = $this->getParams();
     
         // Trim all space
         $arrData = array();

@@ -50,11 +50,13 @@ Ext.define('{{appName}}.controller.base.{{table.getPhpName}}', {
                 afterrender: this.afterRenderForm
             },
 {% endif %}
+{#
 {% if table.getBelongsTo|sizeof == 1 %}
             '{{table.getPhpName|lower}}grid': {
                 afterrender: this.afterRender
             },
 {% endif %}
+#}
             '{{table.getPhpName|lower}}grid button[action=add]': {
                 click: this.addRecord
             },
@@ -80,6 +82,7 @@ Ext.define('{{appName}}.controller.base.{{table.getPhpName}}', {
         }
     },
 {% endif %}
+{#
 {% if table.getBelongsTo|sizeof == 1 %}
     afterRender: function(grid, opt) {
         this.setParentId(grid.parentId);
@@ -101,6 +104,7 @@ Ext.define('{{appName}}.controller.base.{{table.getPhpName}}', {
         this.parentId = id;
     },    
 {% endif %}
+#}
     saveForm: function(btn) {
         
         //Ext.Msg.alert('Saving', 'Manyimpan..');

@@ -35,7 +35,7 @@ class TableInfo
     public $is_big_ref;         // Paging combonya
     public $is_small_ref;       // Radio nya
     public $composite_pk;		// Table ini pake composite PK ndak
-    
+    public $nature;              // Nama orang, nomor sk, email, integer, dll
     
     public $display_field;
     public $renderer_string;
@@ -61,6 +61,8 @@ class TableInfo
     
     public $form_default_label_width = 120;     // Default width
     public $form_default_anchor = '100%';    // Default anchor
+	
+	public $group_field; 		// GroupField on store
     
     public function __construct(){
         $this->initialize();
@@ -339,6 +341,18 @@ class TableInfo
         $this->relating_columns = $relating_columns;
     }
 
+    function getColumnInfoRelatedTo($modelName) {
+        $columns = $this->getColumns();
+        $foundColumn = null;
+        foreach ($columns as $c) {
+            if ($c->getFkTableName() == strtolower(underscoreCapitalize($modelName))){
+                $foundColumn = $c;
+                break;
+            }            
+        }
+        return $foundColumn;
+    }
+    
     function getInfoBeforeDelete() {
         return $this->info_before_delete;
     }
@@ -361,6 +375,14 @@ class TableInfo
     
     function getFormDefaultAnchor() {
         return $this->form_default_anchor;
+    }
+	
+    function getGroupField() {
+    	return $this->group_field;
+    }
+    
+    function setGroupField($group_field) {
+    	$this->group_field = $group_field;
     }
     
     /*
@@ -672,6 +694,21 @@ class TableInfo
         //print_r($outColumns);
         //die;
         $this->setColumns($outColumns);
+
+    }
+
+    function getCompositePkColumns() {
+        
+        $columns = $this->getColumns();
+        $pkCols = array();
+
+        foreach ($columns as $column) {
+            if ($column->getIsPk() && (!$column->getIsVirtual())) {
+                $pkCols[] = $column;
+            }
+        }
+
+        return $pkCols;
 
     }
 

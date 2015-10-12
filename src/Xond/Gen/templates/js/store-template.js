@@ -3,13 +3,16 @@ Ext.define('{{appName}}.store.{{tableName}}', {
     requires: '{{appName}}.model.{{tableName}}',
     model: '{{appName}}.model.{{tableName}}'{% if table.getIsData == 1 %},
     pageSize: 50,
+{% if table.getGroupField %}
+    groupField: '{{table.getGroupField}}',
+{% endif %}
     autoLoad: false,
     listeners: {
         write: function(store, operation){
-            var record = operation.getRecords()[0],            
+            var record = operation.getRecords()[0],
             name = Ext.String.capitalize(operation.action),
-            verb;         
-            
+            verb;
+
             var msg = "";
             switch (name) {
                 case 'Create':
@@ -25,7 +28,7 @@ Ext.define('{{appName}}.store.{{tableName}}', {
             if (operation.wasSuccessful()) {
                 Xond.msg('Info', 'Data {{tableName}} berhasil ' + msg);
             } else {
-                var errorMsg = operation.getError();                
+                var errorMsg = operation.getError();
                 //Xond.msg('Info', 'Gagal menyimpan data {{tableName}} ('+ errorMsg +')');
                 Ext.Msg.alert('Error', 'Gagal menyimpan data {{tableName}} ('+ errorMsg +')');
             }
@@ -49,7 +52,7 @@ Ext.define('{{appName}}.store.{{tableName}}', {
         } else {
             var errorMsg = operation.getError();
             Xond.msg('Info', 'Gagal menyimpan data ('+ errorMsg +')');
-        }        
+        }
     },
 
     onDestroyRecords: function(records, operation, success) {
@@ -59,7 +62,7 @@ Ext.define('{{appName}}.store.{{tableName}}', {
         } else {
             var errorMsg = operation.getError();
             Xond.msg('Info', 'Gagal menyimpan data ('+ errorMsg +')');
-        }        
+        }
     },
     */
 {% endif %}{% if table.is_static_ref == 1 %},
@@ -91,10 +94,10 @@ Ext.define('{{appName}}.store.{{tableName}}', {
                 }
             }
         }
-    }{% endif %}    
+    }{% endif %}
 {% if table.is_static_ref == 1 %},
     autoLoad: true,
-    data: { 
+    data: {
         rows: [
 {% for row in data %}
             {{row|join('","')|raw}}{% if not loop.last %},{% endif %}

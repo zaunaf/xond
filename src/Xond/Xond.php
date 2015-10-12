@@ -99,7 +99,7 @@ class Xond
             $tInfo = new ${'tableInfoClassName'}();
             return $tInfo;
         } else {
-            throw new Exception("No such table info. Don't forget to generate first.", 404);
+            throw new \Exception("No such table info. Don't forget to generate first.", 404);
         }
     
     }

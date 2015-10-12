@@ -31,42 +31,15 @@ use Xond\Info\FieldsetInfo;
  * @package    xond.gen
  */
 
-class FrontEndGen extends BaseGen
+class HtmlFrontEndGen extends BaseGen
 {
     public function prepareFolders() {
 
         $config = $this->getConfig();
 
         //Position controllers
-        $appdir = $config['web_folder'].'/app';
-        $viewdir = $config['web_folder'].'/app/view';
-
-        $controllerdir = $appdir.D.'controller';
-        if (!is_dir($controllerdir)) {
-            mkdir($controllerdir, 0777, true);
-        }
-
-        $basecontrollerdir = $controllerdir.D.'base';
-        if (!is_dir($basecontrollerdir)) {
-            mkdir($basecontrollerdir, 0777, true);
-        }
-
-        $simplecontrollerdir = $controllerdir.D.'ovd';
-        if (!is_dir($simplecontrollerdir)) {
-            mkdir($simplecontrollerdir, 0777, true);
-        }
-
-        //Position models
-        $modeldir = $appdir.D.'model';
-        if (!is_dir($modeldir)) {
-            mkdir($modeldir, 0777, true);
-        }
-
-        //Position models
-        $storedir = $appdir.D.'store';
-        if (!is_dir($storedir)) {
-            mkdir($storedir, 0777, true);
-        }
+        $appdir = $config['web_folder'].'/templates';
+        $viewdir = $config['web_folder'].'/templates';
 
         //Position grids
         $componentsdir = $viewdir.D.'_components';
@@ -114,33 +87,7 @@ class FrontEndGen extends BaseGen
             mkdir($checkboxgroupdir, 0777, true);
         }
 
-        /*
-         //Position print
-        $printdir = $componentsdir.D.'print';
-        //$printdir = $print.D.'base';
-        if (!is_dir($printdir)) {
-        mkdir($printdir);
-        }
-        */
-
-        //Position fieldsets
-        $fieldsetdir = $componentsdir.D.'fieldset';
-        $basefieldsetdir = $fieldsetdir.D.'base';
-
-        //Position models
-        $fieldsetdir = $componentsdir.D.'fieldset';
-        $basefieldsetdir = $fieldsetdir.D.'base';
-
-        //Position fieldsets
-        $fieldsetdir = $componentsdir.D.'fieldset';
-        $basefieldsetdir = $fieldsetdir.D.'base';
-
         //Register in class
-        $this->controllerdir = $controllerdir;
-        $this->basecontrollerdir = $basecontrollerdir;
-        $this->simplecontrollerdir = $simplecontrollerdir;
-        $this->modeldir = $modeldir;
-        $this->storedir = $storedir;
         $this->componentsdir = $componentsdir;
         $this->griddir = $griddir;
         $this->combodir = $combodir;
@@ -148,14 +95,12 @@ class FrontEndGen extends BaseGen
         $this->formdir = $formdir;
         $this->printdir = $printdir;
         $this->checkboxgroupdir = $checkboxgroupdir;
-        $this->fieldsetdir = $fieldsetdir;
-        $this->basefieldsetdir = $basefieldsetdir;
     }
 
     public function initializeTwig() {
 
         /** Prepare twig **/
-        $templateRoot = realpath(__DIR__."/templates/js");
+        $templateRoot = realpath(__DIR__."/templates_html/");
 
         // Loader path
         $loader = new \Twig_Loader_Filesystem($templateRoot);
@@ -310,16 +255,13 @@ class FrontEndGen extends BaseGen
             $infoObj = $this->getTableInfo($tmap);
             $peerObj = $this->getTablePeer($tmap);
 
-            $this->createRadioGroup($infoObj, $peerObj);
-
+            // $this->createRadioGroup($infoObj, $peerObj);
             $this->createCombobox($infoObj, $peerObj);
-
-            $this->createForm($infoObj, $peerObj);
-            $this->createGrid($infoObj, $peerObj);
-            $this->createControllers($infoObj, $peerObj);
-            $this->createModels($infoObj, $peerObj);
-
-            $this->printBuffered($infoObj->getName());
+            // $this->createForm($infoObj, $peerObj);
+            // $this->createGrid($infoObj, $peerObj);
+            // $this->createControllers($infoObj, $peerObj);
+            // $this->createModels($infoObj, $peerObj);
+            // $this->printBuffered($infoObj->getName());
 
         }
 
@@ -354,25 +296,101 @@ class FrontEndGen extends BaseGen
 
     public function createRadioGroup($infoObj, $peerObj) {
 
-        if (!$infoObj->getCreateRadiogroup()) {
+        // if (!$infoObj->getCreateRadiogroup()) {
+        //     return;
+        // }
+
+        // $count = $infoObj->getRecordCount();
+        // $rowsArr[] = array();
+
+        // if ($count > InfoGen::SMALLREF_UPPER_LIMIT) {
+
+        //     $rowsArr = NULL;
+
+        // } else if ($count > 0) {
+
+        //     $rows = $peerObj::doSelect(new \Criteria());
+
+        //     foreach ($rows as $r)  {
+
+        //         // Only for autocomplete (coding) purpose
+        //         //$r = new AksesInternet();
+
+        //         // If display field empty, don't display them
+        //         $nama = $r->getByName($infoObj->getDisplayField(), \BasePeer::TYPE_FIELDNAME);
+        //         if ($nama == '' || $nama == '0') {
+        //             continue;
+        //         }
+        //         //$arr = $r->toArray(\BasePeer::TYPE_FIELDNAME);
+        //         //$arr = array('valueField' => $r->getPrimaryKey(), 'displayField' => $nama);
+        //         $arr = array(
+        //             'valueField' => is_array($r->getPrimaryKey()) ? $r->getPrimaryKey()[0] : $r->getPrimaryKey(),
+        //             'displayField' => $nama
+        //         );
+        //         $rowsArr[] = $arr;
+
+        //     }
+
+        //     $filePath = $this->radiodir."/".$infoObj->getPhpName().".js";
+        //     $templateFileName = 'radio-template.js';
+
+        //     $array = array(
+        //         'appName' => $this->appname,
+        //         'table' => $infoObj,
+        //         'data' => $rowsArr
+        //     );
+
+        //     if ($this->render($infoObj->getName(), $filePath, $templateFileName, $array)) {
+        //         $this->written++;
+        //         $this->outStr .= "- $filePath written <br>\n";
+        //     }
+
+        // }
+
+    }
+
+    /**
+     *
+     * @param \TableInfo $infoObj
+     * @param \BasePeer $peerObj
+     */
+    public function createCombobox($infoObj, $peerObj) {
+
+        $rowsArr = NULL;
+
+        if (!$infoObj->getIsStaticRef()) {
             return;
         }
 
-        $count = $infoObj->getRecordCount();
+        /*
+        $rows = $peerObj::doSelect(new \Criteria());
+
+        foreach ($rows as $r)  {
+            $arr = $r->toArray(\BasePeer::TYPE_FIELDNAME);
+            $data = array();
+
+            $pkCol = $infoObj->getPkName();
+            $displayCol = $infoObj->getDisplayField();
+            $key = $r[$pkCol];
+            $val = $r[$displayCol];
+            $rowsArr[$key] = $val;
+        }
+
+        print_r($rowsArr);
+        */
+
+        //$count = $infoObj->getRecordCount();
         $rowsArr[] = array();
 
-        if ($count > InfoGen::SMALLREF_UPPER_LIMIT) {
+        if (!$infoObj->getIsStaticRef()) {
 
             $rowsArr = NULL;
 
-        } else if ($count > 0) {
+        } else {
 
-            $rows = $peerObj::doSelect(new \Criteria());
+            $rows = $peerObj::doSelect(new \Criteria());            
 
             foreach ($rows as $r)  {
-
-                // Only for autocomplete (coding) purpose
-                //$r = new AksesInternet();
 
                 // If display field empty, don't display them
                 $nama = $r->getByName($infoObj->getDisplayField(), \BasePeer::TYPE_FIELDNAME);
@@ -381,16 +399,25 @@ class FrontEndGen extends BaseGen
                 }
                 //$arr = $r->toArray(\BasePeer::TYPE_FIELDNAME);
                 //$arr = array('valueField' => $r->getPrimaryKey(), 'displayField' => $nama);
+                $pkVar = $r->getPrimaryKey();
+                if (is_array($pkVar)) {
+                    $pkVal = $pkVar[0];
+                } else {
+                    $pkVal = $pkVar;
+                }
+
                 $arr = array(
-                    'valueField' => is_array($r->getPrimaryKey()) ? $r->getPrimaryKey()[0] : $r->getPrimaryKey(),
+                    //'valueField' => is_array($r->getPrimaryKey()) ? $r->getPrimaryKey()[0] : $r->getPrimaryKey(),
+                    'valueField' => $pkVal,
                     'displayField' => $nama
                 );
                 $rowsArr[] = $arr;
 
             }
+            //print_r($rowsArr); 
 
-            $filePath = $this->radiodir."/".$infoObj->getPhpName().".js";
-            $templateFileName = 'radio-template.js';
+            $filePath = $this->combodir."/".$infoObj->getName().".twig";
+            $templateFileName = 'combo-template.twig';
 
             $array = array(
                 'appName' => $this->appname,
@@ -403,65 +430,23 @@ class FrontEndGen extends BaseGen
                 $this->outStr .= "- $filePath written <br>\n";
             }
 
-        }
+        }        
 
-    }
-    /**
-     *
-     * @param \TableInfo $infoObj
-     * @param \BasePeer $peerObj
-     */
-    public function createCombobox($infoObj, $peerObj) {
+        // // Prepare combo file
+        // $filePath = $this->combodir."/".$infoObj->getName().".twig";
 
-        $rowsArr = NULL;
+        // $templateFileName = "combo-template.twig";
 
-        if (!$infoObj->getCreateCombobox()) {
-            return;
-        }
+        // $array = array(
+        //     'appName' => APPNAME,
+        //     'table' => $infoObj,
+        //     'data' => $rowsArr
+        // );
 
-        //print_r($rowsArr);
-
-        // //Prepare data for static combos
-        // $count = $peerObj::doCount(new \Criteria());
-
-        // if ($count > InfoGen::BIGREF_LOWER_LIMIT) {
-
-        //     $rowsArr = NULL;
-
-        // } else {
-
-        //     $rows = $peerObj::doSelect(new \Criteria());
-
-        //     foreach ($rows as $r)  {
-        //         $arr = $r->toArray(\BasePeer::TYPE_FIELDNAME);
-        //         $data = array();
-        //         foreach($arr as $key=>$val) {
-        //             $data[] = $val;
-        //         }
-        //         $rowsArr[] = $data;
-        //     }
+        // if ($this->render($infoObj->getName(), $filePath, $templateFileName, $array)) {
+        //     $this->written++;
+        //     $this->outStr .= "- $filePath written <br>\n";
         // }
-
-        // Prepare combo file
-        $filePath = $this->combodir."/".$infoObj->getPhpName().".js";
-
-        if ($infoObj->getIsStaticRef()) {
-            $templateFileName = "combo-static-template.js";
-        } else if ($infoObj->getIsBigRef()) {
-            $templateFileName = "combo-paged-template.js";
-        } else {
-            $templateFileName = "combo-normal-template.js";
-        }
-        $array = array(
-                'appName' => APPNAME,
-                'table' => $infoObj,
-                'data' => $rowsArr
-        );
-
-        if ($this->render($infoObj->getName(), $filePath, $templateFileName, $array)) {
-            $this->written++;
-            $this->outStr .= "- $filePath written <br>\n";
-        }
 
     }
     /**
@@ -560,8 +545,8 @@ class FrontEndGen extends BaseGen
         }
       */
         // Prepare formdir file
-        $filePath = $this->formdir."/".$infoObj->getPhpName().".js";
-        $templateFileName = 'form-template.js';
+        $filePath = $this->formdir."/".$infoObj->getName().".twig";
+        $templateFileName = 'form-template.twig';
         $array = array(
                 'appName' => APPNAME,
                 'table' => $infoObj,
@@ -832,7 +817,7 @@ class FrontEndGen extends BaseGen
             }
 
             //if ((!$c->getIsFk()) && ($c->getInputLength() == 36)) {
-            //	$val = "generateUuid()";
+            //  $val = "generateUuid()";
             //}
 
             if ($c->getIsPk() && ($c->getInputLength() == 0)) {
