@@ -402,14 +402,15 @@ class InfoGen extends BaseGen {
             $isFk = boolToNum($c->isForeignKey());
             $isUuid = boolToNum($this->isUuid($c));
             $isPkUuid = boolToNum($c->isPrimaryKey() && $this->isUuid($c));
-                        
-            // Insert            
+
+            // Insert
             $cArr['column_php_name'] = $colPhpName;
             $cArr['column_name'] = $colName;
             $cArr['column_length'] = $this->getColumnLength($c);
             $cArr['input_length'] = $this->getColumnLength($c);
-            $cArr["type"] = InfoGen::$extTypeMap[$c->getType()];
-            
+            $cArr['type'] = InfoGen::$extTypeMap[$c->getType()];
+            $cArr['real_type'] = $c->getType();
+
             $cArr["is_pk_uuid"] = $isPkUuid;
             $cArr["is_pk"] = $isPk;
             $cArr["is_fk"] = $isFk;
@@ -673,6 +674,7 @@ class InfoGen extends BaseGen {
         $cArr['column_length'] = $length;
         $cArr['input_length'] = 100;
         $cArr["type"] = 'string';
+        $cArr['real_type'] = 'string';
         
         $cArr["is_pk_uuid"] = 0;
         $cArr["is_pk"] = 1;
@@ -927,7 +929,7 @@ class InfoGen extends BaseGen {
             $tableType = $t['is_data'] ? " - data " : " - ref ";
             $outStr .= "{$t['name']} $tableType $written<br>\r\n";
             foreach ($t['columns'] as $c) {
-                $outStr .= "- ".$c["column_name"]." (size: {$c['column_length']} xtype: {$c['xtype']})<br>\r\n";
+                $outStr .= "- ".$c["column_name"]." (size: {$c['column_length']} | realtype: {$c['real_type']} | type: {$c['type']} | xtype: {$c['xtype']})<br>\r\n";
             }
             
         }
