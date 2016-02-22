@@ -2693,3 +2693,40 @@ function is_uuid($uuid) {
       return false;
     }
 }
+
+function excel_range($lastcell = "C")
+{
+    $alphaA = range("A", $lastcell);
+    $alphaB = range("A", "Z");
+    foreach ($alphaA as $a) {
+        foreach ($alphaB as $b) {
+            $tempArr[] = $a . $b;
+        }
+    }
+
+    $alphas = array_merge($alphaB, $tempArr);
+
+    return $alphas;
+}
+
+function get_excel_range($lastcell = 'AD', $startcell = 'A')
+{
+    $started = false;
+    $firstChar = substr($lastcell,0,1);
+    $range = excel_range($firstChar);
+    foreach ($range as $r) {
+        if ($startcell == $r) {
+            $started = true;
+        }
+
+        if ($started == true) {
+            $tempArr[] = $r;
+        }
+
+        if ($r == $lastcell) {
+            break;
+        }
+    }
+
+    return $tempArr;
+}
