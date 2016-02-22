@@ -76,8 +76,9 @@ class Put extends Rest
         
         $app['dispatcher']->dispatch('rest_put.retrieve');
         
-        // Retreive the array from object typed params
-        $arr = get_object_vars($this->getParams());        
+        // Retreive the array from object typed params        
+        // was: $arr = get_object_vars($this->getParams());
+        $arr = (is_object($this->getParams())) ? get_object_vars($this->getParams()) : $this->getParams();
 
         // Trim all space
         $arrData = array();

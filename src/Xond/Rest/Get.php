@@ -559,7 +559,10 @@ class Get extends Rest
                         $c->add($columnName, $val, \Criteria::EQUAL);
                     }
                     
-                
+                // // Add support for date range filter (to be done later)
+                // } else if () {
+
+
                 } else {
                     
                     // It's a join thing

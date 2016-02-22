@@ -591,14 +591,14 @@ class Rest
     
     public function buildJson($success=false, $message=false, $data=false, $rownum=false, $fieldnames=false, $start=false, $limit=false, $row_property="rows") {
         
-        $message = ($message) ? ", 'message': '$message'" : "";
-        $rownum = ($rownum) ? ", 'results': $rownum " : "";
-        $fieldnames = ($fieldnames) ? ", 'id': '{$fieldnames[0]}' " : "";
-        $start = ($start) ? ", 'start': $start" : "";
-        $limit = ($limit) ? ", 'limit': $limit" : "";
-        $data = ($data) ? ", $row_property: ". json_encode($data) : "";
+        $message = ($message) ? ", \"message\": \"$message\"" : "";
+        $rownum = ($rownum) ? ", \"results\": $rownum " : "";
+        $fieldnames = ($fieldnames) ? ", \"id\": \"{$fieldnames[0]}\" " : "";
+        $start = ($start) ? ", \"start\": $start" : "";
+        $limit = ($limit) ? ", \"limit\": $limit" : "";
+        $data = ($data) ? ", \"$row_property\": ". json_encode($data) : "";
         
-        return sprintf("{ 'success': %s %s %s %s %s %s %s  }", ($success ? 'true':'false'), $message, $rownum, $fieldnames, $start, $limit, $data);
+        return sprintf("{ \"success\": %s %s %s %s %s %s %s  }", ($success ? 'true':'false'), $message, $rownum, $fieldnames, $start, $limit, $data);
     }
     
     // Overridden by the Methods

@@ -708,6 +708,10 @@ function splitArray($text) {
  * @return string
  */
 function addZeroes($number, $digits) {
+    $selisih = $digits - strlen($number);
+    if ($selisih < 0) {
+        return $number;
+    }
     return str_repeat('0',$digits - strlen($number)).$number;
 }
 
@@ -722,7 +726,7 @@ function addZeroes($number, $digits) {
  * @param boolean $ribu     is this ribuan?
  * @return string           returns dozens
  */
-function getRatus(int $number, $ribu=false) {
+function getRatus($number, $ribu=false) {
     //echo $number."|";
     $number = strval(intval($number));
     //echo "($number)-[".strlen($number)."]";
@@ -838,7 +842,7 @@ function getRatus(int $number, $ribu=false) {
  * @param int $number
  * @return string
  */
-function getHuruf(int $number) {
+function getHuruf($number) {
     //$number = strval(intval($number));    
     if ($number == 0) {
         return "nol";
@@ -1126,6 +1130,9 @@ function arrayToHtmlTableBlue($array) {
  * @return string
  */
 function processDate($dateStr){
+    if (!$dateStr) {
+        return "";
+    }
     $date = date_parse($dateStr);
     return $date['day']." ".getbulan($date['month'])." ".$date['year'];
 }
@@ -1978,7 +1985,11 @@ function gen_uuid() {
             return getValueBySql("select newid()");
             break;
         case 'pgsql':
-            executeSql("CREATE EXTENSION IF NOT EXISTS \"uuid-ossp\"", $dbname);
+            try {
+                executeSql("CREATE EXTENSION IF NOT EXISTS \"uuid-ossp\"", $dbname);
+            } catch (\Exception $e) {
+                // It's ok.
+            }
             return getValueBySql("select uuid_generate_v4()");
             break;
         default:

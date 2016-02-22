@@ -34,7 +34,7 @@
     display: block; 
     padding: 25px 30px 5px;
     border: none;
-    filter: blur(20px);
+    /*filter: blur(20px);*/
     background: rgba(255,255,255,.7);
 }
 .sky-form fieldset + fieldset {
