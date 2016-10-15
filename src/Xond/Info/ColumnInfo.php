@@ -28,7 +28,9 @@ class ColumnInfo
     public $is_pk;              // Is it an FK ?
     public $is_virtual;         // Is it an virtual column ?    
     public $is_fk;              // Is it an FK ?
-    public $fk_table_name;      // Is it an FK ?
+    public $fk_table_name;      // The table name of the FK
+    public $fk_table_php_name;  // The table PHP name of the FK
+    public $fk_table_pk;        // The PK of the FK 
     public $min;                // Nilai minimal
     public $max;                // Nilai maximal (kalau tidak ada, ambil dari nilai terbesar foreign key)
     public $label;              // Label (form)
@@ -59,6 +61,7 @@ class ColumnInfo
     public $force_election;     // true to restrict the selected value to one of the values in the list, false to allow the user to set arbitrary text into the field
     public $read_only;          // readonly
     public $is_fk_str_enabled;  // force enabling FK str (_str tea)
+    public $input_type;         // for password etc
 
     function getName() {
         return $this->column_name;
@@ -243,6 +246,7 @@ class ColumnInfo
     
     function setFkTableName($fk_table_name) {
         $this->fk_table_name = $fk_table_name;
+        $this->fk_table_php_name = (string) phpNamize($fk_table_name);
     }
          
     function getFkTableName() {
@@ -255,9 +259,47 @@ class ColumnInfo
      * @return string
      */
     function getFkTablePhpName() {
-        return (string) phpNamize($this->fk_table_name);
+        return $this->fk_table_php_name;
     }
-    
+
+    /**
+     * Set the table name of related FK
+     *
+     * <p>Set the table name of related FK</p>
+     *
+     * @param string $fk_table_name FK Table Name
+     *
+     * @return void
+     */
+
+    function setFkTablePk($fk_table_pk) {
+        $this->fk_table_pk = $fk_table_pk;
+    }
+
+    function getFkTablePk() {
+        return $this->fk_table_pk;
+    }
+
+
+    /**
+     * Set the table name of related FK
+     *
+     * <p>Set the table name of related FK</p>
+     *
+     * @param string $fk_table_name FK Table Name
+     *
+     * @return void
+     */
+
+    function setFkTableIsComposite($fk_table_is_composite) {
+        $this->fk_table_is_composite = $fk_table_is_composite;
+    }
+
+    function getFkTableIsComposite() {
+        return $this->fk_table_is_composite;
+    }
+
+
     /**
      * Set the Display Field of this FK
      *
@@ -699,4 +741,14 @@ class ColumnInfo
     function getIsFkStrEnabled() {
         return $this->is_fk_str_enabled;
     }
+
+    
+    function setInputType($value) {
+        $this->input_type = $value;        
+    }
+
+    function getInputType() {
+        return $this->input_type;
+    }
+
 }

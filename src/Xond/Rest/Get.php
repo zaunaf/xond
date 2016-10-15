@@ -545,7 +545,11 @@ class Get extends Rest
                     ))) {
                         // echo "| fuzzy";
                         $val = str_replace(" ", "%", $val);
-                        $val = "%" . $val . "%";
+                        
+                        // I guess we'll comment this as it will screw up column filter that search by the beginning of the string
+                        // $val = "%" . $val . "%";
+                        // Use * or spaces instead
+
                         
                         if (get_adapter() == 'pgsql') {
                             $c->add($columnName, $val, \Criteria::ILIKE);

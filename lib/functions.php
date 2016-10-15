@@ -2730,3 +2730,145 @@ function get_excel_range($lastcell = 'AD', $startcell = 'A')
 
     return $tempArr;
 }
+
+
+/**
+* Make thumbs from JPEG, PNG, GIF source file
+*
+* $tmpname = $_FILES['source']['tmp_name'];   
+* $size - max width size
+* $save_dir - destination folder
+* $save_name - tnumb new name
+* $maxisheight - is max for width (if not is for height)
+*
+* Author:  David Taubmann http://www.quidware.com (edited from LEDok - http://www.citadelavto.ru/)
+*/
+
+/*/    // And now how using this function fast:
+if ($_POST[pic])
+    {
+    $tmpname  = $_FILES['pic']['tmp_name'];
+    @img_resize( $tmpname , 600 , "../album" , "album_".$id.".jpg");
+    @img_resize( $tmpname , 120 , "../album" , "album_".$id."_small.jpg");
+    @img_resize( $tmpname , 60 , "../album" , "album_".$id."_maxheight.jpg", 1);
+    }
+    else
+    echo "No Images uploaded via POST";
+/**/
+
+function img_resize( $tmpname, $size, $save_dir, $save_name, $maxisheight = 0 )
+{
+    ini_set ('gd.jpeg_ignore_warning', 1);
+
+    $save_dir     .= ( substr($save_dir,-1) != "/") ? "/" : "";
+    $gis        = getimagesize($tmpname);
+    $type        = $gis[2];
+    switch($type)
+        {
+        case "1": $imorig = imagecreatefromgif($tmpname); break;
+        case "2": $imorig = imagecreatefromjpeg($tmpname);break;
+        case "3": $imorig = imagecreatefrompng($tmpname); break;
+        default:  $imorig = imagecreatefromjpeg($tmpname);
+        }
+
+        $x = imagesx($imorig);
+        $y = imagesy($imorig);
+        
+        $woh = (!$maxisheight)? $gis[0] : $gis[1] ;    
+        
+        if($woh <= $size)
+        {
+        $aw = $x;
+        $ah = $y;
+        }
+            else
+        {
+            if(!$maxisheight){
+                $aw = $size;
+                $ah = $size * $y / $x;
+            } else {
+                $aw = $size * $x / $y;
+                $ah = $size;
+            }
+        }   
+        $im = imagecreatetruecolor($aw,$ah);
+    if (imagecopyresampled($im,$imorig , 0,0,0,0,$aw,$ah,$x,$y))
+        if (imagejpeg($im, $save_dir.$save_name))
+            return true;
+            else
+            return false;
+}
+
+function makeThumb( $srcPath, $srcFilename, $thumbPath, $thumbFilename, $thumbSize=100 ){
+
+    global $max_width, $max_height;
+    ini_set ('gd.jpeg_ignore_warning', 1);
+
+    /* Set Filenames */
+    $srcFile = $srcPath.D.$srcFilename;
+    $thumbFile = $thumbPath.D.$thumbFilename;
+
+    /* Determine the File Type */
+    $type = substr( $srcFilename , strrpos( $srcFilename , '.' )+1 );
+
+    /* Create the Source Image */
+    switch( $type ){
+        case 'jpg' : case 'jpeg' :
+            $src = imagecreatefromjpeg( $srcFile ); break;
+        case 'png' :
+            $src = imagecreatefrompng( $srcFile ); break;
+        case 'gif' :
+            $src = imagecreatefromgif( $srcFile ); break;
+    }
+
+    /* Determine the Image Dimensions */
+    $oldW = imagesx( $src );
+    $oldH = imagesy( $src );
+
+    /* Calculate the New Image Dimensions */
+    $limiting_dim = 0;
+    if( $oldH > $oldW ){
+        /* Portrait */
+        $limiting_dim = $oldW;
+    }else{
+        /* Landscape */
+        $limiting_dim = $oldH;
+    }
+    /* Create the New Image */
+    $new = imagecreatetruecolor( $thumbSize , $thumbSize );
+    /* Transcribe the Source Image into the New (Square) Image */
+    imagecopyresampled( $new , $src , 0 , 0 , ($oldW-$limiting_dim )/2 , ( $oldH-$limiting_dim )/2 , $thumbSize , $thumbSize , $limiting_dim , $limiting_dim );
+
+    switch( $type ){
+        case 'jpg' : case 'jpeg' :
+            $src = imagejpeg( $new , $thumbFile ); break;
+        case 'png' :
+            $src = imagepng( $new , $thumbFile ); break;
+        case 'gif' :
+            $src = imagegif( $new , $thumbFile ); break;
+    }
+
+    imagedestroy( $new );
+    // imagedestroy( $src );
+}
+
+/**
+ * IP Info
+ * @return mixed
+ */
+function getClientIP(){
+    if (!empty($_SERVER['HTTP_CLIENT_IP'])) {
+        $ip = $_SERVER['HTTP_CLIENT_IP'];
+    } elseif (!empty($_SERVER['HTTP_X_FORWARDED_FOR'])) {
+        $ip = $_SERVER['HTTP_X_FORWARDED_FOR'];
+    } else {
+        $ip = $_SERVER['REMOTE_ADDR'];
+    }
+    return $ip;
+}
+
+function getIpDetails($ip) {
+    $json = file_get_contents("http://ipinfo.io/{$ip}/geo");
+    $details = json_decode($json, true);
+    return $details;
+}

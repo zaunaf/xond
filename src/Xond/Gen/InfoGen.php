@@ -14,6 +14,8 @@ use \Symfony\Component\HttpFoundation\Request;
 use \Silex\Application;
 use Propel\Silex\PropelServiceProvider;
 use Symfony\Component\Security\Acl\Exception\Exception;
+use Xond\Info\ColumnInfo;
+use Xond\Info\TableInfo;
 
 
 /**
@@ -415,7 +417,26 @@ class InfoGen extends BaseGen {
             $cArr["is_pk"] = $isPk;
             $cArr["is_fk"] = $isFk;
             $cArr["fk_table_name"] = ($isFk) ? $this->getName($c->getRelatedTable()) : "";
-            
+
+            if ($isFk) {
+                //$c = new \ColumnMap("aasd", "asda");
+                $pks = $c->getRelatedTable()->getPrimaryKeys();
+
+                if (sizeof($pks) > 1) {
+                    $cArr["fk_table_is_composite"] = 1;
+                    $cArr["fk_table_pk"] = "";
+                } else if (sizeof($pks) > 0) {
+                    $pkName = "";
+                    foreach ($pks as $p) {
+                        $pkName = strtolower(underscoreCapitalize($p->getPhpName()));
+                    }
+                    $cArr["fk_table_is_composite"] = 0;
+                    $cArr["fk_table_pk"] = ($isFk) ? $pkName : "";
+                } else {
+
+                }
+            }
+
             $cArr['min'] = 0;
             $cArr['max'] = ($c->isNumeric()) ? pow(10, $this->getColumnLength($c))-1 : 0;
             
@@ -680,6 +701,7 @@ class InfoGen extends BaseGen {
         $cArr["is_pk"] = 1;
         $cArr["is_fk"] = 0;
         $cArr["fk_table_name"] = '';
+        $cArr["fk_table_pk"] = '';
         $cArr["is_virtual"] = 1;
         
         $cArr['min'] = 0;

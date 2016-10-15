@@ -71,6 +71,9 @@ Ext.define('{{appName}}.view._components.form.{{table.getPhpName}}', {
 {% else %}
             xtype: '{{col.getXtype}}'
 {% endif %}
+{% if col.getInputType == "password" %}
+            ,inputType: 'password'
+{% endif %}
 {#          END Column is not FK #}
             ,fieldLabel: '{{col.getLabel}}'
             ,labelAlign: 'right'

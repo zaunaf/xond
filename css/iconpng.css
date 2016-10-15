@@ -1,3 +1,7 @@
+/* Common */
+.ic-singleicon { background-position: center; background-repeat: no-repeat; }
+.fc-singleicon { background-position: center; background-repeat: no-repeat; }
+
 /* Famfam 2x */
 .ic-accept { background-image:url(../icons/accept.png) !important; background-size: 16px 16px;}
 .ic-add { background-image:url(../icons/add.png) !important; background-size: 16px 16px;}

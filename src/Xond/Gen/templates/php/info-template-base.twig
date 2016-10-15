@@ -71,7 +71,9 @@ class Base{{php_name}}TableInfo extends TableInfo
 		$cvar->setIsPk(             '{{cvars.is_pk}}');
         $cvar->setIsVirtual(        '{{cvars.is_virtual}}');
         $cvar->setIsFk(             '{{cvars.is_fk}}');
-        $cvar->setFkTableName(      '{{cvars.fk_table_name}}'); 
+        $cvar->setFkTableName(      '{{cvars.fk_table_name}}');
+        $cvar->setFkTableIsComposite('{{cvars.fk_table_is_composite}}');
+        $cvar->setFkTablePk(        '{{cvars.fk_table_pk}}');
         $cvar->setMin(              {{cvars.min}});
         $cvar->setMax(              {{cvars.max}});
         $cvar->setHeader(           '{{cvars.header}}');
@@ -87,6 +89,7 @@ class Base{{php_name}}TableInfo extends TableInfo
         $cvar->setValidation(       {{cvars.validation}});
         $cvar->setAllowEmpty(       {{cvars.allow_empty}});
         $cvar->setDescription(      '{{cvars.description}}');
+        $cvar->setInputType(        '{{cvars.input_type}}');
         $columns[] = $cvar;
 
 {% endfor %}
