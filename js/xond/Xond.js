@@ -1,3 +1,10 @@
+// Pad zeroes
+Number.prototype.pad = function(size) {
+    var s = String(this);
+    while (s.length < (size || 2)) {s = "0" + s;}
+    return s;
+}
+
 // Get Primary Keys from REST Response.
 // Assumptions data: rows. 
 function getColumnArrayFromRestResponse(request, column) {
@@ -346,6 +353,17 @@ Ext.override('Ext.data.TreeStore', {
 });
 
 Ext.override( Ext.grid.Panel, {
+    getColumnByTitle: function(title){
+        var retVal={};
+        for (var i=0; i < this.columns.length; i++) {
+            // console.log(this.columns[i]);
+            // console.log(this.columns[i].text);
+            if (this.columns[i].text==title){
+                retVal = this.columns[i];
+            }
+        }
+        return retVal;
+    },
     getColumnByName: function(colname){
         //return this.down('[dataIndex='+ colname +']');
         var retVal={};
@@ -526,3 +544,5 @@ Ext.override( Ext.grid.Panel, {
         }
     }
   });
+
+  

@@ -865,6 +865,7 @@ function getHuruf($number) {
         }
         $ratus = getRatus($numberPart, $ribu);
         //echo $ratus;
+        $sat = "";
         switch ($i) {
             case 2 : $sat = "ribu"; break;
             case 3 : $sat = "juta"; break;
@@ -2562,12 +2563,49 @@ function zero_empty_array_filter($val) {
     return !$filtered;
 }
 
-function to_roman_number($N){
+function integerToRoman($N){
     $c='IVXLCDM';
     for($a=5,$b=$s='';$N;$b++,$a^=7)
-            for($o=$N%$a,$N=$N/$a^0;$o--;$s=$c[$o>2?$b+$N-($N&=-2)+$o=1:$b].$s);
+        for($o=$N%$a,$N=$N/$a^0;$o--;$s=$c[$o>2?$b+$N-($N&=-2)+$o=1:$b].$s);
     return $s;
-} 
+}
+
+function to_roman_number($integer)
+{
+     // Convert the integer into an integer (just to make sure)
+     $integer = intval($integer);
+     $result = '';
+     
+     // Create a lookup array that contains all of the Roman numerals.
+     $lookup = array('M' => 1000,
+     'CM' => 900,
+     'D' => 500,
+     'CD' => 400,
+     'C' => 100,
+     'XC' => 90,
+     'L' => 50,
+     'XL' => 40,
+     'X' => 10,
+     'IX' => 9,
+     'V' => 5,
+     'IV' => 4,
+     'I' => 1);
+     
+     foreach($lookup as $roman => $value){
+      // Determine the number of matches
+      $matches = intval($integer/$value);
+     
+      // Add the same number of characters to the string
+      $result .= str_repeat($roman,$matches);
+     
+      // Set the integer to be the remainder of the integer and the value
+      $integer = $integer % $value;
+     }
+     
+     // The Roman numeral should be built, return it
+     return $result;
+}
+
 
 function date_to_bahasa($date) {
     //date('Y-m-d')
@@ -2871,4 +2909,10 @@ function getIpDetails($ip) {
     $json = file_get_contents("http://ipinfo.io/{$ip}/geo");
     $details = json_decode($json, true);
     return $details;
+}
+
+
+function getHari($nomerHari){
+    $arr = array('Minggu', 'Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu');
+    return $arr[$nomerHari];
 }

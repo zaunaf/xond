@@ -1,5 +1,6 @@
 Ext.define('{{appName}}.store.{{tableName}}', {
     extend: 'Ext.data.Store',
+    alias: 'store.{{tableName | lower}}',
     requires: '{{appName}}.model.{{tableName}}',
     model: '{{appName}}.model.{{tableName}}'{% if table.getIsData == 1 %},
     pageSize: 50,

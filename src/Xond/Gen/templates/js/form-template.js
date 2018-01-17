@@ -121,7 +121,6 @@ Ext.define('{{appName}}.view._components.form.{{table.getPhpName}}', {
 {% endif %}
 {% if col.getXtype == 'datefield' %}
             ,format: 'd/m/Y'
-            ,maxValue: new Date()
 {% endif %}
 {% if col.getMinLength %}
             ,minLength: {{col.getMinLength}}

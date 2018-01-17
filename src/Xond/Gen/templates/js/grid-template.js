@@ -184,9 +184,9 @@ Ext.define('{{appName}}.view._components.grid.{{table.getPhpName}}', {
 {% else %}
             renderer: function(v,p,r) {
 {% if col.getFkTableInfo.getIsWrap == 1 %}
-                p.tdAttr = 'data-qtip="' + r.data.{{col.getFkTableInfo.getRendererString}} + '"';
+                p.tdAttr = 'data-qtip="' + r.data.{{col.getName}}_str + '"';
 {% endif %}
-                return r.data.{{col.getFkTableInfo.getRendererString}};
+                return r.data.{{col.getName}}_str;
             },
 {% endif %}
 {% endif %}
